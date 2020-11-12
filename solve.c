@@ -131,5 +131,5 @@ char				*solve(t_node_ptr src, t_node_ptr dst)
 		return (NULL);
 	}
 	free_vec_ways(ways);
-	return (result);
+	return (result = ft_strjoin_free(result, "\n"));
 }
