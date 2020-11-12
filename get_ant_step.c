@@ -27,7 +27,9 @@ void				write_history(t_vector way_vector, char **history)
 	char *ants_way;
 
 	ants_way = get_ant_pos(&way_vector);
-	*history = ft_strjoin_free(ft_strjoin_free(*history, ants_way), "\n");
+	if (ants_way == NULL)
+		return;
+	*history = ft_strjoin_free3(ft_strjoin("\n", ants_way), *history);
 	free(ants_way);
 }
 
