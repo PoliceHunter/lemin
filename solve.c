@@ -49,7 +49,19 @@ void			set_bfs(t_node_ptr node) //// 29/25 lines
 	}
 }
 
-char			*get_ant_pos(const t_vector *ways) //// 26/25 lines
+char	*ft_strjoin_free3(char *s1, char *s2)
+{
+	char	*str;
+
+	str = ft_strjoin(s1, s2);
+	if (s2 != NULL)
+		free(s2);
+	if (s1 != NULL)
+		free(s1);
+	return (str);
+}
+
+char			*get_ant_pos(const t_vector *ways)
 {
 	char			*result;
 	char			*node;
@@ -71,8 +83,7 @@ char			*get_ant_pos(const t_vector *ways) //// 26/25 lines
 				node = ft_strjoin_free(node, "-");
 				node = ft_strjoin_free(node, way->way_nodes[index]);
 				node = ft_strjoin_free(node, " ");
-				result = ft_strjoin_free(result, node);
-				free(node);
+				result = ft_strjoin_free3(result, node);
 			}
 		}
 	}
