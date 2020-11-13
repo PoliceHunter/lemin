@@ -6,17 +6,13 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/24 18:24:33 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/10 13:00:35 by ksean            ###   ########.fr       */
+/*   Updated: 2020/11/14 00:59:34 by ksean            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lem_in.h"
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
 
-void			set_bfs(t_node_ptr node) //// 29/25 lines
+void			set_bfs(t_node_ptr node)
 {
 	t_node_ptr	cur;
 	t_node_ptr	*kid;
@@ -42,7 +38,7 @@ void			set_bfs(t_node_ptr node) //// 29/25 lines
 	}
 }
 
-char				*ft_strjoin_free3(char *s1, char *s2)
+char			*ft_strjoin_free3(char *s1, char *s2)
 {
 	char	*str;
 
@@ -54,7 +50,7 @@ char				*ft_strjoin_free3(char *s1, char *s2)
 	return (str);
 }
 
-char			*get_ant_pos(const t_vector *ways) //// 26/25 lines
+char			*get_ant_pos(const t_vector *ways)
 {
 	char			*result;
 	char			*node;
@@ -72,8 +68,8 @@ char			*get_ant_pos(const t_vector *ways) //// 26/25 lines
 		{
 			if (way->ants[i] != 0)
 			{
-				node = (!result) ? ft_strjoin_free2("L", ft_itoa(way->
-						ants[i])) : ft_strjoin_free2(" L", ft_itoa(way->ants[i]));
+				node = (!result) ? ft_strjoin_free2("L", ft_itoa(way->ants[i]))
+				: ft_strjoin_free2(" L", ft_itoa(way->ants[i]));
 				node = ft_strjoin_free(node, "-");
 				node = ft_strjoin_free(node, way->way_nodes[i]);
 				result = ft_strjoin_free3(result, node);

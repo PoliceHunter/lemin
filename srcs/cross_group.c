@@ -1,6 +1,14 @@
-//
-// Created by Taisha Myrcella on 11/11/20.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cross_group.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/11/14 00:47:46 by ksean             #+#    #+#             */
+/*   Updated: 2020/11/14 00:48:26 by ksean            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "lem_in.h"
 
@@ -80,7 +88,7 @@ t_vector		get_non_crossing_group(t_vector *ways, t_way *init_way)
 }
 
 int				is_group_identical(const t_vector left_group,
-									  const t_vector right_group)
+									const t_vector right_group)
 {
 	const t_way	*left;
 	const t_way	*right;

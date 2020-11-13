@@ -1,6 +1,14 @@
-//
-// Created by Taisha Myrcella on 11/11/20.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   work_with_way.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/11/14 01:04:45 by ksean             #+#    #+#             */
+/*   Updated: 2020/11/14 01:06:11 by ksean            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "lem_in.h"
 
@@ -10,7 +18,7 @@ t_way			*new_way(char *raw_way, const char separator)
 
 	result = (t_way *)malloc(sizeof(t_way));
 	result->way_nodes = ft_strsplit_with_len(raw_way, separator,
-											 &result->way_len);
+											&result->way_len);
 	result->ants = malloc(sizeof(unsigned short) * result->way_len);
 	ft_memset(result->ants, 0, sizeof(unsigned short) * result->way_len);
 	free(raw_way);
@@ -18,7 +26,7 @@ t_way			*new_way(char *raw_way, const char separator)
 }
 
 void			shift_array_right(void *array, unsigned int size,
-								  unsigned int element_size)
+								unsigned int element_size)
 {
 	ft_memmove(array + element_size, array, (size - 1) * element_size);
 	ft_memset(array, 0, element_size);
@@ -36,7 +44,7 @@ int				make_way_step(t_way *way)
 }
 
 void			find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
-						  t_vector *ways)
+						t_vector *ways)
 {
 	t_way		*way;
 	t_node_ptr	*child;
