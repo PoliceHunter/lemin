@@ -148,21 +148,21 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@echo "$(GREEN)...compiling binary libft...$(NC)"
-	@ar src $@ $(OBJS)
-	@ranlib $@
+	@/usr/bin/ar src $@ $(OBJS)
+	@/usr/bin/ranlib $@
 	@echo "$(GREEN)libft.a is created!$(NC)"
 
 $(OBJSFD):
-	@mkdir $@
+	@/bin/mkdir $@
 
 $(OBJSFD)/%.o: %.c | $(OBJSFD)
-	@$(CC) $(CFLAGS) $(HDR) -c $< -o $@
+	@/usr/bin/$(CC) $(CFLAGS) $(HDR) -c $< -o $@
 
 HDR = -I./inc
 
 clean:
 	@/bin/rm -f $(OBJS)
-	@rm -rf $(OBJSFD)
+	@/bin/rm -rf $(OBJSFD)
 
 fclean: clean
 	@/bin/rm -f $(NAME)

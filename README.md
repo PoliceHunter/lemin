@@ -1,26 +1,16 @@
-# Lem_in
-Проверить подачу файла, в агументы подается файл ./out txt.txt или так ./out < txt.txt
+# lem-in_test
 
-Запись линков 1-3 Не значит, что путь только из 1 в 3, а из 3 в 1 нету
+![Illustration](http://i.imgur.com/SQbZrk7.png)  
+Lots of tests for lem-in @ 42.  
 
-1. Найти все возможные пути.
-2. Сортировать пути по длинне.
-3. Мини
-4. Функция которая высчитывает кол-во шагов 
+###What  
+>This shell script will take your lem-in executable and perform a lot of tests (More than 100) to test errors and correct paths for lem-in.  
+>Maybe all the tests are not here, and maybe your program will not react as expected for this test. This is not always errors, it just can be your own way for this project.  
+>Please note that this script doesn't do the correction for you, and you have to test the program by yourself !  
+>Please, do not hesitate to report issues !  
 
-
-Проблема в освобождении памяти на карте np_single_exit.map 
-        free_vec_node(&vec);
-            free_vec (vectors2.c:33)
-            Вероятно не правильная передача значения vec
-
-
-потестить
-
-
-и сделать через <
-
-
-сверить с чек листом
-
-это при условии что по норме всё проходит
+###How to :  
+1. git clone https://bitbucket.org/Tbouder/lem-in_test  
+2. sh unit_tests.sh  
+3. Enter the path to the directory containing your lem-in  
+4. Press enter  
