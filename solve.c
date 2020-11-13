@@ -28,16 +28,9 @@ void			set_bfs(t_node_ptr node) //// 29/25 lines
 	while (++i < (cur)->links.size)
 	{
 		kid = get_from_vec(&(cur)->links, i);
-		if ((*kid)->bfs == 0 && !(*kid)->is_start_node && (*kid)->visited == -1)
-			(*kid)->visited = 0;
-	}
-	i = -1;
-	while (++i < (cur)->links.size)
-	{
-		kid = get_from_vec(&(cur)->links, i);
 		if ((((*kid)->bfs) > cur->bfs + 1) && (*kid)->is_end_node != 1)
 			(*kid)->bfs = cur->bfs + 1;
-		if ((*kid)->bfs == 0 && !(*kid)->is_start_node && (*kid)->visited == 0)
+		if ((*kid)->bfs == 0 && !(*kid)->is_start_node && (*kid)->visited == -1)
 			(*kid)->bfs = cur->bfs + 1;
 	}
 	i = -1;
@@ -49,30 +42,41 @@ void			set_bfs(t_node_ptr node) //// 29/25 lines
 	}
 }
 
+char				*ft_strjoin_free3(char *s1, char *s2)
+{
+	char	*str;
+
+	str = ft_strjoin(s1, s2);
+	if (s2 != NULL)
+		free(s2);
+	if (s1 != NULL)
+		free(s1);
+	return (str);
+}
+
 char			*get_ant_pos(const t_vector *ways) //// 26/25 lines
 {
 	char			*result;
 	char			*node;
 	int				way_i;
-	unsigned int	index;
+	unsigned int	i;
 	const t_way		*way;
 
 	way_i = -1;
 	result = NULL;
 	while (++way_i != ways->size)
 	{
-		index = 0;
+		i = 0;
 		way = get_from_vec_const(ways, way_i);
-		while (++index < way->way_len)
+		while (++i < way->way_len)
 		{
-			if (way->ants[index] != 0)
+			if (way->ants[i] != 0)
 			{
-				node = ft_strjoin_free2("L", ft_itoa(way->ants[index]));
+				node = (!result) ? ft_strjoin_free2("L", ft_itoa(way->
+						ants[i])) : ft_strjoin_free2(" L", ft_itoa(way->ants[i]));
 				node = ft_strjoin_free(node, "-");
-				node = ft_strjoin_free(node, way->way_nodes[index]);
-				node = ft_strjoin_free(node, " ");
-				result = ft_strjoin_free(result, node);
-				free(node);
+				node = ft_strjoin_free(node, way->way_nodes[i]);
+				result = ft_strjoin_free3(result, node);
 			}
 		}
 	}

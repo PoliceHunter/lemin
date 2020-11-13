@@ -27,7 +27,7 @@ void lose_candidate(t_group_handler * handler)
 	free_vec(&handler->candidate_group);
 }
 
-void decide_candidate(t_group_handler * handler, unsigned int candidate_step, char * way_history)
+void decide_candidate(t_group_handler * handler, unsigned int candidate_step, char ** way_history)
 {
 	if (candidate_step < handler->min_group_step)
 	{
@@ -35,12 +35,14 @@ void decide_candidate(t_group_handler * handler, unsigned int candidate_step, ch
 		win_candidate(handler);
 		if (handler->result != NULL)
 			free(handler->result);
-		handler->result = way_history;
+		handler->result = *way_history;
+		*way_history = NULL;
 	}
 	else
 	{
 		lose_candidate(handler);
-		free(way_history);
+		free(*way_history);
+		*way_history = NULL;
 	}
 }
 
@@ -61,7 +63,7 @@ char *write_ants_in_line(t_vector *ways, int ants)
 			continue;
 
 		decide_candidate(&group_helper, get_ant_step(group_helper.candidate_group,
-						 ants, &way_history, group_helper.min_group_step), way_history);
+						 ants, &way_history, group_helper.min_group_step), &way_history);
 	}
 	free_vec(&group_helper.min_group);
 	return (group_helper.result);

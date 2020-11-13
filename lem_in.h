@@ -160,5 +160,6 @@ char			*get_ant_pos(const t_vector *ways);
 int				cmp_way(void *left_way, void *right_way);
 void			find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 						  t_vector *ways);
+char				*ft_strjoin_free3(char *s1, char *s2);
 
 #endif
