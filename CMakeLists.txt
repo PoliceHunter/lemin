@@ -3,7 +3,7 @@ project(Lem_in C)
 
 set(CMAKE_C_STANDARD 11)
 
-include_directories(.)
+include_directories(test)
 include_directories(libft/inc)
 
 set(SOURCE_CODE

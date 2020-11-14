@@ -93,6 +93,7 @@ void			printf_ways(t_vector ways)
 	index = 0;
 	while (index != ways.size)
 	{
+		i = 0;
 		way = get_from_vec(&ways, index);
 		while (i != way->way_len)
 		{
@@ -115,6 +116,7 @@ char			*solve(t_node_ptr src, t_node_ptr dst)
 	set_bfs(src);
 	ways = new_vector(10, sizeof(t_way));
 	find_ways(src, dst, NULL, &ways);
+	printf_ways(ways);
 	result = write_ants_in_line(&ways, src->n_ants);
 	if (ways.size == 0)
 	{
