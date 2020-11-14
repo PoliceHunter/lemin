@@ -1,6 +1,14 @@
-//
-// Created by Taisha Myrcella on 11/11/20.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_ant_step.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/11/14 00:49:53 by ksean             #+#    #+#             */
+/*   Updated: 2020/11/14 00:56:02 by ksean            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "lem_in.h"
 
@@ -14,7 +22,7 @@ t_ants_tracker	new_tracker(const unsigned int ants_count)
 	return (result);
 }
 
-void		write_history(t_vector way_vector, char **history)
+void			write_history(t_vector way_vector, char **history)
 {
 	char *ants_way;
 
@@ -26,7 +34,7 @@ void		write_history(t_vector way_vector, char **history)
 }
 
 unsigned int	get_rest_ant_step(t_ants_tracker tracker,
-								  const unsigned int steps_limit, t_vector *ways, char **history)
+				const unsigned int steps_limit, t_vector *ways, char **history)
 {
 	unsigned int	steps_count;
 	int				index;
@@ -47,10 +55,8 @@ unsigned int	get_rest_ant_step(t_ants_tracker tracker,
 	return (steps_count);
 }
 
-// return TRUE if last way
-
-int			process_way(t_way *way, t_ants_tracker *tracker,
-						   unsigned int *previous_ways_len, const int index)
+int				process_way(t_way *way, t_ants_tracker *tracker,
+						unsigned int *previous_ways_len, const int index)
 {
 	tracker->finished += make_way_step(way);
 	if (tracker->in_path > (way->way_len * index - *previous_ways_len))
@@ -65,7 +71,7 @@ int			process_way(t_way *way, t_ants_tracker *tracker,
 }
 
 unsigned int	get_ant_step(t_vector ways, const unsigned int ants_count,
-							 char **history, unsigned int min_step_count)
+							char **history, unsigned int min_step_count)
 {
 	unsigned int	steps_count;
 	int				index;
@@ -88,8 +94,8 @@ unsigned int	get_ant_step(t_vector ways, const unsigned int ants_count,
 		write_history(ways, history);
 		++steps_count;
 		if (steps_count > min_step_count)
-			return (INT_MAX); // Group is not interesting
+			return (INT_MAX);
 	}
-	return (steps_count +
-			get_rest_ant_step(tracker, min_step_count - steps_count, &ways, history));
+	return (steps_count + get_rest_ant_step(tracker,
+			min_step_count - steps_count, &ways, history));
 }
