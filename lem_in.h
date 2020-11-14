@@ -6,7 +6,7 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 15:06:05 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/10 02:31:14 by ksean            ###   ########.fr       */
+/*   Updated: 2020/11/14 11:28:52 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -161,5 +161,6 @@ int				cmp_way(void *left_way, void *right_way);
 void			find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 						  t_vector *ways);
 char				*ft_strjoin_free3(char *s1, char *s2);
+void	free_ways(t_way *way);
 
 #endif
