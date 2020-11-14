@@ -66,6 +66,7 @@ void	*parse_file2(int fd, char *map, t_help *help, t_vector *vec)
 	line = NULL;
 	while (get_next_line(fd, &line))
 	{
+		map = ft_strjoin_free(ft_strjoin_free(map, line), "\n");
 		if (find_comment(line))
 		{
 			free(line);
@@ -76,7 +77,6 @@ void	*parse_file2(int fd, char *map, t_help *help, t_vector *vec)
 			free(line);
 			return (map);
 		}
-		map = ft_strjoin_free(ft_strjoin_free(map, line), "\n");
 		parse_line(line, help, vec);
 		free(line);
 		line = NULL;
@@ -93,6 +93,7 @@ void	*parse_file(int fd, char *line, t_help *help, t_vector *vec)
 	map = NULL;
 	while (get_next_line(fd, &line))
 	{
+		map = ft_strjoin_free(ft_strjoin_free(map, line), "\n");
 		if (find_comment(line))
 			free(line);
 		else
@@ -108,7 +109,6 @@ void	*parse_file(int fd, char *line, t_help *help, t_vector *vec)
 		free(line);
 		return (map);
 	}
-	map = ft_strjoin_free(ft_strjoin_free(map, line), "\n");
 	free(line);
 	return (parse_file2(fd, map, help, vec));
 }

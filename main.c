@@ -36,7 +36,7 @@ int		main(int ac, char **av)
 	result = solve(character.root, character.target);
 	if (result != NULL)
 	{
-		ft_printf("%s%s", map, result);
+		ft_printf("%s%s\n", map, result);
 		free(result);
 	}
 	else
