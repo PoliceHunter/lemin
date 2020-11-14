@@ -12,7 +12,7 @@
 
 #include "lem_in.h"
 
-t_way	*init_way(unsigned int len)
+t_way				*init_way(unsigned int len)
 {
 	t_way *result;
 
@@ -23,11 +23,12 @@ t_way	*init_way(unsigned int len)
 	return (result);
 }
 
-t_group_handler init_group_handler()
+t_group_handler		init_group_handler(void)
 {
 	t_group_handler result;
+
 	result.min_group = new_vector(0, sizeof(t_way));
 	result.min_group_step = INT_MAX;
 	result.result = NULL;
-	return result;
+	return (result);
 }

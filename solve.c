@@ -16,7 +16,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-void			set_bfs(t_node_ptr node) //// 29/25 lines
+void			set_bfs(t_node_ptr node)
 {
 	t_node_ptr	cur;
 	t_node_ptr	*kid;
@@ -42,7 +42,7 @@ void			set_bfs(t_node_ptr node) //// 29/25 lines
 	}
 }
 
-char				*ft_strjoin_free3(char *s1, char *s2)
+char			*ft_strjoin_free3(char *s1, char *s2)
 {
 	char	*str;
 
@@ -54,7 +54,7 @@ char				*ft_strjoin_free3(char *s1, char *s2)
 	return (str);
 }
 
-char			*get_ant_pos(const t_vector *ways) //// 26/25 lines
+char			*get_ant_pos(const t_vector *ways)
 {
 	char			*result;
 	char			*node;
@@ -73,7 +73,7 @@ char			*get_ant_pos(const t_vector *ways) //// 26/25 lines
 			if (way->ants[i] != 0)
 			{
 				node = (!result) ? ft_strjoin_free2("L", ft_itoa(way->
-						ants[i])) : ft_strjoin_free2(" L", ft_itoa(way->ants[i]));
+				ants[i])) : ft_strjoin_free2(" L", ft_itoa(way->ants[i]));
 				node = ft_strjoin_free(node, "-");
 				node = ft_strjoin_free(node, way->way_nodes[i]);
 				result = ft_strjoin_free3(result, node);
