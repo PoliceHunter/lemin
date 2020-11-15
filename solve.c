@@ -28,8 +28,10 @@ void			set_bfs(t_node_ptr node)
 	while (++i < (cur)->links.size)
 	{
 		kid = get_from_vec(&(cur)->links, i);
-		if ((((*kid)->bfs) > cur->bfs + 1) && (*kid)->is_end_node != 1)
+		if ((((*kid)->bfs) > cur->bfs + 1) && (*kid)->is_end_node != 1) {
 			(*kid)->bfs = cur->bfs + 1;
+			(*kid)->visited = -1;
+		}
 		if ((*kid)->bfs == 0 && !(*kid)->is_start_node && (*kid)->visited == -1)
 			(*kid)->bfs = cur->bfs + 1;
 	}
@@ -45,7 +47,7 @@ void			set_bfs(t_node_ptr node)
 void			set_r_bfs(t_node_ptr node)
 {
 	t_node_ptr	cur;
-	t_node_ptr	*kid;
+	t_node_ptr	*child;
 	int			i;
 
 	cur = node;
@@ -53,18 +55,20 @@ void			set_r_bfs(t_node_ptr node)
 	i = -1;
 	while (++i < (cur)->links.size)
 	{
-		kid = get_from_vec(&(cur)->links, i);
-		if ((((*kid)->r_bfs) > cur->r_bfs + 1) && (*kid)->is_start_node != 1)
-			(*kid)->r_bfs = cur->r_bfs + 1;
-		if ((*kid)->r_bfs == 0 && !(*kid)->is_end_node && (*kid)->r_visited == -1)
-			(*kid)->r_bfs = cur->r_bfs + 1;
+		child = get_from_vec(&(cur)->links, i);
+		if ((((*child)->r_bfs) > cur->r_bfs + 1) && (*child)->is_start_node != 1) {
+			(*child)->r_bfs = cur->r_bfs + 1;
+			(*child)->r_visited = -1;
+		}
+		if ((*child)->r_bfs == INT_MAX && !(*child)->is_end_node && (*child)->r_visited == -1)
+			(*child)->r_bfs = cur->r_bfs + 1;
 	}
 	i = -1;
 	while (++i < (cur)->links.size)
 	{
-		kid = get_from_vec(&(cur)->links, i);
-		if ((*kid)->r_visited != 1 && (*kid)->is_end_node != 1)
-			set_r_bfs(*kid);
+		child = get_from_vec(&(cur)->links, i);
+		if ((*child)->r_visited != 1 && (*child)->is_start_node != 1)
+			set_r_bfs(*child);
 	}
 }
 
@@ -132,16 +136,19 @@ void			printf_ways(t_vector ways)
 	}
 }
 
-char			*solve(t_node_ptr src, t_node_ptr dst)
+char			*solve(t_node_ptr src, t_node_ptr dst, t_vector * tmp)
 {
 	t_vector	ways;
 	char		*result;
 
 	src->bfs = 0;
-	dst->bfs = INT_MAX;
+
+	dst->r_bfs = 0;
+
 	result = NULL;
 	set_bfs(src);
 	set_r_bfs(dst);
+
 	ways = new_vector(10, sizeof(t_way));
 	find_ways(src, dst, NULL, &ways);
 	//printf_ways(ways);

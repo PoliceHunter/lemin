@@ -24,6 +24,7 @@ t_node	init_node(char *name)
 	node.is_end_node = 0;
 	node.is_start_node = 0;
 	node.bfs = 0;
+	node.r_bfs = INT_MAX;
 	node.visited = -1;
 	node.r_visited = -1;
 	return (node);
@@ -43,6 +44,7 @@ t_node	init_and_write_node(t_help *help)
 	if (help->start == 1)
 		node.n_ants = help->ants;
 	node.bfs = 0;
+	node.r_bfs = INT_MAX;
 	node.visited = -1;
 	node.r_visited = -1;
 	return (node);

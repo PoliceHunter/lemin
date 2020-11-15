@@ -41,12 +41,11 @@ int					make_way_step(t_way *way)
 	shift_array_right(way->ants, way->way_len, sizeof(unsigned short));
 	return (result);
 }
-
 void				find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 					t_vector *ways)
 {
 	t_way		way;
-	t_node_ptr	*child;
+	t_node_ptr	*candidate;
 	int			i;
 	int			tmp;
 
@@ -54,15 +53,16 @@ void				find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 	tmp_buffer = ft_strjoin_free(ft_strjoin_free(tmp_buffer, src->name), " ");
 	while (++i != (src)->links.size)
 	{
-		child = get_from_vec(&(src)->links, i);
-		if ((*child)->bfs < src->bfs)
+		candidate = get_from_vec(&(src)->links, i);
+		if ((*candidate)->bfs <= src->bfs)
 			continue ;
-		if ((*child)->bfs == src->bfs && (*child)->r_bfs >= src->bfs)
-			continue;
 
-		if (ft_strcmp((*child)->name, dst->name) != 0)
+		if  ((*candidate)->r_bfs > src->r_bfs)
+			continue ;
+
+		if (ft_strcmp((*candidate)->name, dst->name) != 0)
 		{
-			find_ways(*child, dst, ft_strdup(tmp_buffer), ways);
+			find_ways(*candidate, dst, ft_strdup(tmp_buffer), ways);
 			continue ;
 		}
 		way = new_way(ft_strjoin_free(tmp_buffer, dst->name), ' ');

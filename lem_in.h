@@ -95,7 +95,7 @@ typedef struct s_ants_tracker
 }	t_ants_tracker;
 
 
-char					*solve(t_node_ptr src, t_node_ptr dst);
+char					*solve(t_node_ptr src, t_node_ptr dst, t_vector * tmp);
 void					insert_way(t_way *way, char *line);
 t_way					*init_way();
 t_group_handler			init_group_handler();
