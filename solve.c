@@ -6,7 +6,7 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/24 18:24:33 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/10 13:00:35 by ksean            ###   ########.fr       */
+/*   Updated: 2020/11/15 12:37:04 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,11 +116,11 @@ char			*solve(t_node_ptr src, t_node_ptr dst)
 	set_bfs(src);
 	ways = new_vector(10, sizeof(t_way));
 	find_ways(src, dst, NULL, &ways);
-	printf_ways(ways);
+	//printf_ways(ways);
 	result = write_ants_in_line(&ways, src->n_ants);
 	if (ways.size == 0)
 	{
-		ft_printf("Error\nNo ways!\n");
+		ft_printf("Error\n");
 		free(result);
 		free_vec_ways(ways);
 		return (NULL);

@@ -26,8 +26,7 @@ int		main(int ac, char **av)
 
 	map = NULL;
 	result = NULL;
-	if (ac > 2)
-		return (0);
+	ac = 1;
 	nodes_vec = new_vector(1, sizeof(t_node));
 	map = parse_arguments(av, &nodes_vec);
 	character = get_character(&nodes_vec);

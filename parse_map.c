@@ -123,7 +123,8 @@ char	*process_file(const char *filename, t_vector *vec)
 	line = NULL;
 	help = init_help();
 	fd = 0;
-	fd = open(filename, O_RDONLY, 0);
+	filename = NULL;
+	//fd = open(filename, O_RDONLY, 0);
 	map = parse_file(fd, line, &help, vec);
 	if (help.errors != 0)
 	{
