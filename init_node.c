@@ -25,6 +25,7 @@ t_node	init_node(char *name)
 	node.is_start_node = 0;
 	node.bfs = 0;
 	node.visited = -1;
+	node.r_visited = -1;
 	return (node);
 }
 
@@ -43,6 +44,7 @@ t_node	init_and_write_node(t_help *help)
 		node.n_ants = help->ants;
 	node.bfs = 0;
 	node.visited = -1;
+	node.r_visited = -1;
 	return (node);
 }
 

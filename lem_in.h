@@ -40,7 +40,9 @@ struct					s_node
 	int					is_start_node;
 	int					is_end_node;
 	int					bfs;
+	int 				r_bfs;
 	int					visited;
+	int					r_visited;
 
 	t_vector			links;
 };

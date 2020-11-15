@@ -55,8 +55,11 @@ void				find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 	while (++i != (src)->links.size)
 	{
 		child = get_from_vec(&(src)->links, i);
-		if ((*child)->bfs <= src->bfs)
+		if ((*child)->bfs < src->bfs)
 			continue ;
+		if ((*child)->bfs == src->bfs && (*child)->r_bfs >= src->bfs)
+			continue;
+
 		if (ft_strcmp((*child)->name, dst->name) != 0)
 		{
 			find_ways(*child, dst, ft_strdup(tmp_buffer), ways);

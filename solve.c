@@ -42,6 +42,33 @@ void			set_bfs(t_node_ptr node)
 	}
 }
 
+void			set_r_bfs(t_node_ptr node)
+{
+	t_node_ptr	cur;
+	t_node_ptr	*kid;
+	int			i;
+
+	cur = node;
+	cur->r_visited = 1;
+	i = -1;
+	while (++i < (cur)->links.size)
+	{
+		kid = get_from_vec(&(cur)->links, i);
+		if ((((*kid)->r_bfs) > cur->r_bfs + 1) && (*kid)->is_start_node != 1)
+			(*kid)->r_bfs = cur->r_bfs + 1;
+		if ((*kid)->r_bfs == 0 && !(*kid)->is_end_node && (*kid)->r_visited == -1)
+			(*kid)->r_bfs = cur->r_bfs + 1;
+	}
+	i = -1;
+	while (++i < (cur)->links.size)
+	{
+		kid = get_from_vec(&(cur)->links, i);
+		if ((*kid)->r_visited != 1 && (*kid)->is_end_node != 1)
+			set_r_bfs(*kid);
+	}
+}
+
+
 char			*ft_strjoin_free3(char *s1, char *s2)
 {
 	char	*str;
@@ -114,6 +141,7 @@ char			*solve(t_node_ptr src, t_node_ptr dst)
 	dst->bfs = INT_MAX;
 	result = NULL;
 	set_bfs(src);
+	set_r_bfs(dst);
 	ways = new_vector(10, sizeof(t_way));
 	find_ways(src, dst, NULL, &ways);
 	//printf_ways(ways);
