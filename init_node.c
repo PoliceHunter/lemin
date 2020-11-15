@@ -27,6 +27,7 @@ t_node	init_node(char *name)
 	node.r_bfs = INT_MAX;
 	node.visited = -1;
 	node.r_visited = -1;
+	node.r_bfs = 0;
 	return (node);
 }
 
@@ -47,6 +48,7 @@ t_node	init_and_write_node(t_help *help)
 	node.r_bfs = INT_MAX;
 	node.visited = -1;
 	node.r_visited = -1;
+	node.r_bfs = 0;
 	return (node);
 }
 
@@ -61,5 +63,6 @@ t_help	init_help(void)
 	help.y = 0;
 	help.end = 0;
 	help.start = 0;
+	help.multi_st_end = 0;
 	return (help);
 }

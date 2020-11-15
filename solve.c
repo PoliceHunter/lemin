@@ -136,7 +136,7 @@ void			printf_ways(t_vector ways)
 	}
 }
 
-char			*solve(t_node_ptr src, t_node_ptr dst, t_vector * tmp)
+char			*solve(t_node_ptr src, t_node_ptr dst)
 {
 	t_vector	ways;
 	char		*result;
@@ -148,10 +148,10 @@ char			*solve(t_node_ptr src, t_node_ptr dst, t_vector * tmp)
 	result = NULL;
 	set_bfs(src);
 	set_r_bfs(dst);
-
 	ways = new_vector(10, sizeof(t_way));
+
 	find_ways(src, dst, NULL, &ways);
-	//printf_ways(ways);
+
 	result = write_ants_in_line(&ways, src->n_ants);
 	if (ways.size == 0)
 	{

@@ -16,7 +16,13 @@ int		this_start(char *line, t_help *help)
 {
 	if (ft_strcmp("##start", line) == 0)
 	{
+		if (help->multi_st_end == 2)
+		{
+			help->errors++;
+			return 0;
+		}
 		help->start = 1;
+		help->multi_st_end++;
 		return (1);
 	}
 	return (0);
@@ -26,7 +32,13 @@ int		this_end(char *line, t_help *help)
 {
 	if (ft_strcmp("##end", line) == 0)
 	{
+		if (help->multi_st_end == 2)
+		{
+			help->errors++;
+			return 0;
+		}
 		help->end = 1;
+		help->multi_st_end++;
 		return (1);
 	}
 	return (0);

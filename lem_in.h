@@ -60,6 +60,7 @@ struct					s_help
 	char				*name;
 	int					end;
 	int					start;
+	int					multi_st_end;
 };
 
 typedef struct s_ways	t_way;
@@ -95,7 +96,7 @@ typedef struct s_ants_tracker
 }	t_ants_tracker;
 
 
-char					*solve(t_node_ptr src, t_node_ptr dst, t_vector * tmp);
+char					*solve(t_node_ptr src, t_node_ptr dst);
 void					insert_way(t_way *way, char *line);
 t_way					*init_way();
 t_group_handler			init_group_handler();

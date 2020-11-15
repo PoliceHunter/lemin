@@ -31,7 +31,10 @@ int		main(int ac, char **av)
 	map = parse_arguments(av, &nodes_vec);
 	character = get_character(&nodes_vec);
 	if (!(error_map_and_vec(&character)))
+	{
 		free_map_and_vec(&nodes_vec, map, 5);
+		return 0;
+	}
 	result = solve(character.root, character.target);
 	if (result != NULL)
 	{

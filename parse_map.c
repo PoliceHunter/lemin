@@ -127,7 +127,7 @@ char	*process_file(const char *filename, t_vector *vec)
 	if (help.errors != 0)
 	{
 		free(map);
-		ft_error_if_help_and_vec("Error\nInvalid map", &help, vec);
+		ft_error_if_help_and_vec("Error\n", &help, vec);
 		exit(5);
 	}
 	return (map);
