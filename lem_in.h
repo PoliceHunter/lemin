@@ -165,5 +165,6 @@ void			find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 						  t_vector *ways);
 char				*ft_strjoin_free3(char *s1, char *s2);
 void	free_ways(t_way *way);
+void			printf_ways(t_vector ways);
 
 #endif

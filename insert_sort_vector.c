@@ -31,7 +31,8 @@ int			ret(int (*cmp)(void *, void *), t_vector *vec, t_range range,
 
 	pivot = ((range.end - range.start) / 2) + range.start;
 	if ((*cmp)(get_from_vec(vec, pivot), new_data) == 0)
-		return (pivot);
+		return (insert_with_sort_internal(vec, init_range(range.start,
+													pivot), new_data, cmp));
 	if ((*cmp)(get_from_vec(vec, pivot), new_data) > 0)
 		return (insert_with_sort_internal(vec, init_range(range.start,
 													pivot + 1), new_data, cmp));

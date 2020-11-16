@@ -28,12 +28,16 @@ void			set_bfs(t_node_ptr node)
 	while (++i < (cur)->links.size)
 	{
 		kid = get_from_vec(&(cur)->links, i);
-		if ((((*kid)->bfs) > cur->bfs + 1) && (*kid)->is_end_node != 1) {
+		if ((((*kid)->bfs) > cur->bfs + 1) && (*kid)->is_end_node != 1)
+		{
 			(*kid)->bfs = cur->bfs + 1;
 			(*kid)->visited = -1;
 		}
 		if ((*kid)->bfs == 0 && !(*kid)->is_start_node && (*kid)->visited == -1)
+		{
 			(*kid)->bfs = cur->bfs + 1;
+			(*kid)->visited = -1;
+		}
 	}
 	i = -1;
 	while (++i < (cur)->links.size)
@@ -56,12 +60,16 @@ void			set_r_bfs(t_node_ptr node)
 	while (++i < (cur)->links.size)
 	{
 		child = get_from_vec(&(cur)->links, i);
-		if ((((*child)->r_bfs) > cur->r_bfs + 1) && (*child)->is_start_node != 1) {
+		if ((((*child)->r_bfs) > cur->r_bfs + 1) && (*child)->is_start_node != 1)
+		{
 			(*child)->r_bfs = cur->r_bfs + 1;
 			(*child)->r_visited = -1;
 		}
 		if ((*child)->r_bfs == INT_MAX && !(*child)->is_end_node && (*child)->r_visited == -1)
+		{
 			(*child)->r_bfs = cur->r_bfs + 1;
+			(*child)->r_visited = -1;
+		}
 	}
 	i = -1;
 	while (++i < (cur)->links.size)
@@ -151,8 +159,9 @@ char			*solve(t_node_ptr src, t_node_ptr dst)
 	ways = new_vector(10, sizeof(t_way));
 
 	find_ways(src, dst, NULL, &ways);
-
+	printf("\n\n\n%d \n\n\n", ways.size);
 	result = write_ants_in_line(&ways, src->n_ants);
+	//printf_ways(ways);
 	if (ways.size == 0)
 	{
 		ft_printf("Error\n");

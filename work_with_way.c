@@ -51,12 +51,15 @@ void				find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 	int			tmp;
 
 	i = -1;
+	src->visited = 2;
 	tmp_buffer = ft_strjoin_free(ft_strjoin_free(tmp_buffer, src->name), " ");
 	while (++i != (src)->links.size)
 	{
 		candidate = get_from_vec(&(src)->links, i);
-		if (!src->is_start_node && (*candidate)->bfs <= src->bfs && (*candidate)->r_bfs >= src->r_bfs)
+		if ((*candidate)->visited == 2)
 			continue;
+//		if (!src->is_start_node && ((*candidate)->r_bfs > src->r_bfs && (*candidate)->bfs < src->bfs))
+//			continue;
 		if (ft_strcmp((*candidate)->name, dst->name) != 0)
 		{
 			find_ways(*candidate, dst, ft_strdup(tmp_buffer), ways);
@@ -67,7 +70,9 @@ void				find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 		insert_with_sort(ways, &way, &cmp_way);
 		if (tmp == ways->size)
 			free_ways(&way);
+		src->visited = 0;
 		return ;
 	}
+	src->visited = 0;
 	free(tmp_buffer);
 }
