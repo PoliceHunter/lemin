@@ -72,8 +72,8 @@ char		*write_ants_in_line(t_vector *ways, int ants)
 			get_ant_step(group_helper.candidate_group,
 				ants, &way_history, group_helper.min_group_step), &way_history);
 	}
-//	printf_ways(group_helper.min_group);
-//	printf("%d\n\n", group_helper.min_group.size);
+	printf_ways(group_helper.min_group);
+	printf("%d\n\n", group_helper.min_group.size);
 	free_vec(&group_helper.min_group);
 	return (group_helper.result);
 }

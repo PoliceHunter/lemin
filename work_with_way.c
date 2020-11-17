@@ -42,6 +42,27 @@ int					make_way_step(t_way *way)
 	return (result);
 }
 
+static size_t			count_words(char *s, char c)
+{
+	size_t index;
+	size_t words;
+
+	index = 0;
+	words = 0;
+	while (s[index] != '\0')
+	{
+		while (s[index] == c)
+			index++;
+		while (s[index] != c && s[index] != '\0')
+		{
+			words++;
+			while (s[index] != c && s[index] != '\0')
+				index++;
+		}
+	}
+	return (words);
+}
+
 void				find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 					t_vector *ways)
 {
@@ -51,15 +72,13 @@ void				find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 	int			tmp;
 
 	i = -1;
-	src->visited = 2;
+
 	tmp_buffer = ft_strjoin_free(ft_strjoin_free(tmp_buffer, src->name), " ");
 	while (++i != (src)->links.size)
 	{
 		candidate = get_from_vec(&(src)->links, i);
-		if ((*candidate)->visited == 2)
+		if (!src->is_start_node && (*candidate)->bfs < src->bfs && (*candidate)->r_bfs > src->r_bfs)
 			continue;
-//		if (!src->is_start_node && ((*candidate)->r_bfs > src->r_bfs && (*candidate)->bfs < src->bfs))
-//			continue;
 		if (ft_strcmp((*candidate)->name, dst->name) != 0)
 		{
 			find_ways(*candidate, dst, ft_strdup(tmp_buffer), ways);
@@ -70,9 +89,8 @@ void				find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 		insert_with_sort(ways, &way, &cmp_way);
 		if (tmp == ways->size)
 			free_ways(&way);
-		src->visited = 0;
 		return ;
 	}
-	src->visited = 0;
+
 	free(tmp_buffer);
 }

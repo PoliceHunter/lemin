@@ -12,11 +12,11 @@
 
 #include "lem_in.h"
 
-int		find_in_vec_internal(t_vector *vec, size_t start, size_t end,
+int		find_in_vec_internal(t_vector *vec, int start, int end,
 		char *name)
 {
-	size_t	i;
-	size_t	pivot;
+	int		i;
+	int 	pivot;
 	int		compare;
 
 	i = start - 1;

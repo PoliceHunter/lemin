@@ -113,8 +113,8 @@ t_node					init_and_write_node(t_help *help);
 t_node					*find_or_insert(t_vector *vec, const char *new_node);
 int						find_in_vec(t_vector *vec, const char *name);
 t_node					*find_and_get(t_vector *vec, char *name);
-int						find_in_vec_internal(t_vector *vec, size_t start,
-						size_t end, char *name);
+int						find_in_vec_internal(t_vector *vec, int start,
+						int end, char *name);
 
 t_vector				new_node_vec(size_t capacity);
 t_node					*get_from_node_vec(t_vector *vec, size_t index);

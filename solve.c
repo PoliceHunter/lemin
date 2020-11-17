@@ -31,13 +31,10 @@ void			set_bfs(t_node_ptr node)
 		if ((((*kid)->bfs) > cur->bfs + 1) && (*kid)->is_end_node != 1)
 		{
 			(*kid)->bfs = cur->bfs + 1;
-			(*kid)->visited = -1;
+			//(*kid)->visited = -1;
 		}
 		if ((*kid)->bfs == 0 && !(*kid)->is_start_node && (*kid)->visited == -1)
-		{
 			(*kid)->bfs = cur->bfs + 1;
-			(*kid)->visited = -1;
-		}
 	}
 	i = -1;
 	while (++i < (cur)->links.size)
@@ -63,13 +60,10 @@ void			set_r_bfs(t_node_ptr node)
 		if ((((*child)->r_bfs) > cur->r_bfs + 1) && (*child)->is_start_node != 1)
 		{
 			(*child)->r_bfs = cur->r_bfs + 1;
-			(*child)->r_visited = -1;
+			//(*child)->r_visited = -1;
 		}
 		if ((*child)->r_bfs == INT_MAX && !(*child)->is_end_node && (*child)->r_visited == -1)
-		{
 			(*child)->r_bfs = cur->r_bfs + 1;
-			(*child)->r_visited = -1;
-		}
 	}
 	i = -1;
 	while (++i < (cur)->links.size)
@@ -144,6 +138,53 @@ void			printf_ways(t_vector ways)
 	}
 }
 
+int find_unsorted(t_vector vec, char *name)
+{
+	int index;
+
+	index = 0;
+	t_node_ptr *ptr;
+
+	while (index != vec.size)
+	{
+		ptr = get_from_vec(&vec, index);
+		if (ft_strcmp((*ptr)->name, name) == 0)
+			return index;
+		index++;
+	}
+	return -1;
+}
+
+void delete_useles_links(t_node_ptr cur, t_node_ptr dst)
+{
+	t_node_ptr	*child;
+	int			i;
+	int 		remove;
+
+	i = -1;
+	while (++i < (cur)->links.size)
+	{
+		if (!(child = get_from_vec(&(cur)->links, i)))
+			return;
+		if ((*child) == dst)
+			continue;
+		remove = find_unsorted((*child)->links, cur->name);
+		if (remove >= 0 && (*child)->bfs > cur->bfs)
+			remove_from_vec(&(*child)->links, remove);
+		if ((*child)->bfs == cur->bfs)
+			remove_from_vec(&cur->links, i);
+	}
+	i = -1;
+	while (++i < (cur)->links.size)
+	{
+		child = get_from_vec(&(cur)->links, i);
+		if ((*child) == dst)
+			continue;
+		if ((*child)->is_start_node != 1 && (*child)->bfs > cur->bfs)
+			delete_useles_links(*child, dst);
+	}
+}
+
 char			*solve(t_node_ptr src, t_node_ptr dst)
 {
 	t_vector	ways;
@@ -156,12 +197,12 @@ char			*solve(t_node_ptr src, t_node_ptr dst)
 	result = NULL;
 	set_bfs(src);
 	set_r_bfs(dst);
+	delete_useles_links(src, dst);
 	ways = new_vector(10, sizeof(t_way));
-
 	find_ways(src, dst, NULL, &ways);
 	printf("\n\n\n%d \n\n\n", ways.size);
 	result = write_ants_in_line(&ways, src->n_ants);
-	//printf_ways(ways);
+	printf_ways(ways);
 	if (ways.size == 0)
 	{
 		ft_printf("Error\n");

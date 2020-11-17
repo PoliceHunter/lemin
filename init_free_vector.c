@@ -39,11 +39,11 @@ int			remove_from_vec(t_vector *vec, int index)
 {
 	if (index > vec->size)
 		return (-1);
-	if (index == vec->size - 1)
-	{
-		vec->size--;
-		return (0);
-	}
+//	if (index == vec->size - 1)
+//	{
+//		vec->size--;
+//		return (0);
+//	}
 	ft_memmove(vec->data + (vec->elem_size * index),
 			vec->data + (vec->elem_size * (index + 1)),
 			vec->elem_size * (vec->size - index));
