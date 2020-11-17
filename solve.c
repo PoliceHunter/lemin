@@ -16,6 +16,41 @@
 #include <string.h>
 #include <stdlib.h>
 
+void			set_bfs1(t_vector qoue, t_node_ptr dst)
+{
+	t_node_ptr	*current;
+	t_node_ptr	*kid;
+	int			i;
+
+	while (qoue.size != 0)
+	{
+		 current = get_from_vec(&qoue, 0);
+		 if (!current)
+			 continue;
+		 if ((*current)->visited == 1 || (*current) == dst)
+			 continue;
+		 (*current)->visited = 1;
+		 i = -1;
+		 while ((*current)->links.size > ++i)
+		 {
+		 	kid = get_from_vec(&(*current)->links, i);
+		 	if ((*kid)->visited == 0 || (*kid) == dst || (*kid)->visited == 1)
+		 	{
+				continue;
+			}
+		 	if ((*kid)->bfs > (*current)->bfs + 1)
+			{
+		 		(*kid)->bfs = (*current)->bfs + 1;
+			}
+		 	else if ((*kid)->bfs == 0)
+				(*kid)->bfs = (*current)->bfs + 1;
+		 	(*kid)->visited = 0;
+		 	push_back_vec(&qoue, kid);
+		 }
+		remove_from_vec(&qoue, 0);
+	}
+}
+
 void			set_bfs(t_node_ptr node)
 {
 	t_node_ptr	cur;
@@ -31,7 +66,6 @@ void			set_bfs(t_node_ptr node)
 		if ((((*kid)->bfs) > cur->bfs + 1) && (*kid)->is_end_node != 1)
 		{
 			(*kid)->bfs = cur->bfs + 1;
-			//(*kid)->visited = -1;
 		}
 		if ((*kid)->bfs == 0 && !(*kid)->is_start_node && (*kid)->visited == -1)
 			(*kid)->bfs = cur->bfs + 1;
@@ -60,7 +94,6 @@ void			set_r_bfs(t_node_ptr node)
 		if ((((*child)->r_bfs) > cur->r_bfs + 1) && (*child)->is_start_node != 1)
 		{
 			(*child)->r_bfs = cur->r_bfs + 1;
-			//(*child)->r_visited = -1;
 		}
 		if ((*child)->r_bfs == INT_MAX && !(*child)->is_end_node && (*child)->r_visited == -1)
 			(*child)->r_bfs = cur->r_bfs + 1;
@@ -189,13 +222,16 @@ char			*solve(t_node_ptr src, t_node_ptr dst)
 {
 	t_vector	ways;
 	char		*result;
+	t_vector 	qoue;
 
+	qoue = new_vector(10, sizeof(t_node *));
+	push_back_vec(&qoue, &src);
 	src->bfs = 0;
-
 	dst->r_bfs = 0;
-
 	result = NULL;
+	//set_bfs1(qoue, dst);
 	set_bfs(src);
+	free_vec(&qoue);
 	set_r_bfs(dst);
 	delete_useles_links(src, dst);
 	ways = new_vector(10, sizeof(t_way));
