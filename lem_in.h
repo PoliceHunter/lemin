@@ -30,6 +30,14 @@ typedef struct			s_ants
 	char				**ants;
 }						t_ants;
 
+struct s_node;
+typedef struct s_edge	t_edge;
+struct s_edge
+{
+	struct s_node *dst;
+	size_t         capacity;
+};
+
 typedef struct s_node	t_node;
 struct					s_node
 {
@@ -44,7 +52,7 @@ struct					s_node
 	int					traversal_state;
 	int					r_visited;
 
-	t_vector			links;
+	t_vector			links; // TODO vector<t_node_ptr> -> vector<t_edge>
 };
 
 typedef t_node			*t_node_ptr;
