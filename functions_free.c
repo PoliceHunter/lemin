@@ -24,16 +24,7 @@ void	free_node(t_node *node)
 
 void	free_ways(t_way *way)
 {
-	int i;
-
-	i = 0;
-	while (way->way_nodes[i])
-	{
-		free(way->way_nodes[i]);
-		i++;
-	}
-	free(way->way_nodes);
-	free(way->ants);
+	free_vec(&way->nodes);
 }
 
 void	free_vec_ways(t_vector ways)

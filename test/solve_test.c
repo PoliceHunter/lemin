@@ -19,7 +19,7 @@ size_t count_of_lines(char * buffer) {
 
 int main() {
     const unsigned int size = 14;
-    const char * maps[size] = {"b.txt", "42", "has_comments.map", "long_Chloe", "long_haaaaaaaaaaaaaaaaaaaardtest",
+    const char * maps[size] = {"txt.txt", "b1.txt", "has_comments.map", "long_Chloe", "long_haaaaaaaaaaaaaaaaaaaardtest",
                                "long_hardmap", "no_mandatory_comments.map", "no_possible.map",
                                "no_possible_solution.map", "subject-1.map",
                                "subject-2.map", "subject-3.map", "subject-4.map", "subject-5.map"};
@@ -31,10 +31,6 @@ int main() {
         t_character character = get_character(&vec);
         if (!(error_map_and_vec(&character)))
             free_map_and_vec(&vec, map, 5);
-        char * result = solve(character.root, character.target, &vec);
-
-        printf("%zu\n", count_of_lines(result));
-        free(map);
-        free_vec_node(&vec);
+        char * result = solve(character.root, character.target);
     }
 }

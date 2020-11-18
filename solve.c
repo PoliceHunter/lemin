@@ -16,97 +16,57 @@
 #include <string.h>
 #include <stdlib.h>
 
-void			set_bfs1(t_vector qoue, t_node_ptr dst)
-{
-	t_node_ptr	*current;
-	t_node_ptr	*kid;
-	int			i;
+#define TRUE 1
+#define FALSE 0
 
-	while (qoue.size != 0)
-	{
-		 current = get_from_vec(&qoue, 0);
-		 if (!current)
-			 continue;
-		 if ((*current)->visited == 1 || (*current) == dst)
-			 continue;
-		 (*current)->visited = 1;
-		 i = -1;
-		 while ((*current)->links.size > ++i)
-		 {
-		 	kid = get_from_vec(&(*current)->links, i);
-		 	if ((*kid)->visited == 0 || (*kid) == dst || (*kid)->visited == 1)
-		 	{
-				continue;
-			}
-		 	if ((*kid)->bfs > (*current)->bfs + 1)
-			{
-		 		(*kid)->bfs = (*current)->bfs + 1;
-			}
-		 	else if ((*kid)->bfs == 0)
-				(*kid)->bfs = (*current)->bfs + 1;
-		 	(*kid)->visited = 0;
-		 	push_back_vec(&qoue, kid);
-		 }
-		remove_from_vec(&qoue, 0);
-	}
-}
 
-void			set_bfs(t_node_ptr node)
-{
-	t_node_ptr	cur;
-	t_node_ptr	*kid;
-	int			i;
 
-	cur = node;
-	cur->visited = 1;
-	i = -1;
-	while (++i < (cur)->links.size)
-	{
-		kid = get_from_vec(&(cur)->links, i);
-		if ((((*kid)->bfs) > cur->bfs + 1) && (*kid)->is_end_node != 1)
-		{
-			(*kid)->bfs = cur->bfs + 1;
-		}
-		if ((*kid)->bfs == 0 && !(*kid)->is_start_node && (*kid)->visited == -1)
-			(*kid)->bfs = cur->bfs + 1;
-	}
-	i = -1;
-	while (++i < (cur)->links.size)
-	{
-		kid = get_from_vec(&(cur)->links, i);
-		if ((*kid)->visited != 1 && (*kid)->is_end_node != 1)
-			set_bfs(*kid);
-	}
-}
-
-void			set_r_bfs(t_node_ptr node)
-{
-	t_node_ptr	cur;
+void 			set_bfs_children(t_vector * queue, t_node_ptr current, t_node_ptr dst) {
 	t_node_ptr	*child;
 	int			i;
 
-	cur = node;
-	cur->r_visited = 1;
 	i = -1;
-	while (++i < (cur)->links.size)
+	while (++i < current->links.size)
 	{
-		child = get_from_vec(&(cur)->links, i);
-		if ((((*child)->r_bfs) > cur->r_bfs + 1) && (*child)->is_start_node != 1)
-		{
-			(*child)->r_bfs = cur->r_bfs + 1;
-		}
-		if ((*child)->r_bfs == INT_MAX && !(*child)->is_end_node && (*child)->r_visited == -1)
-			(*child)->r_bfs = cur->r_bfs + 1;
-	}
-	i = -1;
-	while (++i < (cur)->links.size)
-	{
-		child = get_from_vec(&(cur)->links, i);
-		if ((*child)->r_visited != 1 && (*child)->is_start_node != 1)
-			set_r_bfs(*child);
+		child = get_from_vec(&current->links, i);
+		if ((*child)->traversal_state != NO_INVOLVED)
+			continue;
+
+		(*child)->bfs = current->bfs + 1;
+		(*child)->traversal_state = IN_QUEUE;
+		push_back_vec(queue, child);
 	}
 }
 
+int 			set_bfs(t_node_ptr src, t_node_ptr dst)
+{
+	t_node_ptr	* current;
+	t_vector    queue;
+
+	queue = new_vector(10, sizeof(t_node_ptr));
+	push_back_vec(&queue, &src);
+
+	while (queue.size != 0)
+	{
+		 current = pop_front_vec(&queue);
+		 if ((*current)->traversal_state == VISITED)
+			 continue;
+		 if ((*current)->is_end_node) {
+		     while (queue.size != 0) {
+				 current = pop_front_vec(&queue);
+				 (*current)->traversal_state = NO_INVOLVED;
+		     }
+			 free_vec(&queue);
+			 return TRUE;
+		 }
+		 (*current)->traversal_state = VISITED;
+		 set_bfs_children(&queue, *current, dst);
+		 free(current);
+	}
+
+	free_vec(&queue);
+	return FALSE;
+}
 
 char			*ft_strjoin_free3(char *s1, char *s2)
 {
@@ -120,56 +80,34 @@ char			*ft_strjoin_free3(char *s1, char *s2)
 	return (str);
 }
 
-char			*get_ant_pos(const t_vector *ways)
-{
-	char			*result;
-	char			*node;
-	int				way_i;
-	unsigned int	i;
-	const t_way		*way;
-
-	way_i = -1;
-	result = NULL;
-	while (++way_i != ways->size)
-	{
-		i = 0;
-		way = get_from_vec_const(ways, way_i);
-		while (++i < way->way_len)
-		{
-			if (way->ants[i] != 0)
-			{
-				node = (!result) ? ft_strjoin_free2("L", ft_itoa(way->
-				ants[i])) : ft_strjoin_free2(" L", ft_itoa(way->ants[i]));
-				node = ft_strjoin_free(node, "-");
-				node = ft_strjoin_free(node, way->way_nodes[i]);
-				result = ft_strjoin_free3(result, node);
-			}
-		}
-	}
-	return (result);
-}
-
-void			printf_ways(t_vector ways)
-{
-	unsigned int	i;
-	int				index;
-	t_way			*way;
-
-	i = 0;
-	index = 0;
-	while (index != ways.size)
-	{
-		i = 0;
-		way = get_from_vec(&ways, index);
-		while (i != way->way_len)
-		{
-			printf("%s->", way->way_nodes[i]);
-			++i;
-		}
-		printf("\n");
-		++index;
-	}
-}
+//char			*get_ant_pos(const t_vector *ways)
+//{
+//	char			*result;
+//	char			*node;
+//	int				way_i;
+//	unsigned int	i;
+//	const t_way		*way;
+//
+//	way_i = -1;
+//	result = NULL;
+//	while (++way_i != ways->size)
+//	{
+//		i = 0;
+//		way = get_from_vec_const(ways, way_i);
+//		while (++i < way->way_len)
+//		{
+//			if (way->ants[i] != 0)
+//			{
+//				node = (!result) ? ft_strjoin_free2("L", ft_itoa(way->
+//				ants[i])) : ft_strjoin_free2(" L", ft_itoa(way->ants[i]));
+//				node = ft_strjoin_free(node, "-");
+//				node = ft_strjoin_free(node, way->way_nodes[i]);
+//				result = ft_strjoin_free3(result, node);
+//			}
+//		}
+//	}
+//	return (result);
+//}
 
 int find_unsorted(t_vector vec, char *name)
 {
@@ -218,34 +156,55 @@ void delete_useles_links(t_node_ptr cur, t_node_ptr dst)
 	}
 }
 
+int find_way_by_bfs(t_node_ptr ptr, t_way * way) {
+	t_vector current_children;
+	t_node_ptr current;
+	int i;
+	int min_bfs;
+	int is_changed;
+
+	*way = init_way();
+	is_changed = TRUE;
+	ptr->traversal_state = IN_QUEUE;
+
+	while (is_changed) {
+		is_changed = FALSE;
+		push_back_vec(&way->nodes, ptr);
+		i = -1;
+		current_children = ptr->links;
+		min_bfs = -1;
+		while (++i < current_children.size) {
+			current = *(t_node_ptr *) get_from_vec(&current_children, i);
+
+			if (current->is_end_node) // TODO подумать, нужен ли в пути последний узел
+				return TRUE;
+
+			if (current->traversal_state != VISITED)
+				continue;
+
+			current->traversal_state = IN_QUEUE;
+			if (min_bfs < current->bfs) {
+				ptr = current;
+				min_bfs = current->bfs;
+				is_changed = TRUE;
+			}
+		}
+	}
+
+	free_ways(way);
+	return FALSE;
+}
+
 char			*solve(t_node_ptr src, t_node_ptr dst)
 {
 	t_vector	ways;
 	char		*result;
-	t_vector 	qoue;
 
-	qoue = new_vector(10, sizeof(t_node *));
-	push_back_vec(&qoue, &src);
 	src->bfs = 0;
-	dst->r_bfs = 0;
-	result = NULL;
-	//set_bfs1(qoue, dst);
-	set_bfs(src);
-	free_vec(&qoue);
-	set_r_bfs(dst);
-	delete_useles_links(src, dst);
-	ways = new_vector(10, sizeof(t_way));
-	find_ways(src, dst, NULL, &ways);
-	printf("\n\n\n%d \n\n\n", ways.size);
-	result = write_ants_in_line(&ways, src->n_ants);
-	printf_ways(ways);
-	if (ways.size == 0)
-	{
-		ft_printf("Error\n");
-		free(result);
-		free_vec_ways(ways);
-		return (NULL);
-	}
-	free_vec_ways(ways);
-	return (result);
+	printf("BFS: %d\n", set_bfs(src, dst));
+
+	t_way  way;
+	printf("FIND_WAY: %d", find_way_by_bfs(src, &way));
+
+	return "FUCK";
 }

@@ -12,15 +12,11 @@
 
 #include "lem_in.h"
 
-t_way				*init_way(unsigned int len)
+t_way				init_way(unsigned int len)
 {
-	t_way *result;
-
-	if (!(result = malloc(sizeof(t_way))))
-		ft_printf("Eror with malloc way");
-	result->way_len = len;
-	result->way_nodes = malloc(sizeof(char **) * len);
-	return (result);
+	t_way result;
+	result.nodes = new_vector(100, sizeof(t_node_ptr));
+	return result;
 }
 
 t_group_handler		init_group_handler(void)
