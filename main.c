@@ -6,7 +6,7 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 22:24:34 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/10 13:01:12 by ksean            ###   ########.fr       */
+/*   Updated: 2020/11/18 22:21:38 by ksean            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,17 +32,17 @@ int		main(int ac, char **av)
 	character = get_character(&nodes_vec);
 	if (!(error_map_and_vec(&character)))
 	{
-		free_map_and_vec(&nodes_vec, map, 5);
+		// free_map_and_vec(&nodes_vec, map, 5);
 		return 0;
 	}
 	result = solve(character.root, character.target);
 	if (result != NULL)
 	{
 		ft_printf("%s%s\n", map, result);
-		free(result);
+		// free(result);
 	}
 	else
-		free_map_and_vec(&nodes_vec, map, 6);
-	free_map_and_vec(&nodes_vec, map, -1);
+		// free_map_and_vec(&nodes_vec, map, 6);
+	// free_map_and_vec(&nodes_vec, map, -1);
 	return (0);
 }

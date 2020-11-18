@@ -6,7 +6,7 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/24 18:24:33 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/15 12:37:04 by tmyrcell         ###   ########.fr       */
+/*   Updated: 2020/11/19 00:11:24 by ksean            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 void 			set_bfs_children(t_vector * queue, t_node_ptr current, t_node_ptr dst) {
 	t_node_ptr	*child;
 	int			i;
-
+dst = NULL; // заглушка
 	i = -1;
 	while (++i < current->links.size)
 	{
@@ -216,14 +216,14 @@ int find_way_by_bfs(t_node_ptr ptr, t_way * way) {
 
 char			*solve(t_node_ptr src, t_node_ptr dst)
 {
-	t_vector	ways;
-	char		*result;
+	// t_vector	ways;
+	// char		*result;
 
 	src->bfs = 0;
 	printf("BFS: %d\n", set_bfs(src, dst));
 
-	t_way  way;
-	printf("FIND_WAY: %d\n", find_way_by_bfs(src, &way));
+	// t_way  way;
+	// printf("FIND_WAY: %d\n", find_way_by_bfs(src, &way));
 
 	return "FUCK";
 }

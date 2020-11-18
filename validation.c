@@ -6,7 +6,7 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 23:42:06 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/09 15:06:41 by ksean            ###   ########.fr       */
+/*   Updated: 2020/11/19 00:09:22 by ksean            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ int		empty_string(const char *line, t_help *help)
 		help->errors++;
 		return (1);
 	}
-	else if (line[0] == '\0')
+	else if (line[0] == 'L')
 	{
 		help->errors++;
 		return (1);

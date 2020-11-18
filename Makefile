@@ -6,7 +6,7 @@
 #    By: ksean <ksean@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/10 03:38:19 by ksean             #+#    #+#              #
-#    Updated: 2020/11/15 12:53:53 by tmyrcell         ###   ########.fr        #
+#    Updated: 2020/11/18 22:23:51 by ksean            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ OBJ = $(SRC:.c=.o)
 LIB = ./libft/libft.a
 LIB_PATH = ./libft/
 
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -g
 
 all: $(BIN)
 
