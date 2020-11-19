@@ -20,7 +20,7 @@ t_node	init_node(char *name)
 	node.name = ft_strdup(name);
 	node.x = 0;
 	node.y = 0;
-	node.links = new_vector(5, sizeof(t_node*));
+	node.links = new_vector(5, sizeof(t_edge *));
 	node.is_end_node = 0;
 	node.is_start_node = 0;
 	node.bfs = 0;
@@ -39,7 +39,7 @@ t_node	init_and_write_node(t_help *help)
 	node.name = ft_strdup(help->name);
 	node.x = help->x;
 	node.y = help->y;
-	node.links = new_vector(5, sizeof(t_node*));
+	node.links = new_vector(5, sizeof(t_edge *));
 	node.is_end_node = help->end;
 	node.is_start_node = help->start;
 	if (help->start == 1)

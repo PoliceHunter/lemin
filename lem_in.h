@@ -34,8 +34,8 @@ struct s_node;
 typedef struct s_edge	t_edge;
 struct s_edge
 {
-	struct s_node *dst;
-	size_t         capacity;
+	struct s_node	*dst;
+	int			capacity;
 };
 
 typedef struct s_node	t_node;

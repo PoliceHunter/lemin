@@ -20,7 +20,8 @@
 #define FALSE 0
 #define IN_PATH 2
 
-void 			set_bfs_children(t_vector * queue, t_node_ptr current, t_node_ptr dst) {
+void 			set_bfs_children(t_vector * queue, t_node_ptr current, t_node_ptr dst)
+{
 	t_node_ptr	*child;
 	int			i;
 
@@ -38,33 +39,39 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current, t_node_ptr dst) {
 }
 
 
-void un_mark_nodes(t_node_ptr src, t_node_ptr dst, t_node_ptr cur)
+void un_mark_nodes_from_src(t_node_ptr src)
 {
 	t_node_ptr *child;
 	int i;
 
 	i = -1;
-	while (++i < cur->links.size)
+	while (++i < src->links.size)
 	{
-		child = get_from_vec(&cur->links, i);
+		child = get_from_vec(&src->links, i);
 		if ((*child)->traversal_state == IN_PATH ||
-			*child == dst || *child == src || (*child)->bfs == 0)
+				(*child)->is_start_node == 1 || (*child)->is_end_node == 1 || (*child)->bfs == 0)
 			continue;
 		(*child)->traversal_state = NO_INVOLVED;
 		(*child)->bfs = 0;
-		un_mark_nodes(src, dst, *child);
+		un_mark_nodes_from_src(*child);
 	}
 }
 
-void un_mark_nodes_in_queue(t_vector * queue, t_node_ptr src, t_node_ptr dst)
+void un_mark_nodes_from_dst(t_node_ptr dst)
 {
-	t_node_ptr *current;
+	t_node_ptr *child;
+	int i;
 
-	while (queue->size != 0)
+	i = -1;
+	while (++i < dst->links.size)
 	{
-		current = pop_front_vec(queue);
-		(*current)->traversal_state = NO_INVOLVED;
-		un_mark_nodes(src, dst, *current);
+		child = get_from_vec(&dst->links, i);
+		if ((*child)->traversal_state == IN_PATH ||
+			(*child)->is_start_node == 1 || (*child)->is_end_node == 1 || (*child)->bfs == 0)
+			continue;
+		(*child)->traversal_state = NO_INVOLVED;
+		(*child)->bfs = 0;
+		un_mark_nodes_from_src(*child);
 	}
 }
 
@@ -82,7 +89,10 @@ void mark_if_in_path(t_node_ptr dst, t_node_ptr src)
 		rev_bfs = prev->bfs -1;
 		parent = get_from_vec(&prev->links, i);
 		if (*parent == src)
+		{
+			(*parent)->traversal_state = IN_PATH;
 			return;
+		}
 		if ((*parent)->bfs != rev_bfs)
 			continue;
 		else
@@ -110,21 +120,59 @@ int 			set_bfs(t_node_ptr src, t_node_ptr dst)
 			 continue;
 		 if ((*current)->is_end_node)
 		 {
-			 //// Возникла проблема в поиске путей, а именно, у нас в бфс в очередь попадают узлы, не соединяющиеся с концом
-			 //// Соответственно после выхода из очереди таких узлов им ставилась пометка, что они были задействованы "VISITED",
-			 //// которая использовалась в поиске путей функция find_way_by_bfs 197 строчка
-			 //// То, что мы тут делали до этого - помечали узлы как не посещенные если в очереди что то осталось
-			 //// Я заглянул дальше, сначала в функции mark_if_in_path Я ставлю отметку если путь задействован в бфсе
-			 //// После этого , я все незадействованные пути, которые были в очереди или уже вышли, помечаю как незадействованные функция un_mark_nodes_in_queue
-			 //// Сейчас Вроде все ОК
 		 	mark_if_in_path(*current, src);
-		 	un_mark_nodes_in_queue(&queue, src, dst);
+		 	un_mark_nodes_from_src(src);
+		 	un_mark_nodes_from_dst(dst);
 		 	free_vec(&queue);
 		 	return TRUE;
 		 }
 		 (*current)->traversal_state = VISITED;
 		 set_bfs_children(&queue, *current, dst);
 		 free(current);
+	}
+
+	free_vec(&queue);
+	return FALSE;
+}
+
+int			check_if_node_in_path(t_node_ptr *cur, t_way *way)
+{
+	int i = -1;
+	t_node_ptr *compare;
+
+	while (++i != way->nodes.size)
+	{
+		compare = get_from_vec(&way->nodes, i);
+		if (*cur == *compare && (*cur)->is_start_node != 1)
+			return TRUE;
+	}
+	return FALSE;
+}
+
+int			set_bfs_exclude_path(t_node_ptr src, t_node_ptr dst, t_way *way) ///TODO Треба доделать
+{
+	t_node_ptr	* current;
+	t_vector    queue;
+
+	queue = new_vector(10, sizeof(t_node_ptr));
+	push_back_vec(&queue, &src);
+
+	while (queue.size != 0)
+	{
+		current = pop_front_vec(&queue);
+		if ((*current)->traversal_state == VISITED || check_if_node_in_path(current, way))
+			continue;
+		if ((*current)->is_end_node)
+		{
+			mark_if_in_path(*current, src);
+			un_mark_nodes_from_src(src);
+			un_mark_nodes_from_dst(dst);
+			free_vec(&queue);
+			return TRUE;
+		}
+		(*current)->traversal_state = VISITED;
+		set_bfs_children(&queue, *current, dst);
+		free(current);
 	}
 
 	free_vec(&queue);
@@ -172,7 +220,10 @@ char			*ft_strjoin_free3(char *s1, char *s2)
 //	return (result);
 //}
 
-int find_way_by_bfs(t_node_ptr ptr, t_way * way) {
+
+
+int find_way_by_bfs(t_node_ptr ptr, t_way * way)
+{
 	t_vector current_children;
 	t_node_ptr current;
 	int i;
@@ -183,26 +234,23 @@ int find_way_by_bfs(t_node_ptr ptr, t_way * way) {
 	is_changed = TRUE;
 	ptr->traversal_state = IN_QUEUE;
 
-	while (is_changed) {
+	while (is_changed)
+	{
 		is_changed = FALSE;
-		push_back_vec(&way->nodes, ptr);
+		push_back_vec(&way->nodes, &ptr);
 		i = -1;
 		current_children = ptr->links;
 		min_bfs = -1;
-		while (++i < current_children.size) {
+		while (++i < current_children.size)
+		{
 			current = *(t_node_ptr *) get_from_vec(&current_children, i);
-
 			if (current->is_end_node) // TODO подумать, нужен ли в пути последний узел
-			{
-				printf("Ways size %d\n", way->nodes.size);
 				return TRUE;
-			}
-
 			if (current->traversal_state != IN_PATH)
 				continue;
-
 			current->traversal_state = NO_INVOLVED;
-			if (min_bfs < current->bfs) {
+			if (min_bfs < current->bfs)
+			{
 				ptr = current;
 				min_bfs = current->bfs;
 				is_changed = TRUE;
@@ -221,9 +269,11 @@ char			*solve(t_node_ptr src, t_node_ptr dst)
 
 	src->bfs = 0;
 	printf("BFS: %d\n", set_bfs(src, dst));
-
+	printf("%d\n", dst->bfs);
 	t_way  way;
 	printf("FIND_WAY: %d\n", find_way_by_bfs(src, &way));
+
+	set_bfs_exclude_path(src, dst, &way);
 
 	return "FUCK";
 }
