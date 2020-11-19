@@ -269,7 +269,7 @@ char			*solve(t_node_ptr src, t_node_ptr dst)
 
 	src->bfs = 0;
 	printf("BFS: %d\n", set_bfs(src, dst));
-	printf("%d\n", dst->bfs);
+	printf("MIN LEN PATH %d\n", dst->bfs + 1);
 	t_way  way;
 	printf("FIND_WAY: %d\n", find_way_by_bfs(src, &way));
 
