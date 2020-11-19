@@ -39,7 +39,7 @@ int		main(int ac, char **av)
 	if (result != NULL)
 	{
 		ft_printf("%s%s\n", map, result);
-		// free(result);
+		free(result);
 	}
 	else
 		// free_map_and_vec(&nodes_vec, map, 6);
