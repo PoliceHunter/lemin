@@ -62,7 +62,7 @@ void mark_edge(t_edge * edge)
 	edge->backward->mark = MARK_BACKWARD_PATH;
 }
 
-void reduce_way_edges(t_way * way)
+void direct_and_mark_way_edges(t_way * way)
 {
     t_edge * edge;
 	int i;
@@ -72,7 +72,7 @@ void reduce_way_edges(t_way * way)
 	{
 	    edge = *(t_edge**)get_from_vec(&way->edges, i);
 
-		if (edge->mark == MARK_BACKWARD_PATH)
+		if (edge->mark == MARK_BACKWARD_PATH || edge->mark == MARK_FORWARD_PATH)
 		{
 			disable_edge(edge);
 			continue;
@@ -132,7 +132,8 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 			continue;
 		}
 
-		if (edge->dst->traversal_state != STATE_NO_INVOLVED) {
+		if (edge->dst->traversal_state != STATE_NO_INVOLVED)
+		{
 			printf("edge dst in in wrong state: %d => skip\n", edge->dst->traversal_state);
 			continue;
 		}
@@ -144,8 +145,23 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 	}
 }
 
+void reset_state(t_vector * nodes, size_t except_mark) {
+	t_node_ptr ptr;
+	size_t index;
 
-int reconstruct_way(t_node_ptr ptr, t_way * way)
+	index = -1;
+
+	while (++index < nodes->size) {
+		ptr = get_from_node_vec(nodes, index);
+		if (ptr->traversal_state != except_mark) {
+			ptr->traversal_state = STATE_NO_INVOLVED;
+		}
+
+		ptr->bfs = 0;
+	}
+}
+
+int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 {
 	t_edge *edge = NULL;
 	int i;
@@ -193,6 +209,8 @@ int reconstruct_way(t_node_ptr ptr, t_way * way)
 		if (edge->backward->dst->is_start_node) // SRC
 		{
 		    push_front_vec(&way->nodes, &edge->backward->dst);
+			direct_and_mark_way_edges(way);
+			reset_state(nodes, STATE_IN_PATH);
 			return TRUE;
 		}
 	}
@@ -201,7 +219,7 @@ int reconstruct_way(t_node_ptr ptr, t_way * way)
 }
 
 
-int 			set_bfs(t_node_ptr src, t_node_ptr dst, t_way * way)
+int 			find_by_bfs(t_node_ptr src, t_node_ptr dst, t_way * way, t_vector * nodes)
 {
 	t_node_ptr	* current;
 	t_vector    queue;
@@ -216,7 +234,7 @@ int 			set_bfs(t_node_ptr src, t_node_ptr dst, t_way * way)
 			continue;
 		if ((*current)->is_end_node)
 		{
-			ft_assert(reconstruct_way(*current, way), "Error while `reconstruct_way`");
+			ft_assert(reconstruct_way(*current, way, nodes), "Error while `reconstruct_way`");
 			free_vec(&queue);
 			return TRUE;
 		}
@@ -227,22 +245,6 @@ int 			set_bfs(t_node_ptr src, t_node_ptr dst, t_way * way)
 
 	free_vec(&queue);
 	return FALSE;
-}
-
-void reset_state(t_vector * nodes, size_t except_mark) {
-	t_node_ptr ptr;
-	size_t index;
-
-	index = -1;
-
-	while (++index < nodes->size) {
-	    ptr = get_from_node_vec(nodes, index);
-		if (ptr->traversal_state != except_mark) {
-			ptr->traversal_state = STATE_NO_INVOLVED;
-		}
-
-		ptr->bfs = 0;
-	}
 }
 
 typedef struct s_ant_tracker t_ants_tracker;
@@ -393,6 +395,7 @@ void reset_all_edges(t_vector * nodes)
 
 	way_i = -1;
 
+	reset_state(nodes, STATE_NONE);
 	while (++way_i != nodes->size)
 	{
 		node = get_from_vec(nodes, way_i);
@@ -417,38 +420,29 @@ char			*solve(t_node_ptr src, t_node_ptr dst, t_vector * nodes)
 	src->bfs = 0;
 	reset_state(nodes, STATE_NONE);
 
-	ft_assert(set_bfs(src, dst, &way), "Error while getting bfs");
+	/// FIRST WAY
+	ft_assert(find_by_bfs(src, dst, &way, nodes), "Error while getting bfs");
 	print_way(&way);
-	reset_state(nodes, STATE_IN_PATH);
-	reduce_way_edges(&way);
 
-	//push_back_vec(&ways, &way);
-	//size_t ant_step = get_ant_step(src, ways, &history);
-	//printf("%d\n", ant_step);
+	push_back_vec(&ways, &way);
+	size_t ant_step = get_ant_step(src, ways, &history);
+	printf("ant_step=%d\n", ant_step);
 
 	print_nodes(nodes);
 
-	ft_assert(set_bfs(src, dst, &way), "Error while getting bfs");
+	ft_assert(find_by_bfs(src, dst, &way, nodes), "Error while getting bfs");
 	print_way(&way);
-	reset_state(nodes, STATE_IN_PATH);
-	reduce_way_edges(&way);
 	print_nodes(nodes);
 
-	printf("\nreset\n");
-
-	reset_state(nodes, STATE_NONE);
+	printf("\nReset\n");
 	reset_all_edges(nodes);
 	print_nodes(nodes);
 
-	ft_assert(set_bfs(src, dst, &way), "Error while getting bfs");
+	ft_assert(find_by_bfs(src, dst, &way, nodes), "Error while getting bfs");
 	print_way(&way);
-	reset_state(nodes, STATE_IN_PATH);
-	reduce_way_edges(&way);
 
-	ft_assert(set_bfs(src, dst, &way), "Error while getting bfs");
+	ft_assert(find_by_bfs(src, dst, &way, nodes), "Error while getting bfs");
 	print_way(&way);
-	reset_state(nodes, STATE_IN_PATH);
-	reduce_way_edges(&way);
 
 	return "FUCK";
 }
