@@ -25,6 +25,7 @@ void	free_node(t_node *node)
 void	free_ways(t_way *way)
 {
 	free_vec(&way->nodes);
+	free_vec(&way->edges);
 }
 
 void	free_vec_ways(t_vector ways)

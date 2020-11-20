@@ -31,20 +31,26 @@ typedef struct			s_ants
 }						t_ants;
 
 struct s_node;
+typedef struct s_node	t_node;
+typedef t_node			*t_node_ptr;
+
 typedef struct s_edge	t_edge;
 struct s_edge
 {
-	struct s_node	*dst;
-	int			capacity;
+	t_node_ptr	    dst;
+	size_t		    capacity;
+	size_t 			original_capacity;
+	struct s_edge * backward;
 };
 
-typedef struct s_node	t_node;
+#define NO_ANT 0
+
 struct					s_node
 {
 	char				*name;
 	int					x;
 	int					y;
-	int					n_ants;
+	int 				ant_number;
 	int					is_start_node;
 	int					is_end_node;
 	int					bfs;
@@ -52,10 +58,9 @@ struct					s_node
 	int					traversal_state;
 	int					r_visited;
 
-	t_vector			links; // TODO vector<t_node_ptr> -> vector<t_edge>
+	t_vector			links; // vector<t_edge>
 };
 
-typedef t_node			*t_node_ptr;
 
 typedef struct s_help	t_help;
 
@@ -76,7 +81,10 @@ typedef struct s_ways	t_way;
 struct					s_ways
 {
 	t_vector            nodes; // vector<t_node_ptr>
+	t_vector 			edges;
 };
+
+t_node_ptr get_node_from_way_const(const t_way * way, size_t index);
 
 typedef struct			s_character
 {
@@ -84,31 +92,15 @@ typedef struct			s_character
 	t_node				*target;
 }						t_character;
 
-typedef struct s_group_helper	t_group_handler;
-struct 							s_group_helper
-{
-	t_vector candidate_group;
-	t_vector min_group;
-	unsigned int min_group_step;
-	char * result;
-};
+#define STATE_NONE INT_MAX
+#define STATE_NO_INVOLVED -1
+#define STATE_IN_QUEUE 0
+#define STATE_VISITED 1
+#define STATE_IN_PATH 2
 
-typedef struct s_ants_tracker
-{
-	unsigned int finished;
-	unsigned int in_path;
-	unsigned int count;
-}	t_ants_tracker;
-
-
-#define IN_QUEUE 0
-#define VISITED 1
-#define NO_INVOLVED -1
-
-char					*solve(t_node_ptr src, t_node_ptr dst);
+char					*solve(t_node_ptr src, t_node_ptr dst, t_vector * nodes);
 void					insert_way(t_way *way, char *line);
 t_way					init_way();
-t_group_handler			init_group_handler();
 int						write_link(const char *line, t_vector *node_vec);
 void					free_vec_node(t_vector *vec);
 void					free_vec_ways(t_vector ways);
@@ -162,18 +154,17 @@ int						error_map_and_vec(t_character *character);
 void					free_map_and_vec(t_vector *vec,
 						char *map, int error_num);
 char *write_ants_in_line(t_vector *ways, int ants);
-int				is_group_identical(const t_vector left_group,
-									  const t_vector right_group);
 t_vector		get_non_crossing_group(t_vector *ways, t_way *init_way);
-//unsigned int	get_ant_step(t_vector ways, const unsigned int ants_count,
-//							 char **history, unsigned int min_step_count);
-int				make_way_step(t_way *way);
-char			*get_ant_pos(const t_vector *ways);
+size_t get_ant_step(t_node_ptr src, t_vector ways,
+					char **way_history);
+int make_way_step(t_way *way);
 int				cmp_way(void *left_way, void *right_way);
 void			find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
 						  t_vector *ways);
 char				*ft_strjoin_free3(char *s1, char *s2);
 void	free_ways(t_way *way);
-//void			printf_ways(t_vector ways);
+void			printf_ways(t_vector ways);
+
+void ft_assert(int result, const char *);
 
 #endif

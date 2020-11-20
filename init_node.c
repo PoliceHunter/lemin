@@ -16,15 +16,15 @@ t_node	init_node(char *name)
 {
 	t_node	node;
 
-	node.n_ants = 0;
+	node.ant_number = NO_ANT;
 	node.name = ft_strdup(name);
 	node.x = 0;
 	node.y = 0;
-	node.links = new_vector(5, sizeof(t_edge *));
+	node.links = new_vector(5, sizeof(t_edge));
 	node.is_end_node = 0;
 	node.is_start_node = 0;
 	node.bfs = 0;
-	node.traversal_state = NO_INVOLVED;
+	node.traversal_state = STATE_NO_INVOLVED;
 	node.r_visited = -1;
 	node.r_bfs = INT_MAX;
 	return (node);
@@ -35,17 +35,17 @@ t_node	init_and_write_node(t_help *help)
 {
 	t_node node;
 
-	node.n_ants = 0;
+	node.ant_number = NO_ANT;
 	node.name = ft_strdup(help->name);
 	node.x = help->x;
 	node.y = help->y;
-	node.links = new_vector(5, sizeof(t_edge *));
+	node.links = new_vector(5, sizeof(t_edge));
 	node.is_end_node = help->end;
 	node.is_start_node = help->start;
 	if (help->start == 1)
-		node.n_ants = help->ants;
+		node.ant_number = help->ants;
 	node.bfs = 0;
-	node.traversal_state = NO_INVOLVED;
+	node.traversal_state = STATE_NO_INVOLVED;
 	node.r_visited = -1;
 	node.r_bfs = INT_MAX;
 	return (node);

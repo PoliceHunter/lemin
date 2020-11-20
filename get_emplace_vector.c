@@ -29,6 +29,13 @@ void		*get_last(t_vector *vec)
 	return (get_from_vec(vec, vec->size - 1));
 }
 
+void		*get_first(t_vector *vec)
+{
+	if (vec->size == 0)
+		return (NULL);
+	return (get_from_vec(vec, 0));
+}
+
 const void	*get_from_vec_const(const t_vector *vec, int index)
 {
 	if (index >= vec->size)

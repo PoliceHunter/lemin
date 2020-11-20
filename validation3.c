@@ -30,21 +30,28 @@ int		check_duplicate_links(t_node_ptr src, t_node_ptr dst)
 	return (0);
 }
 
-t_edge *write_edge(t_node_ptr *cur)
+t_edge new_edge(t_node_ptr *dst, const size_t capacity)
 {
-	t_edge *result;
+	t_edge result;
 
-	result = malloc(sizeof(t_edge));
-	result->dst = *cur;
-	result->capacity = 0;
+	result.dst = *dst;
+	result.capacity = capacity;
+	result.backward = NULL;
 
 	return result;
+}
+
+void set_backward_edge(t_edge * left, t_edge * right)
+{
+	left->backward = right;
+	right->backward = left;
 }
 
 int		write_link(const char *line, t_vector *node_vec)
 {
 	t_node_ptr	src_node;
 	t_node_ptr	dst_node;
+	t_edge      tmp;
 	char		**link;
 
 	link = ft_strsplit(line, '-');
@@ -57,8 +64,12 @@ int		write_link(const char *line, t_vector *node_vec)
 	if (check_duplicate_links(src_node, dst_node))
 		return (1);
 
-	push_back_vec(&src_node->links, write_edge(&dst_node));
-	push_back_vec(&dst_node->links, write_edge(&src_node));
+	tmp = new_edge(&dst_node, 1);
+	push_back_vec(&src_node->links, &tmp);
+	tmp = new_edge(&src_node, -1);
+	push_back_vec(&dst_node->links, &tmp);
+
+	set_backward_edge(get_last(&src_node->links), get_last(&dst_node->links));
 
 	return (0);
 }

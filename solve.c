@@ -18,94 +18,104 @@
 
 #define TRUE 1
 #define FALSE 0
-#define IN_PATH 2
+
+void ft_assert(int result, const char * error) {
+	if (result == FALSE) {
+		printf("%s\n", error);
+		exit(-1);
+	}
+}
+
+void disable_link(t_edge * edge)
+{
+	edge->capacity = 0;
+	edge->backward->capacity = 0;
+}
+
+void reset_edge(t_edge * edge)
+{
+	edge->capacity = edge->original_capacity;
+	edge->backward->capacity = edge->backward->original_capacity;
+}
+
+void reduce_edge(t_edge * edge, const int diff)
+{
+	edge->capacity -= diff;
+	edge->backward->capacity += diff;
+}
+
+void reduce_way(t_way * way, const int diff)
+{
+	int i;
+	i = -1;
+
+	while(++i != way->edges.size)
+	{
+		reduce_edge(get_from_vec(&way->edges, i), diff);
+	}
+}
 
 void 			set_bfs_children(t_vector * queue, t_node_ptr current, t_node_ptr dst)
 {
-	t_node_ptr	*child;
+	t_edge *edge;
 	int			i;
 
 	i = -1;
 	while (++i < current->links.size)
 	{
-		child = get_from_vec(&current->links, i);
-		if ((*child)->traversal_state != NO_INVOLVED)
+		edge = get_from_vec(&current->links, i);
+		if (edge->capacity == 0 || edge->dst->traversal_state != STATE_NO_INVOLVED)
 			continue;
 
-		(*child)->bfs = current->bfs + 1;
-		(*child)->traversal_state = IN_QUEUE;
-		push_back_vec(queue, child);
+		edge->dst->bfs = current->bfs + 1;
+		edge->dst->traversal_state = STATE_IN_QUEUE;
+		push_back_vec(queue, edge);
 	}
 }
 
 
-void un_mark_nodes_from_src(t_node_ptr src)
+int reconstruct_way(t_node_ptr dst, t_way * way)
 {
-	t_node_ptr *child;
+	t_edge *edge = NULL;
+	t_node_ptr ptr = NULL;
 	int i;
 
+	*way = init_way();
+	ptr = dst;
 	i = -1;
-	while (++i < src->links.size)
+	push_front_vec(&way->nodes, &dst);
+	while (++i < ptr->links.size)
 	{
-		child = get_from_vec(&src->links, i);
-		if ((*child)->traversal_state == IN_PATH ||
-				(*child)->is_start_node == 1 || (*child)->is_end_node == 1 || (*child)->bfs == 0)
-			continue;
-		(*child)->traversal_state = NO_INVOLVED;
-		(*child)->bfs = 0;
-		un_mark_nodes_from_src(*child);
-	}
-}
+		edge = get_from_vec(&ptr->links, i);
 
-void un_mark_nodes_from_dst(t_node_ptr dst)
-{
-	t_node_ptr *child;
-	int i;
+		ft_assert(edge != NULL, "Edges corrupted.");
 
-	i = -1;
-	while (++i < dst->links.size)
-	{
-		child = get_from_vec(&dst->links, i);
-		if ((*child)->traversal_state == IN_PATH ||
-			(*child)->is_start_node == 1 || (*child)->is_end_node == 1 || (*child)->bfs == 0)
-			continue;
-		(*child)->traversal_state = NO_INVOLVED;
-		(*child)->bfs = 0;
-		un_mark_nodes_from_src(*child);
-	}
-}
-
-void mark_if_in_path(t_node_ptr dst, t_node_ptr src)
-{
-	t_node_ptr *parent = NULL;
-	t_node_ptr prev = NULL;
-	int i;
-	int rev_bfs;
-
-	i = -1;
-	prev = dst;
-	while (++i < prev->links.size)
-	{
-		rev_bfs = prev->bfs -1;
-		parent = get_from_vec(&prev->links, i);
-		if (*parent == src)
+		if (edge->dst->is_start_node) // SRC
 		{
-			(*parent)->traversal_state = IN_PATH;
-			return;
+			reduce_edge(edge, 1);
+			edge->dst->traversal_state = STATE_IN_PATH;
+			push_front_vec(&way->nodes, &ptr);
+			push_front_vec(&way->edges, edge);
+			return TRUE;
 		}
-		if ((*parent)->bfs != rev_bfs)
+		if (edge->dst->bfs != ptr->bfs - 1) // NO
 			continue;
-		else
+		else // IN PATH
 		{
-			prev = *parent;
-			prev->traversal_state = IN_PATH;
+			reduce_edge(edge, 1);
+			push_front_vec(&way->nodes, &ptr);
+			push_front_vec(&way->edges, edge);
+			ptr = edge->dst;
+			ptr->traversal_state = STATE_IN_PATH;
 			i = -1;
 		}
 	}
+
+	return FALSE;
 }
 
 
-int 			set_bfs(t_node_ptr src, t_node_ptr dst)
+int 			set_bfs(t_node_ptr src, t_node_ptr dst, t_way * way)
 {
 	t_node_ptr	* current;
 	t_vector    queue;
@@ -116,17 +126,15 @@ int 			set_bfs(t_node_ptr src, t_node_ptr dst)
 	while (queue.size != 0)
 	{
 		 current = pop_front_vec(&queue);
-		 if ((*current)->traversal_state == VISITED)
+		 if ((*current)->traversal_state == STATE_VISITED)
 			 continue;
-		 if ((*current)->is_end_node)
+		if ((*current)->is_end_node)
 		 {
-		 	mark_if_in_path(*current, src);
-		 	un_mark_nodes_from_src(src);
-		 	un_mark_nodes_from_dst(dst);
+			ft_assert(reconstruct_way(*current, way), "Error while `reconstruct_way`");
 		 	free_vec(&queue);
 		 	return TRUE;
 		 }
-		 (*current)->traversal_state = VISITED;
+		 (*current)->traversal_state = STATE_IN_PATH;
 		 set_bfs_children(&queue, *current, dst);
 		 free(current);
 	}
@@ -135,21 +143,7 @@ int 			set_bfs(t_node_ptr src, t_node_ptr dst)
 	return FALSE;
 }
 
-int			check_if_node_in_path(t_node_ptr *cur, t_way *way)
-{
-	int i = -1;
-	t_node_ptr *compare;
-
-	while (++i != way->nodes.size)
-	{
-		compare = get_from_vec(&way->nodes, i);
-		if (*cur == *compare && (*cur)->is_start_node != 1)
-			return TRUE;
-	}
-	return FALSE;
-}
-
-int			set_bfs_exclude_path(t_node_ptr src, t_node_ptr dst, t_way *way) ///TODO Треба доделать
+int 			set_bfs_hacked(t_node_ptr src, t_node_ptr dst, t_vector * selected_edges, t_way * way)
 {
 	t_node_ptr	* current;
 	t_vector    queue;
@@ -160,17 +154,15 @@ int			set_bfs_exclude_path(t_node_ptr src, t_node_ptr dst, t_way *way) ///TODO �
 	while (queue.size != 0)
 	{
 		current = pop_front_vec(&queue);
-		if ((*current)->traversal_state == VISITED || check_if_node_in_path(current, way))
+		if ((*current)->traversal_state == STATE_VISITED)
 			continue;
 		if ((*current)->is_end_node)
 		{
-			mark_if_in_path(*current, src);
-			un_mark_nodes_from_src(src);
-			un_mark_nodes_from_dst(dst);
+			ft_assert(reconstruct_way(*current, way), "Error while `reconstruct_way`");
 			free_vec(&queue);
 			return TRUE;
 		}
-		(*current)->traversal_state = VISITED;
+		(*current)->traversal_state = STATE_IN_PATH;
 		set_bfs_children(&queue, *current, dst);
 		free(current);
 	}
@@ -179,101 +171,146 @@ int			set_bfs_exclude_path(t_node_ptr src, t_node_ptr dst, t_way *way) ///TODO �
 	return FALSE;
 }
 
-char			*ft_strjoin_free3(char *s1, char *s2)
-{
-	char	*str;
+void reset_state(t_vector * nodes, size_t except_mark) {
+	t_node_ptr ptr;
+	size_t index;
 
-	str = ft_strjoin(s1, s2);
-	if (s2 != NULL)
-		free(s2);
-	if (s1 != NULL)
-		free(s1);
-	return (str);
+	index = -1;
+
+	while (++index < nodes->size) {
+	    ptr = get_from_node_vec(nodes, index);
+		if (ptr->traversal_state != except_mark) {
+			ptr->traversal_state = STATE_NO_INVOLVED;
+		}
+
+		ptr->bfs = 0;
+	}
 }
 
-//char			*get_ant_pos(const t_vector *ways)
-//{
-//	char			*result;
-//	char			*node;
-//	int				way_i;
-//	unsigned int	i;
-//	const t_way		*way;
-//
-//	way_i = -1;
-//	result = NULL;
-//	while (++way_i != ways->size)
-//	{
-//		i = 0;
-//		way = get_from_vec_const(ways, way_i);
-//		while (++i < way->way_len)
-//		{
-//			if (way->ants[i] != 0)
-//			{
-//				node = (!result) ? ft_strjoin_free2("L", ft_itoa(way->
-//				ants[i])) : ft_strjoin_free2(" L", ft_itoa(way->ants[i]));
-//				node = ft_strjoin_free(node, "-");
-//				node = ft_strjoin_free(node, way->way_nodes[i]);
-//				result = ft_strjoin_free3(result, node);
-//			}
-//		}
-//	}
-//	return (result);
-//}
+typedef struct s_ant_tracker t_ants_tracker;
+struct s_ant_tracker {
+	int finished;
+	int ready_to_go;
+	int all;
+};
 
+t_ants_tracker init_tracker(size_t count) {
+	t_ants_tracker result;
+	result.ready_to_go = count;
+	result.all = count;
+	result.finished = 0;
+	return result;
+}
 
-
-int find_way_by_bfs(t_node_ptr ptr, t_way * way)
+void				write_history(t_vector ways, char **history)
 {
-	t_vector current_children;
-	t_node_ptr current;
+	int way_i;
+	t_way * way;
 	int i;
-	int min_bfs;
-	int is_changed;
 
-	*way = init_way();
-	is_changed = TRUE;
-	ptr->traversal_state = IN_QUEUE;
-
-	while (is_changed)
+	way_i = -1;
+	while (++way_i < ways.size)
 	{
-		is_changed = FALSE;
-		push_back_vec(&way->nodes, &ptr);
+		way = get_from_vec(&ways, way_i);
 		i = -1;
-		current_children = ptr->links;
-		min_bfs = -1;
-		while (++i < current_children.size)
-		{
-			current = *(t_node_ptr *) get_from_vec(&current_children, i);
-			if (current->is_end_node) // TODO подумать, нужен ли в пути последний узел
-				return TRUE;
-			if (current->traversal_state != IN_PATH)
+
+		while (++i < way->nodes.size - 1) {
+			t_node_ptr node = *(t_node_ptr*)get_from_vec(&way->nodes, i);
+
+			if (node->is_end_node && way_i != ways.size - 1)
 				continue;
-			current->traversal_state = NO_INVOLVED;
-			if (min_bfs < current->bfs)
-			{
-				ptr = current;
-				min_bfs = current->bfs;
-				is_changed = TRUE;
-			}
+			if (node->ant_number != NO_ANT)
+				*history = ft_strjoin_free(*history, ft_strjoin_free(ft_strjoin_free(ft_strjoin_free(ft_strjoin_free2("L", ft_itoa(node->ant_number)), "-"), node->name), " "));
 		}
 	}
-	printf("Ways size %d\n", way->nodes.size);
-	free_ways(way);
-	return FALSE;
+
+	*history = ft_strjoin_free(*history, "\n");
 }
 
-char			*solve(t_node_ptr src, t_node_ptr dst)
+int					process_way(t_way *way, t_ants_tracker *tracker,
+						unsigned int *previous_ways_len, const int index)
 {
-	t_vector	ways;
-	char		*result;
+	if (make_way_step(way) != NO_ANT)
+		++tracker->finished;
+	// Запускаю нового муравья на путь по его номеру
+	if (tracker->ready_to_go > (way->nodes.size * index - *previous_ways_len))
+		(*(t_node_ptr*)get_first(&way->nodes))->ant_number = 1 + tracker->all - tracker->ready_to_go--;
+	if (tracker->ready_to_go <= 0)
+		return (TRUE);
+	*previous_ways_len += way->nodes.size;
+	return (FALSE);
+}
+
+unsigned int		get_rest_ant_step(t_ants_tracker tracker, t_vector *ways, char **history)
+{
+    unsigned int	steps_count;
+    int				index;
+
+    steps_count = 0;
+    while (tracker.finished != tracker.all)
+    {
+        index = 0;
+        while (index != ways->size)
+        {
+			if (make_way_step(get_from_vec(ways, index)) != NO_ANT)
+				++tracker.finished;
+            index++;
+        }
+        write_history(*ways, history);
+    }
+
+    return (steps_count);
+}
+
+// Принимает неперескающиеся пути
+size_t get_ant_step(t_node_ptr src, t_vector ways, char ** way_history) {
+	unsigned int previous_ways_len;
+	t_ants_tracker tracker;
+    size_t steps_count;
+    int index;
+
+	tracker = init_tracker(src->ant_number);
+	src->ant_number = NO_ANT;
+	steps_count = 0;
+
+	while (tracker.ready_to_go != 0)
+	{
+		index = 0;
+		previous_ways_len = 0;
+		while (index != ways.size && tracker.ready_to_go > 0)
+		{
+			if (process_way(get_from_vec(&ways, index),
+							&tracker, &previous_ways_len, index))
+				break ;
+			++index;
+		}
+		write_history(ways, way_history);
+		++steps_count;
+	}
+
+	steps_count += get_rest_ant_step(tracker, &ways, way_history);
+
+	return steps_count;
+}
+
+char			*solve(t_node_ptr src, t_node_ptr dst, t_vector * nodes)
+{
+	t_way 		way;
+	t_vector 	ways;
+
+	ways = new_vector(10, sizeof(t_way));
 
 	src->bfs = 0;
-	printf("BFS: %d\n", set_bfs(src, dst));
-	printf("MIN LEN PATH %d\n", dst->bfs + 1);
-	t_way  way;
-	printf("FIND_WAY: %d\n", find_way_by_bfs(src, &way));
+	reset_state(nodes, STATE_NONE);
 
-	set_bfs_exclude_path(src, dst, &way);
+	ft_assert(set_bfs(src, dst, &way), "Error while getting bfs");
+	reset_state(nodes, STATE_IN_PATH);
+	reduce_way(&way, 1);
+	push_back_vec(&ways, &way);
+
+	char * history = NULL;
+	size_t ant_step = get_ant_step(src, ways, &history);
+	printf("%s\n", history);
 
 	return "FUCK";
 }
