@@ -26,36 +26,85 @@ void ft_assert(int result, const char * error) {
 	}
 }
 
-void disable_link(t_edge * edge)
+void disable_edge(t_edge * edge)
 {
 	edge->capacity = 0;
 	edge->backward->capacity = 0;
+	edge->mark = MARK_DISABLE;
 }
 
 void reset_edge(t_edge * edge)
 {
+	if (edge->mark == MARK_DISABLE)
+	{
+		edge->capacity = 0;
+		edge->backward->capacity = 0;
+		return;
+	}
+
 	edge->capacity = edge->original_capacity;
 	edge->backward->capacity = edge->backward->original_capacity;
 }
 
-void reduce_edge(t_edge * edge, const int diff)
+void direct_edge(t_edge * edge)
 {
-	edge->capacity -= diff;
-	edge->backward->capacity += diff;
+    ft_assert(edge->capacity == 1 && edge->backward->capacity == 1,
+			  "You try to reduce wrong edge");
+
+	edge->capacity = 0;
+	edge->backward->capacity = 1;
+	printf("reduced edge: %s->%s(%d)\n", edge->backward->dst->name, edge->dst->name, edge->capacity);
 }
 
-void reduce_way(t_way * way, const int diff)
+void mark_edge(t_edge * edge)
 {
+	edge->mark = MARK_FORWARD_PATH;
+	edge->backward->mark = MARK_BACKWARD_PATH;
+}
+
+void reduce_way_edges(t_way * way)
+{
+    t_edge * edge;
 	int i;
 	i = -1;
 
 	while(++i != way->edges.size)
 	{
-		reduce_edge(get_from_vec(&way->edges, i), diff);
+	    edge = *(t_edge**)get_from_vec(&way->edges, i);
+
+		if (edge->mark == MARK_BACKWARD_PATH)
+		{
+			disable_edge(edge);
+			continue;
+		}
+
+		direct_edge(edge);
+		mark_edge(edge);
 	}
 }
 
-void 			set_bfs_children(t_vector * queue, t_node_ptr current, t_node_ptr dst)
+int is_have_reverse_edge(t_node_ptr node)
+{
+	t_edge  *edge;
+	int			i;
+
+	i = -1;
+	while (++i < node->links.size)
+	{
+		edge = get_from_vec(&node->links, i);
+		if (edge->mark != MARK_BACKWARD_PATH)
+			continue;
+
+		if (edge->capacity == 0)
+			continue;
+
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 {
 	t_edge *edge;
 	int			i;
@@ -64,50 +113,87 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current, t_node_ptr dst)
 	while (++i < current->links.size)
 	{
 		edge = get_from_vec(&current->links, i);
-		if (edge->capacity == 0 || edge->dst->traversal_state != STATE_NO_INVOLVED)
+		printf("Looking to edge:%s->%s: ",  edge->backward->dst->name, edge->dst->name);
+
+		if (edge->capacity == 0)
+		{
+			printf("edge capacity is zero (%d) => skip\n", edge->capacity);
 			continue;
+		}
+
+		/// Если узел уже находится в пути(ях), тогда он нам интересен, только если
+		/// у него есть реверсивный путь.
+		if (edge->dst->traversal_state == STATE_IN_PATH
+			&& is_have_reverse_edge(edge->dst))
+		{
+			printf("edge dst in path, but have reversed path => add\n");
+			edge->dst->bfs = current->bfs + 1;
+			push_back_vec(queue, &edge->dst);
+			continue;
+		}
+
+		if (edge->dst->traversal_state != STATE_NO_INVOLVED) {
+			printf("edge dst in in wrong state: %d => skip\n", edge->dst->traversal_state);
+			continue;
+		}
 
 		edge->dst->bfs = current->bfs + 1;
+		printf("All is clear => add & set bfs %d\n", edge->dst->bfs);
 		edge->dst->traversal_state = STATE_IN_QUEUE;
-		push_back_vec(queue, edge);
+		push_back_vec(queue, &edge->dst);
 	}
 }
 
 
-int reconstruct_way(t_node_ptr dst, t_way * way)
+int reconstruct_way(t_node_ptr ptr, t_way * way)
 {
 	t_edge *edge = NULL;
-	t_node_ptr ptr = NULL;
 	int i;
 
+	printf("Started reconstruct way\n");
+	ft_assert(ptr->is_end_node, "Error. Can reconstruct only from end node");
+
 	*way = init_way();
-	ptr = dst;
 	i = -1;
-	push_front_vec(&way->nodes, &dst);
-	while (++i < ptr->links.size)
-	{
+	while (++i < ptr->links.size) {
 		edge = get_from_vec(&ptr->links, i);
+		edge = edge->backward; // Берем все узлы, которые заходят в текущий
+		printf("looking for %s(%d)->%s(%d): ",
+			   edge->backward->dst->name, edge->backward->dst->bfs,
+			   edge->dst->name, edge->dst->bfs);
 
-		ft_assert(edge != NULL, "Edges corrupted.");
+		ft_assert(edge != NULL, "Edges corrupted");
 
-		if (edge->dst->is_start_node) // SRC
-		{
-			reduce_edge(edge, 1);
-			edge->dst->traversal_state = STATE_IN_PATH;
-			push_front_vec(&way->nodes, &ptr);
-			push_front_vec(&way->edges, edge);
-			return TRUE;
-		}
-		if (edge->dst->bfs != ptr->bfs - 1) // NO
+		if (edge->capacity == 0) {
+			printf("skip by capacity\n");
 			continue;
-		else // IN PATH
+		}
+
+		if (ptr->is_end_node)
 		{
-			reduce_edge(edge, 1);
-			push_front_vec(&way->nodes, &ptr);
-			push_front_vec(&way->edges, edge);
-			ptr = edge->dst;
-			ptr->traversal_state = STATE_IN_PATH;
-			i = -1;
+			if (ptr->bfs != edge->dst->bfs)
+			{
+				printf("for dst==end, bfs not eq\n");
+				continue;
+			}
+		}
+		else if (!edge->dst->is_start_node && edge->backward->dst->bfs != ptr->bfs - 1) // NO
+		{
+		    printf("skip by bfs\n");
+			continue;
+		}
+
+		printf("Add to path %s\n", ptr->name);
+		edge->dst->traversal_state = STATE_IN_PATH;
+		push_front_vec(&way->nodes, &ptr);
+		push_front_vec(&way->edges, &edge);
+		ptr = edge->backward->dst;
+		i = - 1;
+
+		if (edge->backward->dst->is_start_node) // SRC
+		{
+		    push_front_vec(&way->nodes, &edge->backward->dst);
+			return TRUE;
 		}
 	}
 
@@ -116,34 +202,6 @@ int reconstruct_way(t_node_ptr dst, t_way * way)
 
 
 int 			set_bfs(t_node_ptr src, t_node_ptr dst, t_way * way)
-{
-	t_node_ptr	* current;
-	t_vector    queue;
-
-	queue = new_vector(10, sizeof(t_node_ptr));
-	push_back_vec(&queue, &src);
-
-	while (queue.size != 0)
-	{
-		 current = pop_front_vec(&queue);
-		 if ((*current)->traversal_state == STATE_VISITED)
-			 continue;
-		if ((*current)->is_end_node)
-		 {
-			ft_assert(reconstruct_way(*current, way), "Error while `reconstruct_way`");
-		 	free_vec(&queue);
-		 	return TRUE;
-		 }
-		 (*current)->traversal_state = STATE_IN_PATH;
-		 set_bfs_children(&queue, *current, dst);
-		 free(current);
-	}
-
-	free_vec(&queue);
-	return FALSE;
-}
-
-int 			set_bfs_hacked(t_node_ptr src, t_node_ptr dst, t_vector * selected_edges, t_way * way)
 {
 	t_node_ptr	* current;
 	t_vector    queue;
@@ -162,8 +220,8 @@ int 			set_bfs_hacked(t_node_ptr src, t_node_ptr dst, t_vector * selected_edges,
 			free_vec(&queue);
 			return TRUE;
 		}
-		(*current)->traversal_state = STATE_IN_PATH;
-		set_bfs_children(&queue, *current, dst);
+		(*current)->traversal_state = STATE_VISITED;
+		set_bfs_children(&queue, *current);
 		free(current);
 	}
 
@@ -293,24 +351,104 @@ size_t get_ant_step(t_node_ptr src, t_vector ways, char ** way_history) {
 	return steps_count;
 }
 
+void print_way(t_way * way)
+{
+	printf("way:\nnodes:");
+	for (int i = 0; i != way->nodes.size; ++i) {
+		t_node_ptr * ptr = get_from_vec(&way->nodes, i);
+		printf("%s,", (*ptr)->name);
+	}
+	printf("\nedges:");
+	for (int i = 0; i != way->edges.size; ++i) {
+		t_edge ** ptr = get_from_vec(&way->edges, i);
+		printf("%s->%s;", (*ptr)->backward->dst->name, (*ptr)->dst->name);
+	}
+	printf("\n");
+}
+
+void print_node(t_node_ptr node)
+{
+	printf("%s in state %d\n", node->name, node->traversal_state);
+	for (int i = 0; i != node->links.size; ++i) {
+		t_edge * edge = get_from_vec(&node->links, i);
+		printf("%s -> %s (cap: %d, mark: %d); ", node->name, edge->dst->name, edge->capacity, edge->mark);
+	}
+	printf("\n");
+}
+
+void print_nodes(t_vector * nodes)
+{
+	for (int i = 0; i != nodes->size; ++i) {
+		t_node_ptr ptr = get_from_vec(nodes, i);
+		print_node(ptr);
+	}
+}
+
+void reset_all_edges(t_vector * nodes)
+{
+	t_edge * edge;
+	t_node_ptr node;
+	int way_i;
+	int i;
+
+	way_i = -1;
+
+	while (++way_i != nodes->size)
+	{
+		node = get_from_vec(nodes, way_i);
+		i = -1;
+		while (++i != node->links.size)
+		{
+			edge = get_from_vec(&node->links, i);
+			reset_edge(edge);
+		}
+	}
+}
+
 char			*solve(t_node_ptr src, t_node_ptr dst, t_vector * nodes)
 {
 	t_way 		way;
 	t_vector 	ways;
+	char * history = NULL;
 
+	print_nodes(nodes);
 	ways = new_vector(10, sizeof(t_way));
 
 	src->bfs = 0;
 	reset_state(nodes, STATE_NONE);
 
 	ft_assert(set_bfs(src, dst, &way), "Error while getting bfs");
+	print_way(&way);
 	reset_state(nodes, STATE_IN_PATH);
-	reduce_way(&way, 1);
-	push_back_vec(&ways, &way);
+	reduce_way_edges(&way);
 
-	char * history = NULL;
-	size_t ant_step = get_ant_step(src, ways, &history);
-	printf("%s\n", history);
+	//push_back_vec(&ways, &way);
+	//size_t ant_step = get_ant_step(src, ways, &history);
+	//printf("%d\n", ant_step);
+
+	print_nodes(nodes);
+
+	ft_assert(set_bfs(src, dst, &way), "Error while getting bfs");
+	print_way(&way);
+	reset_state(nodes, STATE_IN_PATH);
+	reduce_way_edges(&way);
+	print_nodes(nodes);
+
+	printf("\nreset\n");
+
+	reset_state(nodes, STATE_NONE);
+	reset_all_edges(nodes);
+	print_nodes(nodes);
+
+	ft_assert(set_bfs(src, dst, &way), "Error while getting bfs");
+	print_way(&way);
+	reset_state(nodes, STATE_IN_PATH);
+	reduce_way_edges(&way);
+
+	ft_assert(set_bfs(src, dst, &way), "Error while getting bfs");
+	print_way(&way);
+	reset_state(nodes, STATE_IN_PATH);
+	reduce_way_edges(&way);
 
 	return "FUCK";
 }

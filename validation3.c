@@ -36,7 +36,9 @@ t_edge new_edge(t_node_ptr *dst, const size_t capacity)
 
 	result.dst = *dst;
 	result.capacity = capacity;
+	result.original_capacity = capacity;
 	result.backward = NULL;
+    result.mark = MARK_NONE;
 
 	return result;
 }
@@ -66,7 +68,8 @@ int		write_link(const char *line, t_vector *node_vec)
 
 	tmp = new_edge(&dst_node, 1);
 	push_back_vec(&src_node->links, &tmp);
-	tmp = new_edge(&src_node, -1);
+
+	tmp = new_edge(&src_node, 1);
 	push_back_vec(&dst_node->links, &tmp);
 
 	set_backward_edge(get_last(&src_node->links), get_last(&dst_node->links));

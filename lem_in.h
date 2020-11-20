@@ -25,6 +25,19 @@
 # include <string.h>
 # include <stdlib.h>
 
+#define STATE_NONE INT_MAX
+#define STATE_NO_INVOLVED -1
+#define STATE_IN_QUEUE 0
+#define STATE_VISITED 1
+#define STATE_IN_PATH 2
+
+#define NO_ANT 0
+
+#define MARK_NONE 0
+#define MARK_FORWARD_PATH 1
+#define MARK_BACKWARD_PATH 2
+#define MARK_DISABLE 3
+
 typedef struct			s_ants
 {
 	char				**ants;
@@ -38,12 +51,12 @@ typedef struct s_edge	t_edge;
 struct s_edge
 {
 	t_node_ptr	    dst;
-	size_t		    capacity;
-	size_t 			original_capacity;
+	int		        capacity;
+	int 			original_capacity;
 	struct s_edge * backward;
+	int             mark;
 };
 
-#define NO_ANT 0
 
 struct					s_node
 {
@@ -92,11 +105,6 @@ typedef struct			s_character
 	t_node				*target;
 }						t_character;
 
-#define STATE_NONE INT_MAX
-#define STATE_NO_INVOLVED -1
-#define STATE_IN_QUEUE 0
-#define STATE_VISITED 1
-#define STATE_IN_PATH 2
 
 char					*solve(t_node_ptr src, t_node_ptr dst, t_vector * nodes);
 void					insert_way(t_way *way, char *line);

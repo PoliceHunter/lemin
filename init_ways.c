@@ -17,7 +17,7 @@ t_way				init_way(unsigned int len)
 	len = 0;
 	t_way result;
 	result.nodes = new_vector(100, sizeof(t_node_ptr));
-	result.edges = new_vector(100, sizeof(t_edge));
+	result.edges = new_vector(100, sizeof(t_edge*));
 	return result;
 }
 
