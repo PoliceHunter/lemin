@@ -50,24 +50,24 @@ int make_way_step(t_way * way)
 	return finished_ant;
 }
 
-static size_t			count_words(const char *s, char c)
-{
-	size_t index;
-	size_t words;
-
-	index = 0;
-	words = 0;
-	while (s[index] != '\0')
-	{
-		while (s[index] == c)
-			index++;
-		while (s[index] != c && s[index] != '\0')
-		{
-			words++;
-			while (s[index] != c && s[index] != '\0')
-				index++;
-		}
-	}
-	return (words);
-}
+//static size_t			count_words(const char *s, char c)
+//{
+//	size_t index;
+//	size_t words;
+//
+//	index = 0;
+//	words = 0;
+//	while (s[index] != '\0')
+//	{
+//		while (s[index] == c)
+//			index++;
+//		while (s[index] != c && s[index] != '\0')
+//		{
+//			words++;
+//			while (s[index] != c && s[index] != '\0')
+//				index++;
+//		}
+//	}
+//	return (words);
+//}
 

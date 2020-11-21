@@ -38,6 +38,9 @@
 #define MARK_BACKWARD_PATH 2
 #define MARK_DISABLE 3
 
+#define IS_CORRECTED 1 // if path not cross
+#define IS_UNCORRECTED -1 //if path cross
+
 typedef struct			s_ants
 {
 	char				**ants;
@@ -95,6 +98,7 @@ struct					s_ways
 {
 	t_vector            nodes; // vector<t_node_ptr>
 	t_vector 			edges;
+	int 				state;
 };
 
 t_node_ptr get_node_from_way_const(const t_way * way, size_t index);

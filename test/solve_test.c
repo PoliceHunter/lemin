@@ -18,13 +18,13 @@ size_t count_of_lines(char * buffer) {
 }
 
 int main() {
-    const unsigned int size = 1;
+    const unsigned int size = 13;
     const char * maps[size] = {"txt.txt", "b1.txt", "has_comments.map", "long_Chloe", "long_haaaaaaaaaaaaaaaaaaaardtest",
                                "long_hardmap", "subject-1.map",
                                "subject-2.map", "subject-3.map",
                                "subject-4.map", "subject-5.map"};
 
-    for (int index = 0; index != 13; ++index) {
+    for (int index = 0; index != 1; ++index) {
     	printf("%s\n", maps[index]);
         t_vector nodes = new_vector(100, sizeof(t_node));
         char * map = process_file(maps[index], &nodes);
@@ -33,6 +33,7 @@ int main() {
         if (!(error_map_and_vec(&character)))
             free_map_and_vec(&nodes, map, 5);
         char * result = solve(character.root, character.target, &nodes);
+		printf("%s", result);
         printf("\n");
     }
 }

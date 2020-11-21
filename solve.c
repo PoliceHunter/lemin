@@ -53,7 +53,7 @@ void direct_edge(t_edge * edge)
 
 	edge->capacity = 0;
 	edge->backward->capacity = 1;
-	printf("reduced edge: %s->%s(%d)\n", edge->backward->dst->name, edge->dst->name, edge->capacity);
+//	printf("reduced edge: %s->%s(%d)\n", edge->backward->dst->name, edge->dst->name, edge->capacity);
 }
 
 void mark_edge(t_edge * edge)
@@ -113,41 +113,29 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 	while (++i < current->links.size)
 	{
 		edge = get_from_vec(&current->links, i);
-		printf("Looking to edge:%s->%s: ",  edge->backward->dst->name, edge->dst->name);
-
 		if (edge->capacity == 0)
-		{
-			printf("edge capacity is zero (%d) => skip\n", edge->capacity);
 			continue;
-		}
-
 		/// Если узел уже находится в пути(ях), тогда он нам интересен, только если
 		/// у него есть реверсивный путь.
 		if (edge->dst->traversal_state == STATE_IN_PATH
 			&& is_have_reverse_edge(edge->dst))
 		{
-			printf("edge dst in path, but have reversed path => add\n");
 			edge->dst->bfs = current->bfs + 1;
 			push_back_vec(queue, &edge->dst);
 			continue;
 		}
 
 		if (edge->dst->traversal_state != STATE_NO_INVOLVED)
-		{
-			printf("edge dst in in wrong state: %d => skip\n", edge->dst->traversal_state);
 			continue;
-		}
-
 		edge->dst->bfs = current->bfs + 1;
-		printf("All is clear => add & set bfs %d\n", edge->dst->bfs);
 		edge->dst->traversal_state = STATE_IN_QUEUE;
 		push_back_vec(queue, &edge->dst);
 	}
 }
 
-void reset_state(t_vector * nodes, size_t except_mark) {
+void reset_state(t_vector * nodes, int except_mark) {
 	t_node_ptr ptr;
-	size_t index;
+	int index;
 
 	index = -1;
 
@@ -166,46 +154,32 @@ int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 	t_edge *edge = NULL;
 	int i;
 
-	printf("Started reconstruct way\n");
+
 	ft_assert(ptr->is_end_node, "Error. Can reconstruct only from end node");
 
 	*way = init_way();
 	i = -1;
-	while (++i < ptr->links.size) {
+	while (++i < ptr->links.size)
+	{
 		edge = get_from_vec(&ptr->links, i);
 		edge = edge->backward; // Берем все узлы, которые заходят в текущий
-		printf("looking for %s(%d)->%s(%d): ",
-			   edge->backward->dst->name, edge->backward->dst->bfs,
-			   edge->dst->name, edge->dst->bfs);
-
 		ft_assert(edge != NULL, "Edges corrupted");
-
-		if (edge->capacity == 0) {
-			printf("skip by capacity\n");
+		if (edge->capacity == 0)
 			continue;
-		}
-
 		if (ptr->is_end_node)
 		{
 			if (ptr->bfs != edge->dst->bfs)
-			{
-				printf("for dst==end, bfs not eq\n");
 				continue;
-			}
 		}
-		else if (!edge->dst->is_start_node && edge->backward->dst->bfs != ptr->bfs - 1) // NO
-		{
-		    printf("skip by bfs\n");
+		if (!edge->dst->is_start_node && edge->backward->dst->bfs != ptr->bfs - 1) // NO
 			continue;
-		}
-
-		printf("Add to path %s\n", ptr->name);
 		edge->dst->traversal_state = STATE_IN_PATH;
 		push_front_vec(&way->nodes, &ptr);
 		push_front_vec(&way->edges, &edge);
+		if (edge->mark == MARK_BACKWARD_PATH)
+			way->state = IS_UNCORRECTED;
 		ptr = edge->backward->dst;
 		i = - 1;
-
 		if (edge->backward->dst->is_start_node) // SRC
 		{
 		    push_front_vec(&way->nodes, &edge->backward->dst);
@@ -214,12 +188,11 @@ int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 			return TRUE;
 		}
 	}
-
 	return FALSE;
 }
 
 
-int 			find_by_bfs(t_node_ptr src, t_node_ptr dst, t_way * way, t_vector * nodes)
+int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes)
 {
 	t_node_ptr	* current;
 	t_vector    queue;
@@ -272,11 +245,11 @@ void				write_history(t_vector ways, char **history)
 	while (++way_i < ways.size)
 	{
 		way = get_from_vec(&ways, way_i);
-		i = -1;
+		i = 0;
 
-		while (++i < way->nodes.size - 1) {
+		while (++i < way->nodes.size)
+		{
 			t_node_ptr node = *(t_node_ptr*)get_from_vec(&way->nodes, i);
-
 			if (node->is_end_node && way_i != ways.size - 1)
 				continue;
 			if (node->ant_number != NO_ANT)
@@ -288,13 +261,14 @@ void				write_history(t_vector ways, char **history)
 }
 
 int					process_way(t_way *way, t_ants_tracker *tracker,
-						unsigned int *previous_ways_len, const int index)
+						 int *previous_ways_len, const int index)
 {
 	if (make_way_step(way) != NO_ANT)
 		++tracker->finished;
 	// Запускаю нового муравья на путь по его номеру
 	if (tracker->ready_to_go > (way->nodes.size * index - *previous_ways_len))
-		(*(t_node_ptr*)get_first(&way->nodes))->ant_number = 1 + tracker->all - tracker->ready_to_go--;
+		(*(t_node_ptr *)get_from_vec(&way->nodes, 1))->ant_number = 1 + tracker->all - tracker->ready_to_go--;
+				//*(t_node_ptr*)get_first(&way->nodes))->ant_number = 1 + tracker->all - tracker->ready_to_go--;
 	if (tracker->ready_to_go <= 0)
 		return (TRUE);
 	*previous_ways_len += way->nodes.size;
@@ -316,15 +290,17 @@ unsigned int		get_rest_ant_step(t_ants_tracker tracker, t_vector *ways, char **h
 				++tracker.finished;
             index++;
         }
+        steps_count++;
         write_history(*ways, history);
     }
 
-    return (steps_count);
+    return (steps_count - 1);
 }
 
 // Принимает неперескающиеся пути
-size_t get_ant_step(t_node_ptr src, t_vector ways, char ** way_history) {
-	unsigned int previous_ways_len;
+size_t get_ant_step(t_node_ptr src, t_vector ways, char ** way_history)
+{
+	int previous_ways_len;
 	t_ants_tracker tracker;
     size_t steps_count;
     int index;
@@ -408,41 +384,60 @@ void reset_all_edges(t_vector * nodes)
 	}
 }
 
-char			*solve(t_node_ptr src, t_node_ptr dst, t_vector * nodes)
+void printf_ways(t_vector ways)
 {
-	t_way 		way;
-	t_vector 	ways;
-	char * history = NULL;
+	int i;
 
-	print_nodes(nodes);
-	ways = new_vector(10, sizeof(t_way));
+	i = -1;
+	while (++i != ways.size)
+	{
+		print_way((t_way *)get_from_vec(&ways, i));
+	}
+}
+
+
+char			*solve(t_node_ptr src, t_node_ptr dst, t_vector * nodes) {
+	t_way		way;
+	t_vector	ways;
+	char		*history = NULL;
+	size_t		ant_step;
+	size_t		min_ant_step;
+	char		*prev_history;
+	int			ants;
+	int 		circle;
+
 
 	src->bfs = 0;
-	reset_state(nodes, STATE_NONE);
-
+	min_ant_step = INT_MAX;
+	ants = src->ant_number;
 	/// FIRST WAY
-	ft_assert(find_by_bfs(src, dst, &way, nodes), "Error while getting bfs");
-	print_way(&way);
+	prev_history = NULL;
+	while (TRUE)
+	{
+		reset_state(nodes, STATE_NONE);
+		ways = new_vector(10, sizeof(t_way));
+		while (find_by_bfs(src, &way, nodes) == TRUE)
+		{
+			src->ant_number = ants;
+			push_back_vec(&ways, &way);
+			if (way.state == IS_UNCORRECTED)
+				break;
+			ant_step = get_ant_step(src, ways, &history);
+			if (ant_step < min_ant_step)
+			{
+				if (prev_history != NULL)
+					free(prev_history);
+				min_ant_step = ant_step;
+				prev_history = ft_strdup(history);
+			}
+			circle = 1;
+			ft_strclr(history);
 
-	push_back_vec(&ways, &way);
-	size_t ant_step = get_ant_step(src, ways, &history);
-	printf("ant_step=%d\n", ant_step);
-
-	print_nodes(nodes);
-
-	ft_assert(find_by_bfs(src, dst, &way, nodes), "Error while getting bfs");
-	print_way(&way);
-	print_nodes(nodes);
-
-	printf("\nReset\n");
-	reset_all_edges(nodes);
-	print_nodes(nodes);
-
-	ft_assert(find_by_bfs(src, dst, &way, nodes), "Error while getting bfs");
-	print_way(&way);
-
-	ft_assert(find_by_bfs(src, dst, &way, nodes), "Error while getting bfs");
-	print_way(&way);
-
-	return "FUCK";
+		}
+		if (circle == 0)
+			return prev_history;
+		circle = 0;
+		reset_all_edges(nodes);
+		free_vec(&ways);
+	}
 }
