@@ -48,6 +48,7 @@ t_node	init_and_write_node(t_help *help)
 	node.traversal_state = STATE_NO_INVOLVED;
 	node.r_visited = -1;
 	node.r_bfs = INT_MAX;
+
 	return (node);
 }
 

@@ -133,20 +133,26 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 	}
 }
 
-void reset_state(t_vector * nodes, int except_mark) {
+void reset_state(t_vector * nodes, int except_mark)
+{
 	t_node_ptr ptr;
 	int index;
 
 	index = -1;
 
-	while (++index < nodes->size) {
+	while (++index < nodes->size)
+	{
 		ptr = get_from_node_vec(nodes, index);
-		if (ptr->traversal_state != except_mark) {
+		if (ptr->traversal_state != except_mark)
 			ptr->traversal_state = STATE_NO_INVOLVED;
-		}
-
 		ptr->bfs = 0;
 	}
+}
+
+int reset_all_states(t_vector * nodes)
+{
+	reset_state(nodes, STATE_NONE);
+	return TRUE;
 }
 
 int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
@@ -177,7 +183,7 @@ int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 		push_front_vec(&way->nodes, &ptr);
 		push_front_vec(&way->edges, &edge);
 		if (edge->mark == MARK_BACKWARD_PATH)
-			way->state = IS_UNCORRECTED;
+			way->state = IS_CROSS;
 		ptr = edge->backward->dst;
 		i = - 1;
 		if (edge->backward->dst->is_start_node) // SRC
@@ -199,7 +205,6 @@ int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes)
 
 	queue = new_vector(10, sizeof(t_node_ptr));
 	push_back_vec(&queue, &src);
-
 	while (queue.size != 0)
 	{
 		current = pop_front_vec(&queue);
@@ -215,7 +220,6 @@ int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes)
 		set_bfs_children(&queue, *current);
 		free(current);
 	}
-
 	free_vec(&queue);
 	return FALSE;
 }
@@ -298,17 +302,16 @@ unsigned int		get_rest_ant_step(t_ants_tracker tracker, t_vector *ways, char **h
 }
 
 // Принимает неперескающиеся пути
-size_t get_ant_step(t_node_ptr src, t_vector ways, char ** way_history)
+size_t get_ant_step(t_node_ptr src, int ants_count, t_vector ways, char ** way_history)
 {
 	int previous_ways_len;
 	t_ants_tracker tracker;
     size_t steps_count;
     int index;
 
-	tracker = init_tracker(src->ant_number);
+	tracker = init_tracker(ants_count);
 	src->ant_number = NO_ANT;
 	steps_count = 0;
-
 	while (tracker.ready_to_go != 0)
 	{
 		index = 0;
@@ -323,9 +326,7 @@ size_t get_ant_step(t_node_ptr src, t_vector ways, char ** way_history)
 		write_history(ways, way_history);
 		++steps_count;
 	}
-
 	steps_count += get_rest_ant_step(tracker, &ways, way_history);
-
 	return steps_count;
 }
 
@@ -395,49 +396,84 @@ void printf_ways(t_vector ways)
 	}
 }
 
+t_way *get_place_for_way(t_vector * vec)
+{
+	if (vec->size == vec->capacity)
+		expand_vec(vec, vec->capacity * 2);
+	++vec->size;
+	return get_last(vec);
+}
 
-char			*solve(t_node_ptr src, t_node_ptr dst, t_vector * nodes) {
-	t_way		way;
+t_way *get_last_way(t_vector * vec)
+{
+	return get_last(vec);
+}
+
+typedef struct s_solver_helper t_solver_helper;
+struct s_solver_helper
+{
+	char * best_history;
+	size_t best_ant_step;
+
+	char * current_history;
+	size_t current_ant_step;
+};
+
+t_solver_helper init_helper()
+{
+	t_solver_helper res;
+	res.best_ant_step = INT_MAX;
+	res.current_ant_step = 0;
+	res.best_history = NULL;
+	res.current_history = NULL;
+
+	return res;
+}
+
+void candidate_win(t_solver_helper * helper)
+{
+	if (helper->best_history != NULL)
+		free(helper->best_history);
+	helper->best_ant_step = helper->current_ant_step;
+	helper->best_history = helper->current_history;
+	helper->current_history = NULL;
+	helper->current_ant_step = 0;
+}
+
+int try_candidate(t_solver_helper * helper, t_node_ptr src, int ants_count, t_vector ways)
+{
+	if ((helper->current_ant_step = get_ant_step(src, ants_count, ways, &helper->current_history)) < helper->best_ant_step)
+	    candidate_win(helper);
+	else
+		ft_strclr(helper->current_history);
+
+	return TRUE;
+}
+
+char * solve(t_node_ptr src, int ants_count, t_vector * nodes)
+{
 	t_vector	ways;
-	char		*history = NULL;
-	size_t		ant_step;
-	size_t		min_ant_step;
-	char		*prev_history;
-	int			ants;
-	int 		circle;
+	int 		is_need_recalculate;
+	t_solver_helper helper;
 
-
-	src->bfs = 0;
-	min_ant_step = INT_MAX;
-	ants = src->ant_number;
-	/// FIRST WAY
-	prev_history = NULL;
-	while (TRUE)
+	src->bfs = 0; // TODO Move me prev
+	src->ant_number = NO_ANT; // TODO Move me prev
+	helper = init_helper();
+	is_need_recalculate = TRUE;
+	while (reset_all_states(nodes))
 	{
-		reset_state(nodes, STATE_NONE);
 		ways = new_vector(10, sizeof(t_way));
-		while (find_by_bfs(src, &way, nodes) == TRUE)
+		while (find_by_bfs(src, get_place_for_way(&ways), nodes) == TRUE)
 		{
-			src->ant_number = ants;
-			push_back_vec(&ways, &way);
-			if (way.state == IS_UNCORRECTED)
+			if (get_last_way(&ways)->state == IS_CROSS)
 				break;
-			ant_step = get_ant_step(src, ways, &history);
-			if (ant_step < min_ant_step)
-			{
-				if (prev_history != NULL)
-					free(prev_history);
-				min_ant_step = ant_step;
-				prev_history = ft_strdup(history);
-			}
-			circle = 1;
-			ft_strclr(history);
-
+			is_need_recalculate = try_candidate(&helper, src, ants_count, ways);
 		}
-		if (circle == 0)
-			return prev_history;
-		circle = 0;
+		if (is_need_recalculate == FALSE)
+			return helper.best_history;
+		is_need_recalculate = FALSE;
 		reset_all_edges(nodes);
 		free_vec(&ways);
 	}
+	return NULL;
 }

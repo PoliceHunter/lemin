@@ -39,7 +39,7 @@
 #define MARK_DISABLE 3
 
 #define IS_CORRECTED 1 // if path not cross
-#define IS_UNCORRECTED -1 //if path cross
+#define IS_CROSS -1 //if path cross
 
 typedef struct			s_ants
 {
@@ -110,7 +110,7 @@ typedef struct			s_character
 }						t_character;
 
 
-char					*solve(t_node_ptr src, t_node_ptr dst, t_vector * nodes);
+char * solve(t_node_ptr src, int ants_count, t_vector * nodes);
 void					insert_way(t_way *way, char *line);
 t_way					init_way();
 int						write_link(const char *line, t_vector *node_vec);
@@ -167,8 +167,7 @@ void					free_map_and_vec(t_vector *vec,
 						char *map, int error_num);
 char *write_ants_in_line(t_vector *ways, int ants);
 t_vector		get_non_crossing_group(t_vector *ways, t_way *init_way);
-size_t get_ant_step(t_node_ptr src, t_vector ways,
-					char **way_history);
+size_t get_ant_step(t_node_ptr src, int ants_count, t_vector ways, char ** way_history);
 int make_way_step(t_way *way);
 int				cmp_way(void *left_way, void *right_way);
 void			find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
