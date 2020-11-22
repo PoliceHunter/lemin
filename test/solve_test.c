@@ -32,7 +32,7 @@ int main() {
         t_character character = get_character(&nodes);
         if (!(error_map_and_vec(&character)))
             free_map_and_vec(&nodes, map, 5);
-        char * result = solve(character.root, character.target, &nodes);
+        char * result = solve(character.root, character.root->ant_number, &nodes);
 		printf("%s", result);
         printf("\n");
     }

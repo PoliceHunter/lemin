@@ -35,13 +35,13 @@ int		main(int ac, char **av)
 		free_map_and_vec(&nodes_vec, map, 5);
 		return 0;
 	}
-	// result = solve(character.root, character.target, &nodes_vec);
-	// if (result != NULL)
-	// {
+	result = solve(character.root, &nodes_vec);
+	if (result != NULL)
+	{
 		ft_printf("%s%s\n", map, result);
-	// 	free(result);
-	// }
-	// else
+		free(result);
+	}
+	else
 		free_map_and_vec(&nodes_vec, map, 6);
 	free_map_and_vec(&nodes_vec, map, -1);
 	return (0);
