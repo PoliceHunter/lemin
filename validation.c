@@ -51,12 +51,7 @@ int		empty_string(const char *line, t_help *help)
 		help->errors++;
 		return (1);
 	}
-	if (line[0] == '\0')
-	{
-		help->errors++;
-		return (1);
-	}
-	else if (line[0] == 'L')
+	if (line[0] == '\0' || line[0] == 'L')
 	{
 		help->errors++;
 		return (1);
@@ -69,8 +64,6 @@ int		ft_is_digitstr(const char *str)
 	int i;
 
 	i = 0;
-	if (!str)
-		return (0);
 	while (str[i] != '\0')
 	{
 		if (str[i] >= '0' && str[i] <= '9')

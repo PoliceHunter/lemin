@@ -33,9 +33,9 @@ int		main(int ac, char **av)
 	if (!(error_map_and_vec(&character)))
 	{
 		free_map_and_vec(&nodes_vec, map, 5);
-		return 0;
+		return (0);
 	}
-	result = solve(character.root, &nodes_vec);
+	result = solve(character.root, character.root->ant_number, &nodes_vec);
 	if (result != NULL)
 	{
 		ft_printf("%s%s\n", map, result);

@@ -36,8 +36,10 @@ int		make_way_step(t_way *way)
 	{
 		curr = *(t_node_ptr*)get_from_vec(&way->nodes, i);
 		prev = *(t_node_ptr*)get_from_vec(&way->nodes, i - 1);
+
 		if (prev->ant_number == NO_ANT)
 			continue;
+
 		curr->ant_number = prev->ant_number;
 		prev->ant_number = NO_ANT;
 	}

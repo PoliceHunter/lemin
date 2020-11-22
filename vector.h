@@ -59,8 +59,8 @@ void					emplace_front_vec(t_vector *vec, void *element);
 void					*pop_front_vec(t_vector *vec);
 
 void					*get_from_vec(t_vector *vec, int index);
-void		            *get_last(t_vector *vec);
-void		            *get_first(t_vector *vec);
+void					*get_last(t_vector *vec);
+void					*get_first(t_vector *vec);
 const void				*get_from_vec_const(const t_vector *vec, int index);
 
 int						insert_into_vec(t_vector *vec, int index,

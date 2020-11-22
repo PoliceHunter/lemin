@@ -22,7 +22,7 @@ OBJ = $(SRC:.c=.o)
 LIB = ./libft/libft.a
 LIB_PATH = ./libft/
 
-FLAGS = -g
+FLAGS = -Wall -Wextra -Werror -g
 
 all: $(BIN)
 

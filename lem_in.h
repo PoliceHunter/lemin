@@ -25,21 +25,21 @@
 # include <string.h>
 # include <stdlib.h>
 
-#define STATE_NONE INT_MAX
-#define STATE_NO_INVOLVED -1
-#define STATE_IN_QUEUE 0
-#define STATE_VISITED 1
-#define STATE_IN_PATH 2
+# define STATE_NONE INT_MAX
+# define STATE_NO_INVOLVED -1
+# define STATE_IN_QUEUE 0
+# define STATE_VISITED 1
+# define STATE_IN_PATH 2
 
-#define NO_ANT 0
+# define NO_ANT 0
 
-#define MARK_NONE 0
-#define MARK_FORWARD_PATH 1
-#define MARK_BACKWARD_PATH 2
-#define MARK_DISABLE 3
+# define MARK_NONE 0
+# define MARK_FORWARD_PATH 1
+# define MARK_BACKWARD_PATH 2
+# define MARK_DISABLE 3
 
-#define IS_CORRECTED 1 // if path not cross
-#define IS_CROSS -1 //if path cross
+# define IS_CORRECTED 1 // if path not cross
+# define IS_CROSS -1 //if path cross
 
 typedef struct			s_ants
 {
@@ -51,35 +51,32 @@ typedef struct s_node	t_node;
 typedef t_node			*t_node_ptr;
 
 typedef struct s_edge	t_edge;
-struct s_edge
+struct					s_edge
 {
-	t_node_ptr	    dst;
-	int		        capacity;
-	int 			original_capacity;
-	struct s_edge * backward;
-	int             mark;
+	t_node_ptr			dst;
+	int					capacity;
+	int					original_capacity;
+	struct s_edge		*backward;
+	int					mark;
 };
-
 
 struct					s_node
 {
 	char				*name;
 	int					x;
 	int					y;
-	int 				ant_number;
+	int					ant_number;
 	int					is_start_node;
 	int					is_end_node;
 	int					bfs;
-	int 				r_bfs;
+	int					r_bfs;
 	int					traversal_state;
 	int					r_visited;
 
-	t_vector			links; // vector<t_edge>
+	t_vector			links;
 };
 
-
 typedef struct s_help	t_help;
-
 struct					s_help
 {
 	int					ants;
@@ -96,12 +93,13 @@ typedef struct s_ways	t_way;
 
 struct					s_ways
 {
-	t_vector            nodes; // vector<t_node_ptr>
-	t_vector 			edges;
-	int 				state;
+	t_vector			nodes; // vector<t_node_ptr>
+	t_vector			edges;
+	int					state;
 };
 
-t_node_ptr get_node_from_way_const(const t_way * way, size_t index);
+t_node_ptr				get_node_from_way_const(const t_way *way,
+						size_t index);
 
 typedef struct			s_character
 {
@@ -109,8 +107,8 @@ typedef struct			s_character
 	t_node				*target;
 }						t_character;
 
-
-char * solve(t_node_ptr src, int ants_count, t_vector * nodes);
+char					*solve(t_node_ptr src, int ants_count,
+						t_vector *nodes);
 void					insert_way(t_way *way, char *line);
 t_way					init_way();
 int						write_link(const char *line, t_vector *node_vec);
@@ -165,17 +163,18 @@ int						this_end(char *line, t_help *help);
 int						error_map_and_vec(t_character *character);
 void					free_map_and_vec(t_vector *vec,
 						char *map, int error_num);
-char *write_ants_in_line(t_vector *ways, int ants);
-t_vector		get_non_crossing_group(t_vector *ways, t_way *init_way);
-size_t get_ant_step(t_node_ptr src, int ants_count, t_vector ways, char ** way_history);
-int make_way_step(t_way *way);
-int				cmp_way(void *left_way, void *right_way);
-void			find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
-						  t_vector *ways);
-char				*ft_strjoin_free3(char *s1, char *s2);
-void	free_ways(t_way *way);
-void			printf_ways(t_vector ways);
+char					*write_ants_in_line(t_vector *ways, int ants);
+t_vector				get_non_crossing_group(t_vector *ways, t_way *init_way);
+size_t					get_ant_step(t_node_ptr src, int ants_count,
+						t_vector ways, char **way_history);
+int						make_way_step(t_way *way);
+int						cmp_way(void *left_way, void *right_way);
+void					find_ways(t_node_ptr src, t_node_ptr dst,
+						char *tmp_buffer, t_vector *ways);
+char					*ft_strjoin_free3(char *s1, char *s2);
+void					free_ways(t_way *way);
+void					printf_ways(t_vector ways);
 
-void ft_assert(int result, const char *);
+void					ft_assert(int result, const char *error);
 
 #endif
