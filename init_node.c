@@ -30,7 +30,6 @@ t_node	init_node(char *name)
 	return (node);
 }
 
-
 t_node	init_and_write_node(t_help *help)
 {
 	t_node node;

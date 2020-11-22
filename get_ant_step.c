@@ -12,11 +12,12 @@
 
 #include "lem_in.h"
 
-t_node_ptr get_node_from_way_const(const t_way * way, size_t index) {
+t_node_ptr	get_node_from_way_const(const t_way *way, size_t index)
+{
 	return (const t_node_ptr)get_from_vec_const(&way->nodes, index);
 }
 
-char			*ft_strjoin_free3(char *s1, char *s2)
+char		*ft_strjoin_free3(char *s1, char *s2)
 {
 	char	*str;
 

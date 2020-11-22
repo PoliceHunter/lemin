@@ -16,7 +16,7 @@ int		find_in_vec_internal(t_vector *vec, int start, int end,
 		char *name)
 {
 	int		i;
-	int 	pivot;
+	int		pivot;
 	int		compare;
 
 	i = start - 1;

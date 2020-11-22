@@ -19,7 +19,7 @@ int		this_start(char *line, t_help *help)
 		if (help->multi_st_end == 2)
 		{
 			help->errors++;
-			return 0;
+			return (0);
 		}
 		help->start = 1;
 		help->multi_st_end++;
@@ -35,7 +35,7 @@ int		this_end(char *line, t_help *help)
 		if (help->multi_st_end == 2)
 		{
 			help->errors++;
-			return 0;
+			return (0);
 		}
 		help->end = 1;
 		help->multi_st_end++;
@@ -69,6 +69,8 @@ int		ft_is_digitstr(const char *str)
 	int i;
 
 	i = 0;
+	if (!str)
+		return (0);
 	while (str[i] != '\0')
 	{
 		if (str[i] >= '0' && str[i] <= '9')
