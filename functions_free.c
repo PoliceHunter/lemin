@@ -15,6 +15,7 @@
 void	free_node(t_node *node)
 {
 	free_vec(&node->links);
+	free_vec(&node->ants);
 	if (node->name)
 	{
 		free(node->name);

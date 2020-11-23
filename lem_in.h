@@ -65,14 +65,12 @@ struct					s_node
 	char				*name;
 	int					x;
 	int					y;
-	int					ant_number;
 	int					is_start_node;
 	int					is_end_node;
 	int					bfs;
-	int					r_bfs;
 	int					traversal_state;
-	int					r_visited;
 
+	t_vector			ants;
 	t_vector			links;
 };
 

@@ -117,6 +117,7 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 			continue;
 		/// Если узел уже находится в пути(ях), тогда он нам интересен, только если
 		/// у него есть реверсивный путь.
+		//// TODO НО Необходимо проверить, что до него можно добраться !!!!
 		if (edge->dst->traversal_state == STATE_IN_PATH
 			&& is_have_reverse_edge(edge->dst))
 		{
@@ -177,7 +178,8 @@ int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 			if (ptr->bfs != edge->dst->bfs)
 				continue;
 		}
-		if (!edge->dst->is_start_node && edge->backward->dst->bfs != ptr->bfs - 1) // NO
+		/// Нужно ли проверять на is_start_node
+		if (edge->backward->dst->is_start_node == 0 && edge->backward->dst->bfs != ptr->bfs - 1 || edge->backward->dst->traversal_state == STATE_IN_PATH) // NO
 			continue;
 		edge->dst->traversal_state = STATE_IN_PATH;
 		push_front_vec(&way->nodes, &ptr);
@@ -254,10 +256,11 @@ void				write_history(t_vector ways, char **history)
 		while (++i < way->nodes.size)
 		{
 			t_node_ptr node = *(t_node_ptr*)get_from_vec(&way->nodes, i);
-			if (node->is_end_node && way_i != ways.size - 1)
-				continue;
-			if (node->ant_number != NO_ANT)
-				*history = ft_strjoin_free(*history, ft_strjoin_free(ft_strjoin_free(ft_strjoin_free(ft_strjoin_free2("L", ft_itoa(node->ant_number)), "-"), node->name), " "));
+
+			if (node->ants.size != NO_ANT)
+				*history = ft_strjoin_free(*history, ft_strjoin_free(ft_strjoin_free(ft_strjoin_free(ft_strjoin_free2("L", ft_itoa(*(int *)get_from_vec(&node->ants, 0))), "-"), node->name), " "));
+			if (node->is_end_node == 1)
+				remove_from_vec(&node->ants, 0);
 		}
 	}
 
@@ -267,12 +270,17 @@ void				write_history(t_vector ways, char **history)
 int					process_way(t_way *way, t_ants_tracker *tracker,
 						 int *previous_ways_len, const int index)
 {
+	t_node_ptr curr;
+	int 		ant;
+
+	ant = 1 + tracker->all - tracker->ready_to_go;
+	curr = *(t_node_ptr *)get_from_vec(&way->nodes, 1);
 	if (make_way_step(way) != NO_ANT)
 		++tracker->finished;
 	// Запускаю нового муравья на путь по его номеру
 	if (tracker->ready_to_go > (way->nodes.size * index - *previous_ways_len))
-		(*(t_node_ptr *)get_from_vec(&way->nodes, 1))->ant_number = 1 + tracker->all - tracker->ready_to_go--;
-				//*(t_node_ptr*)get_first(&way->nodes))->ant_number = 1 + tracker->all - tracker->ready_to_go--;
+		push_back_vec(&curr->ants, &ant);
+	tracker->ready_to_go--;
 	if (tracker->ready_to_go <= 0)
 		return (TRUE);
 	*previous_ways_len += way->nodes.size;
@@ -310,7 +318,7 @@ size_t get_ant_step(t_node_ptr src, int ants_count, t_vector ways, char ** way_h
     int index;
 
 	tracker = init_tracker(ants_count);
-	src->ant_number = NO_ANT;
+	remove_from_vec(&src->ants, 0); // Очищаем вектор с муравьями в стартовой ноде
 	steps_count = 0;
 	while (tracker.ready_to_go != 0)
 	{
@@ -445,7 +453,10 @@ int try_candidate(t_solver_helper * helper, t_node_ptr src, int ants_count, t_ve
 	if ((helper->current_ant_step = get_ant_step(src, ants_count, ways, &helper->current_history)) < helper->best_ant_step)
 	    candidate_win(helper);
 	else
+	{
 		ft_strclr(helper->current_history);
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -456,8 +467,6 @@ char * solve(t_node_ptr src, int ants_count, t_vector * nodes)
 	int 		is_need_recalculate;
 	t_solver_helper helper;
 
-	src->bfs = 0; // TODO Move me prev
-	src->ant_number = NO_ANT; // TODO Move me prev
 	helper = init_helper();
 	is_need_recalculate = TRUE;
 	while (reset_all_states(nodes))
@@ -468,6 +477,7 @@ char * solve(t_node_ptr src, int ants_count, t_vector * nodes)
 			if (get_last_way(&ways)->state == IS_CROSS)
 				break;
 			is_need_recalculate = try_candidate(&helper, src, ants_count, ways);
+			src->bfs = 0;
 		}
 		if (is_need_recalculate == FALSE)
 			return helper.best_history;

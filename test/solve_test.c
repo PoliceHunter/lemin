@@ -24,7 +24,7 @@ int main() {
                                "subject-2.map", "subject-3.map",
                                "subject-4.map", "subject-5.map"};
 
-    for (int index = 0; index != 1; ++index) {
+    for (int index = 6; index != 7; ++index) {
     	printf("%s\n", maps[index]);
         t_vector nodes = new_vector(100, sizeof(t_node));
         char * map = process_file(maps[index], &nodes);
@@ -32,7 +32,7 @@ int main() {
         t_character character = get_character(&nodes);
         if (!(error_map_and_vec(&character)))
             free_map_and_vec(&nodes, map, 5);
-        char * result = solve(character.root, character.root->ant_number, &nodes);
+        char * result = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes);
 		printf("%s", result);
         printf("\n");
     }
