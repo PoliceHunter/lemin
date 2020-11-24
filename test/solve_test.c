@@ -24,7 +24,7 @@ int main() {
                                "subject-2.map", "subject-3.map",
                                "subject-4.map", "subject-5.map"};
 
-    for (int index = 6; index != 7; ++index) {
+    for (int index = 0; index != 1; ++index) {
     	printf("%s\n", maps[index]);
         t_vector nodes = new_vector(100, sizeof(t_node));
         char * map = process_file(maps[index], &nodes);

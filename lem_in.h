@@ -174,5 +174,5 @@ void					free_ways(t_way *way);
 void					printf_ways(t_vector ways);
 
 void					ft_assert(int result, const char *error);
-
+void remove_all_not_free(t_vector *ants);
 #endif
