@@ -372,7 +372,7 @@ void print_node(t_node_ptr node)
 	//printf("%s in state %d\n", node->name, node->traversal_state);
 	for (int i = 0; i != node->links.size; ++i) {
 		t_edge * edge = get_from_vec(&node->links, i);
-		ft_assert(node->name == edge->backward->dst->name, "Error edge");
+		ft_assert(ft_strcmp(node->name, edge->backward->dst->name) == 0, "Error edge");
 		printf("[%d]%s == %s-->%s\n", i, node->name, edge->backward->dst->name, edge->dst->name);
 		//printf("%s -> %s (cap: %d, mark: %d); ", node->name, edge->dst->name, edge->capacity, edge->mark);
 	}
