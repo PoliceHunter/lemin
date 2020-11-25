@@ -32,7 +32,7 @@ int		main(int ac, char **av)
 	character = get_character(&nodes_vec);
 	if (!(error_map_and_vec(&character)))
 	{
-		free_map_and_vec(&nodes_vec, map, 5);
+		free_map_and_vec(&nodes_vec, map, STDERR_FILENO);
 		return (0);
 	}
 	result = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes_vec);
@@ -42,7 +42,7 @@ int		main(int ac, char **av)
 		free(result);
 	}
 	else
-		free_map_and_vec(&nodes_vec, map, 6);
+		free_map_and_vec(&nodes_vec, map, STDERR_FILENO);
 	free_map_and_vec(&nodes_vec, map, -1);
 	return (0);
 }

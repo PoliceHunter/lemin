@@ -17,7 +17,7 @@ size_t count_of_lines(char * buffer) {
 
 }
 
-const unsigned int size = 13;
+const unsigned int size = 2;
 const char * maps[size] = {"txt.txt", "b1.txt", "has_comments.map", "long_Chloe", "long_haaaaaaaaaaaaaaaaaaaardtest",
                            "long_hardmap", "subject-1.map",
                            "subject-2.map", "subject-3.map",

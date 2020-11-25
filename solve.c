@@ -292,11 +292,14 @@ int					process_way(t_way *way, t_ants_tracker *tracker,
 
 	ant = 1 + tracker->all - tracker->ready_to_go;
 	curr = *(t_node_ptr *) get_from_vec(&way->nodes, 1);
-	tracker->finished += make_way_step(way);
+	if (make_way_step(way) > index)
+		tracker->finished++;
 	// Запускаю нового муравья на путь по его номеру
 	if (tracker->ready_to_go > (way->nodes.size * index - *previous_ways_len))
+	{
 		push_back_vec(&curr->ants, &ant);
-	tracker->ready_to_go--;
+		tracker->ready_to_go--;
+	}
 	if (curr->is_end_node == 1) {
 		tracker->finished++;
 	}
@@ -355,7 +358,7 @@ size_t get_ant_step(t_node_ptr src, int ants_count, t_vector ways, char ** way_h
 		write_history(ways, way_history);
 		++steps_count;
 	}
-	if (tracker.ready_to_go != 0)
+	if (tracker.ready_to_go == 0)
 		steps_count += get_rest_ant_step(tracker, &ways, way_history);
 	return steps_count;
 }
@@ -490,7 +493,6 @@ char * solve(t_node_ptr src, int ants_count, t_vector * nodes)
 	int 		is_need_recalculate;
 	t_solver_helper helper;
 
-	print_nodes(nodes);
 	helper = init_helper();
 	is_need_recalculate = TRUE;
 	while (reset_all_states(nodes))
@@ -502,7 +504,10 @@ char * solve(t_node_ptr src, int ants_count, t_vector * nodes)
 				break;
 			is_need_recalculate = try_candidate(&helper, src, ants_count, ways);
 			src->bfs = 0;
+//			printf("\nThis first\n\n\n\n");
+//			printf_ways(ways);
 		}
+		printf("%s\n", helper.best_history);
 		if (is_need_recalculate == FALSE)
 			return helper.best_history;
 		is_need_recalculate = FALSE;

@@ -169,7 +169,7 @@ char	*process_file(const char *filename, t_vector *vec)
 	{
 		free(map);
 		ft_error_if_help_and_vec("Error\n", &help, vec);
-		exit(5);
+		exit(STDERR_FILENO);
 	}
 	return (map);
 }
