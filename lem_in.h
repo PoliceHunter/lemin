@@ -31,8 +31,6 @@
 # define STATE_VISITED 1
 # define STATE_IN_PATH 2
 
-# define NO_ANT 0
-
 # define MARK_NONE 0
 # define MARK_FORWARD_PATH 1
 # define MARK_BACKWARD_PATH 2

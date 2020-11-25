@@ -253,44 +253,51 @@ t_ants_tracker init_tracker(size_t count) {
 
 void				write_history(t_vector ways, char **history)
 {
-	int		way_i;
-	t_way	*way;
-	int		i;
+	int way_i;
+	t_way * way;
+	int i;
+	t_node_ptr dst;
 
 	way_i = -1;
-	while (++way_i < ways.size)
-	{
+	while (++way_i < ways.size) {
 		way = get_from_vec(&ways, way_i);
 		i = 0;
-		while (++i < way->nodes.size)
-		{
-			t_node_ptr node = *(t_node_ptr*)get_from_vec(&way->nodes, i);
+		while (++i < way->nodes.size) {
+			t_node_ptr node = *(t_node_ptr *) get_from_vec(&way->nodes, i);
 
-			if (node->ants.size != NO_ANT)
-				*history = ft_strjoin_free(*history, ft_strjoin_free(ft_strjoin_free(ft_strjoin_free(ft_strjoin_free2("L", ft_itoa(*(int *)get_from_vec(&node->ants, 0))), "-"), node->name), " "));
-			if (node->is_end_node == 1)
-				remove_from_vec(&node->ants, 0);
+			if (node->is_end_node) {
+				dst = node;
+				continue;
+			}
+
+			if (node->ants.size != 0)
+				*history = ft_strjoin_free(*history, ft_strjoin_free(ft_strjoin_free(
+						ft_strjoin_free(ft_strjoin_free2("L", ft_itoa(*(int *) get_from_vec(&node->ants, 0))), "-"),
+						node->name), " "));
 		}
 	}
+
+	while (dst->ants.size != 0)
+		*history = ft_strjoin_free(*history, ft_strjoin_free(
+				ft_strjoin_free(ft_strjoin_free(ft_strjoin_free2("L", ft_itoa(*(int *) pop_back_vec(&dst->ants))), "-"),
+								dst->name), " "));
+
 	*history = ft_strjoin_free(*history, "\n");
 }
 
 int					process_way(t_way *way, t_ants_tracker *tracker,
-						 int *previous_ways_len, const int index)
-{
+						 int *previous_ways_len, const int index) {
 	t_node_ptr curr;
-	int 		ant;
+	int ant;
 
 	ant = 1 + tracker->all - tracker->ready_to_go;
-	curr = *(t_node_ptr *)get_from_vec(&way->nodes, 1);
-	if (make_way_step(way) != NO_ANT)
-		++tracker->finished;
+	curr = *(t_node_ptr *) get_from_vec(&way->nodes, 1);
+	tracker->finished += make_way_step(way);
 	// Запускаю нового муравья на путь по его номеру
 	if (tracker->ready_to_go > (way->nodes.size * index - *previous_ways_len))
 		push_back_vec(&curr->ants, &ant);
 	tracker->ready_to_go--;
-	if (curr->is_end_node == 1)
-	{
+	if (curr->is_end_node == 1) {
 		tracker->finished++;
 	}
 	if (tracker->ready_to_go <= 0)
@@ -301,25 +308,26 @@ int					process_way(t_way *way, t_ants_tracker *tracker,
 
 unsigned int		get_rest_ant_step(t_ants_tracker tracker, t_vector *ways, char **history)
 {
-    unsigned int	steps_count;
-    int				index;
-	int 			finish_hp;
+	unsigned int steps_count;
+	int way_index;
+	int finish_hp;
 
 	finish_hp = 0;
     steps_count = 0;
-    while (tracker.finished != tracker.all)
-    {
-        index = 0;
-        while (index != ways->size)
-        {
-			finish_hp = make_way_step(get_from_vec(ways, index));
-            index++;
-        }
-        tracker.finished += finish_hp;
-        ////Посмотреть кол-во мурашей за шаг на финише (get_last->size)
-        steps_count++;
-        write_history(*ways, history);
-    }
+    while (tracker.finished != tracker.all) {
+		ft_assert(tracker.finished < tracker.all, "Too much finished ants");
+
+		way_index = 0;
+		while (way_index != ways->size) {
+			finish_hp = make_way_step(get_from_vec(ways, way_index));
+			way_index++;
+		}
+		printf("%d, %d, %d\n", tracker.finished, finish_hp, tracker.all);
+		tracker.finished += finish_hp;
+		////Посмотреть кол-во мурашей за шаг на финише (get_last->size)
+		steps_count++;
+		write_history(*ways, history);
+	}
 
     return (steps_count);
 }
@@ -339,16 +347,16 @@ size_t get_ant_step(t_node_ptr src, int ants_count, t_vector ways, char ** way_h
 	{
 		index = -1;
 		previous_ways_len = 0;
-		while (++index != ways.size && tracker.ready_to_go > 0)
-		{
+		while (++index != ways.size && tracker.ready_to_go > 0) {
 			if (process_way(get_from_vec(&ways, index),
 							&tracker, &previous_ways_len, index))
-				break ;
+				break;
 		}
 		write_history(ways, way_history);
 		++steps_count;
 	}
-	steps_count += get_rest_ant_step(tracker, &ways, way_history);
+	if (tracker.ready_to_go != 0)
+		steps_count += get_rest_ant_step(tracker, &ways, way_history);
 	return steps_count;
 }
 

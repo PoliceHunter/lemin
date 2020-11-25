@@ -37,30 +37,25 @@ int		make_way_step(t_way *way)
 {
 	t_node_ptr	prev;
 	t_node_ptr	curr;
-	int			finished_ant;
 	size_t		i;
 
 	i = way->nodes.size;
 	//// Потенциально может возникнуть ошибка, если у нас
-	//	remove_all_not_free(&curr->ants);
-	// curr->ant_number = NO_ANT; // Очистить вектор с мурашами, но не удалить
 	while (--i > 0) // i := (size, 0]
 	{
-		curr = *(t_node_ptr*)get_from_vec(&way->nodes, i);
-		prev = *(t_node_ptr*)get_from_vec(&way->nodes, i - 1);
+		curr = *(t_node_ptr *) get_from_vec(&way->nodes, i);
+		prev = *(t_node_ptr *) get_from_vec(&way->nodes, i - 1);
 
-		if (prev->ants.size == NO_ANT)
+		if (prev->ants.size == 0)
 			continue;
 
-		push_back_vec(&curr->ants, get_from_vec(&prev->ants, 0));//Закидываем в вектор мурашей мураша
-		//curr->ant_number = prev->ant_number;
-		//prev->ant_number = NO_ANT;
-		remove_all_not_free(&prev->ants);// Удаляем из текущего вектора мурашей мураша он может быть только один
+		int * ant = pop_front_vec(&prev->ants);
+		emplace_back_vec(&curr->ants, ant); // Закидываем в вектор мурашей мураша
+		free(ant);
 	}
-	curr = *(t_node_ptr*)get_last(&way->nodes); // Dst node
+	curr = *(t_node_ptr *) get_last(&way->nodes); // dst node
 	ft_assert(curr->is_end_node, "Error last way node isn't last");
-	finished_ant = curr->ants.size; // В кол-во пришедших муравшей кладем размер вектора дляя мурашей
-	return (finished_ant);
+	return (curr->ants.size);
 }
 
 //static size_t			count_words(const char *s, char c)
