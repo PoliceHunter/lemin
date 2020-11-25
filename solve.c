@@ -19,6 +19,33 @@
 #define TRUE 1
 #define FALSE 0
 
+void print_way(t_way * way)
+{
+	printf("way:\nnodes:");
+	for (int i = 0; i != way->nodes.size; ++i) {
+		t_node_ptr * ptr = get_from_vec(&way->nodes, i);
+		printf("%s,", (*ptr)->name);
+	}
+	printf("\nedges:");
+	for (int i = 0; i != way->edges.size; ++i) {
+		t_edge ** ptr = get_from_vec(&way->edges, i);
+		printf("%s->%s;", (*ptr)->backward->dst->name, (*ptr)->dst->name);
+	}
+	printf("\nsize: %d", way->nodes.size);
+	printf("\n");
+}
+
+void printf_ways(t_vector ways)
+{
+	int i;
+
+	i = -1;
+	while (++i != ways.size)
+	{
+		print_way((t_way *)get_from_vec(&ways, i));
+	}
+}
+
 void ft_assert(int result, const char * error) {
 	if (result == FALSE) {
 		printf("%s\n", error);
@@ -116,6 +143,8 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 		if (edge->dst->traversal_state == STATE_IN_PATH
 			&& is_have_reverse_edge(edge->dst))
 		{
+			if (edge->dst->bfs != 0)
+				continue;
 			edge->dst->bfs = current->bfs + 1;
 			push_back_vec(queue, &edge->dst);
 			continue;
@@ -167,7 +196,11 @@ int continue_for_reconstruct(t_edge *edge, t_node_ptr ptr)
 			return TRUE;
 	}
 	if (edge->backward->dst->bfs != ptr->bfs - 1 || edge->backward->dst->traversal_state == STATE_IN_PATH)
+	{
+		if (ft_strcmp(edge->backward->dst->name, "Vf_8") == 0)
+			printf("\nthis\n");
 		return TRUE;
+	}
 	return FALSE;
 }
 
@@ -190,6 +223,8 @@ int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 	{
 		edge = get_from_vec(&ptr->links, i);
 		edge = edge->backward; // Берем все узлы, которые заходят в текущий
+		if (ft_strcmp(edge->backward->dst->name, "Vf_8") == 0)
+			printf("\nthis\n");
 		ft_assert(edge != NULL, "Edges corrupted");
 		if (continue_for_reconstruct(edge, ptr) == TRUE)
 			continue;
@@ -209,6 +244,16 @@ int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 	return FALSE;
 }
 
+void printf_queue(t_vector q)
+{
+	t_node_ptr	* current;
+
+	for (int i = 0; i != q.size; i++)
+	{
+		current = get_from_vec(&q, i);
+		printf("%s -- %d <-bfs\n", (*current)->name, (*current)->bfs);
+	}
+}
 
 int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes)
 {
@@ -228,8 +273,18 @@ int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes)
 			free_vec(&queue);
 			return TRUE;
 		}
+//		if (ft_strcmp((*current)->name, "H_l6") == 0)
+//		{
+//			printf("\nH_l6\n");
+//			printf_queue(queue);
+//		}
 		(*current)->traversal_state = STATE_VISITED;
 		set_bfs_children(&queue, *current);
+//		if (ft_strcmp((*current)->name, "H_l6") == 0)
+//		{
+//			printf("\nH_l6\n");
+//			printf_queue(queue);
+//		}
 		free(current);
 	}
 	free_vec(&queue);
@@ -292,7 +347,8 @@ int					process_way(t_way *way, t_ants_tracker *tracker,
 
 	ant = 1 + tracker->all - tracker->ready_to_go;
 	curr = *(t_node_ptr *) get_from_vec(&way->nodes, 1);
-	if (make_way_step(way) > index)
+	int step = make_way_step(way);
+	if (step > index) //// Работает в случае отсортированного вектора путей
 		tracker->finished++;
 	// Запускаю нового муравья на путь по его номеру
 	if (tracker->ready_to_go > (way->nodes.size * index - *previous_ways_len))
@@ -304,7 +360,9 @@ int					process_way(t_way *way, t_ants_tracker *tracker,
 		tracker->finished++;
 	}
 	if (tracker->ready_to_go <= 0)
+	{
 		return (TRUE);
+	}
 	*previous_ways_len += way->nodes.size;
 	return (FALSE);
 }
@@ -325,7 +383,7 @@ unsigned int		get_rest_ant_step(t_ants_tracker tracker, t_vector *ways, char **h
 			finish_hp = make_way_step(get_from_vec(ways, way_index));
 			way_index++;
 		}
-		printf("%d, %d, %d\n", tracker.finished, finish_hp, tracker.all);
+//		printf("%d, %d, %d\n", tracker.finished, finish_hp, tracker.all);
 		tracker.finished += finish_hp;
 		////Посмотреть кол-во мурашей за шаг на финише (get_last->size)
 		steps_count++;
@@ -350,32 +408,17 @@ size_t get_ant_step(t_node_ptr src, int ants_count, t_vector ways, char ** way_h
 	{
 		index = -1;
 		previous_ways_len = 0;
-		while (++index != ways.size && tracker.ready_to_go > 0) {
-			if (process_way(get_from_vec(&ways, index),
-							&tracker, &previous_ways_len, index))
+		while (++index != ways.size) {
+			if (process_way(get_from_vec(&ways, index), &tracker, &previous_ways_len, index) && ways.size == index + 1)
 				break;
 		}
+//		printf("fi%d, re%d, all%d\n", tracker.finished, tracker.ready_to_go, tracker.all);
 		write_history(ways, way_history);
 		++steps_count;
 	}
 	if (tracker.ready_to_go == 0)
 		steps_count += get_rest_ant_step(tracker, &ways, way_history);
 	return steps_count;
-}
-
-void print_way(t_way * way)
-{
-	printf("way:\nnodes:");
-	for (int i = 0; i != way->nodes.size; ++i) {
-		t_node_ptr * ptr = get_from_vec(&way->nodes, i);
-		printf("%s,", (*ptr)->name);
-	}
-	printf("\nedges:");
-	for (int i = 0; i != way->edges.size; ++i) {
-		t_edge ** ptr = get_from_vec(&way->edges, i);
-		printf("%s->%s;", (*ptr)->backward->dst->name, (*ptr)->dst->name);
-	}
-	printf("\n");
 }
 
 void print_node(t_node_ptr node)
@@ -416,17 +459,6 @@ void reset_all_edges(t_vector * nodes)
 			edge = get_from_vec(&node->links, i);
 			reset_edge(edge);
 		}
-	}
-}
-
-void printf_ways(t_vector ways)
-{
-	int i;
-
-	i = -1;
-	while (++i != ways.size)
-	{
-		print_way((t_way *)get_from_vec(&ways, i));
 	}
 }
 
@@ -487,6 +519,37 @@ int try_candidate(t_solver_helper * helper, t_node_ptr src, int ants_count, t_ve
 	return TRUE;
 }
 
+void is_cross2(t_node_ptr curr, int i, t_vector ways)
+{
+	for (int k = i; k != ways.size; k++)
+	{
+		t_way *way = get_from_vec(&ways, k);
+		for (int j = 1; j != way->nodes.size - 1; j++)
+		{
+			t_node *child = *(t_node_ptr *) get_from_vec(&way->nodes, j);
+			if (ft_strcmp(child->name, curr->name) == 0)
+			{
+				printf_ways(ways);
+				printf("ways is cross");
+				exit(2);
+			}
+		}
+	}
+}
+
+void is_cross(t_vector ways)
+{
+	for (int i = 0; i != ways.size - 1; i++)
+	{
+		t_way *way = get_from_vec(&ways, i);
+		for (int j = 1; j != way->nodes.size - 1; j++)
+		{
+			t_node *curr = *(t_node_ptr *) get_from_vec(&way->nodes, j);
+			is_cross2(curr, i + 1, ways);
+		}
+	}
+}
+
 char * solve(t_node_ptr src, int ants_count, t_vector * nodes)
 {
 	t_vector	ways;
@@ -502,6 +565,7 @@ char * solve(t_node_ptr src, int ants_count, t_vector * nodes)
 		{
 			if (get_last_way(&ways)->state == IS_CROSS)
 				break;
+			is_cross(ways);
 			is_need_recalculate = try_candidate(&helper, src, ants_count, ways);
 			src->bfs = 0;
 //			printf("\nThis first\n\n\n\n");
