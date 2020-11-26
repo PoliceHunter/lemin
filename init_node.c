@@ -14,7 +14,7 @@
 
 t_node	init_node(char *name)
 {
-	t_node	node;
+	t_node node;
 
 	node.name = ft_strdup(name);
 	node.x = 0;
@@ -24,6 +24,7 @@ t_node	init_node(char *name)
 	node.is_start_node = 0;
 	node.bfs = 0;
 	node.traversal_state = STATE_NO_INVOLVED;
+	node.is_cross = FALSE;
 	node.ants = new_vector(5, sizeof(int));
 	return (node);
 }
@@ -43,6 +44,7 @@ t_node	init_and_write_node(t_help *help)
 		push_back_vec(&node.ants, &help->ants);
 	node.bfs = 0;
 	node.traversal_state = STATE_NO_INVOLVED;
+	node.is_cross = FALSE;
 	return (node);
 }
 

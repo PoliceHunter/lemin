@@ -25,6 +25,9 @@
 # include <string.h>
 # include <stdlib.h>
 
+#define TRUE 1
+#define FALSE 0
+
 # define STATE_NONE INT_MAX
 # define STATE_NO_INVOLVED -1
 # define STATE_IN_QUEUE 0
@@ -58,18 +61,18 @@ struct					s_edge
 	int					mark;
 };
 
-struct					s_node
-{
-	char				*name;
-	int					x;
-	int					y;
-	int					is_start_node;
-	int					is_end_node;
-	int					bfs;
-	int					traversal_state;
+struct s_node {
+	char * name;
+	int x;
+	int y;
+	int is_start_node;
+	int is_end_node;
+	int bfs;
+	int traversal_state;
+	int is_cross;
 
-	t_vector			ants;
-	t_vector			links;
+	t_vector ants;
+	t_vector links;
 };
 
 typedef struct s_help	t_help;
