@@ -95,7 +95,7 @@ void direct_and_mark_way_edges(t_way * way)
 	while (++i != way->edges.size)
 	{
 	    edge = *(t_edge**)get_from_vec(&way->edges, i);
-		if (edge->dst->is_cross == 1 || edge->backward->dst->is_cross == 1 || edge->mark == MARK_BACKWARD_PATH)
+		if (edge->backward->dst->is_cross == 1)
 		{
 			disable_edge(edge);
 			continue;
