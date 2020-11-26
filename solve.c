@@ -92,10 +92,10 @@ void direct_and_mark_way_edges(t_way * way)
 	int		i;
 
 	i = -1;
-	while(++i != way->edges.size)
+	while (++i != way->edges.size)
 	{
 	    edge = *(t_edge**)get_from_vec(&way->edges, i);
-		if (edge->mark == MARK_BACKWARD_PATH || edge->mark == MARK_FORWARD_PATH)
+		if (edge->dst->is_cross == 1 && edge->backward->dst->is_cross == 1)
 		{
 			disable_edge(edge);
 			continue;
@@ -130,13 +130,10 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 	while (++i < current->links.size) {
 		edge = get_from_vec(&current->links, i);
 
-		if (edge->capacity == 0)
+		if (edge->capacity == 0 || edge->dst->is_cross == 1) //add iscross
 			continue;
-		if (current->traversal_state == STATE_IN_PATH && edge->mark != MARK_BACKWARD_PATH)
+		if (current->traversal_state == STATE_IN_PATH && edge->mark != MARK_BACKWARD_PATH) //
 			continue;
-		/// Если узел уже находится в пути(ях), тогда он нам интересен, только если
-		/// у него есть реверсивный путь.
-		//// TODO НО Необходимо проверить, что до него можно добраться !!!!
 		if (edge->dst->traversal_state == STATE_IN_PATH
 			&& is_have_reverse_edge(edge->dst)) {
 			if (edge->dst->bfs != 0)
@@ -145,7 +142,6 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 			push_back_vec(queue, &edge->dst);
 			continue;
 		}
-
 		if (edge->dst->traversal_state != STATE_NO_INVOLVED)
 			continue;
 		edge->dst->bfs = current->bfs + 1;
@@ -167,6 +163,8 @@ void reset_state(t_vector * nodes, int except_mark)
 		if (ptr->traversal_state != except_mark)
 			ptr->traversal_state = STATE_NO_INVOLVED;
 		ptr->bfs = 0;
+		if (except_mark == STATE_NONE)
+			ptr->is_cross = 0;
 		remove_all_not_free(&ptr->ants);
 	}
 }
@@ -185,7 +183,7 @@ int is_skip_in_reconstruction(t_edge * edge, t_node_ptr src) {
 			return TRUE;
 	}
 
-	if (edge->backward->dst->is_cross) // src of edge is in path
+	if (edge->backward->dst->is_cross && edge->backward->capacity == 0) // src of edge is in path // add second if
 		return edge->mark != MARK_BACKWARD_PATH;
 
 	return (edge->backward->dst->bfs != src->bfs - 1 || edge->backward->dst->traversal_state != STATE_VISITED);
@@ -209,22 +207,18 @@ int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 	while (++i < ptr->links.size) {
 		edge = get_from_vec(&ptr->links, i);
 		edge = edge->backward; // Берем все узлы, которые заходят в текущий
+		if (strcmp(edge->dst->name, "B_i8") == 0)
+			printf("crooss");
 		ft_assert(edge != NULL, "Edges corrupted");
 		if (is_skip_in_reconstruction(edge, ptr) == TRUE)
 			continue;
 		edge->dst->traversal_state = STATE_IN_PATH;
 		push_front_vec(&way->nodes, &ptr);
 		push_front_vec(&way->edges, &edge);
-		if (edge->mark == MARK_BACKWARD_PATH)
+		if (edge->mark == MARK_BACKWARD_PATH || edge->backward->dst->is_cross == 1)
 			way->state = IS_CROSS;
 		ptr = edge->backward->dst;
 		i = -1;
-
-		/// DELETE ME
-		if (strcmp(edge->dst->name, "Vf_8") == 0) {
-			printf("reconstruct edge->dst->traversal_state=%d\n", edge->dst->traversal_state);
-		}
-
 		if (edge->backward->dst->is_start_node) // SRC
 		{
 			finish_reconstruct(way, edge, nodes);
@@ -261,12 +255,14 @@ int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes)
 			free_vec(&queue);
 			return reconstruct_way(*current, way, nodes);
 		}
-		set_bfs_children(&queue, *current);
-
+//		(*current)->traversal_state = STATE_IN_QUEUE;
 		if ((*current)->traversal_state == STATE_IN_PATH)
 			(*current)->is_cross = TRUE;
-
+		(*current)->traversal_state = STATE_IN_QUEUE;
+		set_bfs_children(&queue, *current);
 		(*current)->traversal_state = STATE_VISITED;
+
+
 		free(current);
 	}
 	free_vec(&queue);
@@ -431,11 +427,9 @@ void reset_all_edges(t_vector * nodes)
 	int			i;
 
 	way_i = -1;
-	reset_state(nodes, STATE_NONE);
 	while (++way_i != nodes->size) {
 		node = get_from_vec(nodes, way_i);
 		i = -1;
-		node->is_cross = FALSE;
 		while (++i != node->links.size) {
 			edge = get_from_vec(&node->links, i);
 			reset_edge(edge);
@@ -510,9 +504,9 @@ void is_cross2(t_node_ptr curr, int i, t_vector ways)
 			t_node *child = *(t_node_ptr *) get_from_vec(&way->nodes, j);
 			if (ft_strcmp(child->name, curr->name) == 0)
 			{
-				printf_ways(ways);
-				printf("ways is cross");
-				exit(2);
+				//(ways);
+				printf("\nways is cross on %s\n", (*curr).name);
+
 			}
 		}
 	}
@@ -542,16 +536,18 @@ char * solve(t_node_ptr src, int ants_count, t_vector * nodes)
 	while (reset_all_states(nodes))
 	{
 		ways = new_vector(10, sizeof(t_way));
-		while (find_by_bfs(src, get_place_for_way(&ways), nodes) == TRUE) {
+
+		while (find_by_bfs(src, get_place_for_way(&ways), nodes) == TRUE)
+		{
 			if (get_last_way(&ways)->state == IS_CROSS)
 				break;
-			printf_ways(ways);
 			is_need_recalculate = try_candidate(&helper, src, ants_count, ways);
 			src->bfs = 0;
 		}
-		printf("%s\n", helper.best_history);
 		if (is_need_recalculate == FALSE)
+		{
 			return helper.best_history;
+		}
 		is_need_recalculate = FALSE;
 		reset_all_edges(nodes);
 		free_vec(&ways);

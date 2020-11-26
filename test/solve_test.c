@@ -17,8 +17,8 @@ size_t count_of_lines(char * buffer) {
 
 }
 
-const unsigned int size = 2;
-const char * maps[size] = {"txt.txt", "b1.txt", "has_comments.map", "long_Chloe", "long_haaaaaaaaaaaaaaaaaaaardtest",
+const unsigned int size = 3;
+const char * maps[size] = {"txt.txt", "b1.txt", "bo1.txt", "has_comments.map", "long_Chloe", "long_haaaaaaaaaaaaaaaaaaaardtest",
                            "long_hardmap", "subject-1.map",
                            "subject-2.map", "subject-3.map",
                            "subject-4.map", "subject-5.map"};
@@ -31,13 +31,19 @@ void solve_map(size_t index) {
     if (!(error_map_and_vec(&character)))
         free_map_and_vec(&nodes, map, 5);
     char * result = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes);
+    char *ptr = ft_strchr(map, '\n');
+    while (++ptr) {
+		printf("%c", *ptr);
+		if (*ptr == '\n')
+			break;
+	}
+
     printf("%s", result);
-    printf("\n");
 }
 
 int main() {
 
-    for (int index = 1; index != size; ++index) {
+    for (int index = 2; index != size; ++index) {
         printf("%s\n", maps[index]);
         solve_map(index);
     }
