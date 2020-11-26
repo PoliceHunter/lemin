@@ -95,7 +95,7 @@ void direct_and_mark_way_edges(t_way * way)
 	while (++i != way->edges.size)
 	{
 	    edge = *(t_edge**)get_from_vec(&way->edges, i);
-		if (edge->dst->is_cross == 1 && edge->backward->dst->is_cross == 1)
+		if (edge->dst->is_cross == 1 || edge->backward->dst->is_cross == 1 || edge->mark == MARK_BACKWARD_PATH)
 		{
 			disable_edge(edge);
 			continue;
@@ -207,15 +207,14 @@ int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 	while (++i < ptr->links.size) {
 		edge = get_from_vec(&ptr->links, i);
 		edge = edge->backward; // Берем все узлы, которые заходят в текущий
-		if (strcmp(edge->dst->name, "B_i8") == 0)
-			printf("crooss");
+
 		ft_assert(edge != NULL, "Edges corrupted");
 		if (is_skip_in_reconstruction(edge, ptr) == TRUE)
 			continue;
 		edge->dst->traversal_state = STATE_IN_PATH;
 		push_front_vec(&way->nodes, &ptr);
 		push_front_vec(&way->edges, &edge);
-		if (edge->mark == MARK_BACKWARD_PATH || edge->backward->dst->is_cross == 1)
+		if (edge->mark == MARK_BACKWARD_PATH || edge->dst->is_cross == 1)
 			way->state = IS_CROSS;
 		ptr = edge->backward->dst;
 		i = -1;
@@ -235,7 +234,7 @@ void printf_queue(t_vector q)
 	for (int i = 0; i != q.size; i++)
 	{
 		current = get_from_vec(&q, i);
-		printf("%s -- %d <-bfs\n", (*current)->name, (*current)->bfs);
+		printf("%s -- %d <-bfs \n", (*current)->name, (*current)->bfs);
 	}
 }
 
@@ -255,11 +254,11 @@ int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes)
 			free_vec(&queue);
 			return reconstruct_way(*current, way, nodes);
 		}
-//		(*current)->traversal_state = STATE_IN_QUEUE;
 		if ((*current)->traversal_state == STATE_IN_PATH)
 			(*current)->is_cross = TRUE;
-		(*current)->traversal_state = STATE_IN_QUEUE;
+		(*current)->traversal_state = STATE_IN_QUEUE; ////Если убрать, то нарушает логику, но рез-тат лучше
 		set_bfs_children(&queue, *current);
+
 		(*current)->traversal_state = STATE_VISITED;
 
 

@@ -22,7 +22,7 @@ size_t count_of_lines(char * buffer) {
 // Maps ft = 10 ant maps
 // Maps fth = 1000 ant maps
 
-const unsigned int size = 27;
+const unsigned int size = 27; //27
 const char * maps[size] = {"b.txt", "b1.txt", "b2.txt", "b3.txt", "b4.txt", "b5.txt",
 						   "p1.txt", "p2.txt", "p3.txt", "p4.txt", "p5.txt", "p6.txt",
 			    "b6.txt", "bo1.txt", "bo2.txt", "bo3.txt", "bo4.txt", "bo5.txt", "bo6.txt",
@@ -37,19 +37,22 @@ void solve_map(size_t index) {
         free_map_and_vec(&nodes, map, 5);
     int  result = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes);
     char *ptr = ft_strchr(map, '\n');
-    while (++ptr) {
-		if (*ptr == '\n')
-			break;
-		printf("%c", *ptr);
-	}
+    int cmp = 0;
+    char *res;
 
-    printf("<--%d\n", result);
+    while (++ptr) {
+    	if (ft_isdigit(*ptr)) {
+			cmp = ft_atoi(--ptr);
+			break;
+		}
+	}
+	if (result > cmp + 10)
+    	printf("%s - %d<--%d -- delta is %d\n", maps[index], cmp, result, result - cmp);
 }
 
 int main() {
 
-    for (int index = 0; index != size; ++index) {
-        printf("%s\n", maps[index]);
+    for (int index = 5; index != size; ++index) {
         solve_map(index);
     }
 }
