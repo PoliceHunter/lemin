@@ -525,7 +525,7 @@ void is_cross(t_vector ways)
 	}
 }
 
-char * solve(t_node_ptr src, int ants_count, t_vector * nodes)
+int  solve(t_node_ptr src, int ants_count, t_vector * nodes) // Временно сделал возвращаемое значение int
 {
 	t_vector	ways;
 	int 		is_need_recalculate;
@@ -546,11 +546,11 @@ char * solve(t_node_ptr src, int ants_count, t_vector * nodes)
 		}
 		if (is_need_recalculate == FALSE)
 		{
-			return helper.best_history;
+			return helper.best_ant_step;
 		}
 		is_need_recalculate = FALSE;
 		reset_all_edges(nodes);
 		free_vec(&ways);
 	}
-	return NULL;
+	return 0;
 }

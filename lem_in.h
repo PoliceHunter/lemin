@@ -106,7 +106,7 @@ typedef struct			s_character
 	t_node				*target;
 }						t_character;
 
-char					*solve(t_node_ptr src, int ants_count,
+int					solve(t_node_ptr src, int ants_count,
 						t_vector *nodes);
 void					insert_way(t_way *way, char *line);
 t_way					init_way();
