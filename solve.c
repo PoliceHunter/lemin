@@ -16,7 +16,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-void print_way(t_way * way)
+void print_way(t_way * way) //// Can add to give bonus points
 {
 	for (int i = 0; i != way->nodes.size; ++i) {
 		t_node_ptr * ptr = get_from_vec(&way->nodes, i);
@@ -31,7 +31,7 @@ void print_way(t_way * way)
 	printf("\n");
 }
 
-void printf_ways(t_vector ways)
+void printf_ways(t_vector ways) //// Can add to give bonus points
 {
 	int i;
 
@@ -43,14 +43,16 @@ void printf_ways(t_vector ways)
 	}
 }
 
-void ft_assert(int result, const char * error) {
+void ft_assert(int result, const char * error)
+{
 	if (result == FALSE) {
 		printf("%s\n", error);
 		exit(-1);
 	}
 }
 
-void disable_edge(t_edge * edge) {
+void disable_edge(t_edge * edge)
+{
 	edge->capacity = 0;
 	edge->backward->capacity = 0;
 	edge->mark = MARK_DISABLE;
@@ -94,7 +96,7 @@ void direct_and_mark_way_edges(t_way * way)
 	i = -1;
 	while (++i != way->edges.size) {
 		edge = *(t_edge **) get_from_vec(&way->edges, i);
-		if (edge->backward->dst->is_cross == 1 && edge->dst->is_cross) {
+		if ((edge->backward->dst->is_cross == 1 || edge->dst->is_first_cross == TRUE) && edge->dst->is_cross) {
 			disable_edge(edge);
 			continue;
 		}
@@ -128,15 +130,16 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 	while (++i < current->links.size) {
 		edge = get_from_vec(&current->links, i);
 
-		if (edge->capacity == 0 || edge->dst->is_cross == 1)
+		if (edge->capacity == 0)
 			continue;
-		if (current->traversal_state == STATE_IN_PATH && edge->mark != MARK_BACKWARD_PATH)
+		if (current->is_cross && current->is_first_cross == TRUE) // Change
 			continue;
 		if (edge->dst->traversal_state == STATE_IN_PATH
 			&& is_have_reverse_edge(edge->dst)) {
 			if (edge->dst->bfs != 0)
 				continue;
 			edge->dst->bfs = current->bfs + 1;
+			edge->dst->is_first_cross = TRUE;
 			push_back_vec(queue, &edge->dst);
 			continue;
 		}
@@ -162,7 +165,10 @@ void reset_state(t_vector * nodes, int except_mark)
 			ptr->traversal_state = STATE_NO_INVOLVED;
 		ptr->bfs = 0;
 		if (except_mark == STATE_NONE)
+		{
+			ptr->is_first_cross = FALSE;
 			ptr->is_cross = 0;
+		}
 		remove_all_not_free(&ptr->ants);
 	}
 }
@@ -212,7 +218,7 @@ int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 		edge->dst->traversal_state = STATE_IN_PATH;
 		push_front_vec(&way->nodes, &ptr);
 		push_front_vec(&way->edges, &edge);
-		if (edge->mark == MARK_BACKWARD_PATH)
+		if (edge->mark == MARK_BACKWARD_PATH) // || edge->backward->dst->is_cross)
 			way->state = IS_CROSS;
 		ft_assert(edge->mark == MARK_BACKWARD_PATH || edge->mark == MARK_NONE, "Wrong edge in way");
 		ptr = edge->backward->dst;
@@ -253,6 +259,8 @@ int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes)
 			free_vec(&queue);
 			return reconstruct_way(*current, way, nodes);
 		}
+//		if (strcmp((*current)->name, "Aqi6") == 0)
+//			printf("zod2");
 		if ((*current)->traversal_state == STATE_IN_PATH)
 			(*current)->is_cross = TRUE;
 		(*current)->traversal_state = STATE_IN_QUEUE; ////Если убрать, то нарушает логику, но рез-тат лучше
@@ -573,7 +581,7 @@ solve(t_node_ptr src, int ants_count, t_vector * nodes, char ** history) // Вр
 		}
 		is_need_recalculate = FALSE;
 		reset_all_edges(nodes);
-		free_ways(&ways);
+		free_vec(&ways); //// change and fix free_ways
 	}
 	return 0;
 }

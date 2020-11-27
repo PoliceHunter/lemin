@@ -70,6 +70,7 @@ struct s_node {
 	int bfs;
 	int traversal_state;
 	int is_cross;
+	int is_first_cross;
 
 	t_vector ants;
 	t_vector links;

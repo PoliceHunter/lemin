@@ -35,7 +35,7 @@ int		main(int ac, char **av)
 		free_map_and_vec(&nodes_vec, map, STDERR_FILENO);
 		return (0);
 	}
-	result = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes_vec);
+	int steps = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes_vec, &result);
 	if (result != NULL)
 	{
 		ft_printf("%s%s\n", map, result);
