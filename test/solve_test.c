@@ -17,7 +17,7 @@ get_timestamp() {
     gettimeofday(&now, NULL);
     return now.tv_usec + (timestamp_t) now.tv_sec * 1000000;
 }
-
+static int i = 0;
 void solve_map(const char * filename) {
     t_vector nodes = new_vector(100, sizeof(t_node));
     char * map = process_file(filename, &nodes);
@@ -29,7 +29,6 @@ void solve_map(const char * filename) {
     char * history = "";
     int result = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes, &history);
     float secs = (get_timestamp() - start) / 1000000.0L;
-    printf("%s, %f\n", filename, secs);
     char * ptr = ft_strchr(map, '\n');
     int cmp = 0;
     char * res;
@@ -41,29 +40,32 @@ void solve_map(const char * filename) {
         }
     }
     if (result > cmp + 10)
-        printf("%s - %d - %d - delta is %d\n", filename, cmp, result, result - cmp);
+    {
+    	i++;
+		printf("%d %s time is - [%f] NEED [%d] - OUR [%d] - delta is %d\n", i, filename, secs, cmp, result, result - cmp);
+	}
 }
 
 void solve_maps() {
-    const unsigned int size = 22;//8; //27
+    const unsigned int size = 27;//8; //27
     const char * maps[size] = {"b.txt", "b1.txt", "b2.txt", "b3.txt", "b4.txt", "b5.txt",
                                "p1.txt", "p2.txt", "p3.txt", "p4.txt", "p5.txt", "p6.txt",
                                "b6.txt", "bo1.txt", "bo2.txt", "bo3.txt", "bo4.txt", "bo5.txt", "bo6.txt",
                                "bo7.txt", "bo8.txt", "bo9.txt", "f1.txt", "f2.txt", "ft.txt", "ft1.txt", "fth1.txt"};
-    for (int index = 6; index != size; ++index) {
+    for (int index = 0; index != size; ++index) {
         solve_map(ft_strjoin("./test/", maps[index]));
         printf("\n");
     }
 }
 
 void solve_superposition_maps() {
-    const size_t size = 50;
-    for (int i = 1; i != size; ++i) {
+    const size_t size = 500;
+    for (int i = 266; i != size; ++i) {
         solve_map(ft_strjoin_free2("./supermaps/", ft_itoa(i)));
     }
 }
 
 int main() {
-	solve_maps();
-    //solve_superposition_maps();
+    solve_superposition_maps();
+    printf("%d", i /= 1000);
 }
