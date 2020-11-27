@@ -25,7 +25,7 @@ void print_way(t_way * way)
 	printf("\nedges:");
 	for (int i = 0; i != way->edges.size; ++i) {
 		t_edge ** ptr = get_from_vec(&way->edges, i);
-		printf("%s->%s;", (*ptr)->backward->dst->name, (*ptr)->dst->name);
+		printf("%s-(%d)->%s;", (*ptr)->backward->dst->name, (*ptr)->capacity, (*ptr)->dst->name);
 	}
 	printf("\nsize: %d", way->nodes.size);
 	printf("\n");
@@ -50,17 +50,17 @@ void ft_assert(int result, const char * error) {
 	}
 }
 
-void disable_edge(t_edge * edge)
-{
+void disable_edge(t_edge * edge) {
 	edge->capacity = 0;
 	edge->backward->capacity = 0;
 	edge->mark = MARK_DISABLE;
+	edge->backward->mark = MARK_DISABLE;
 }
 
 void reset_edge(t_edge * edge)
 {
-	if (edge->mark == MARK_DISABLE)
-	{
+	if (edge->mark == MARK_DISABLE) {
+		printf("Edge disabled: %s->%s\n", edge->backward->dst->name, edge->dst->name);
 		edge->capacity = 0;
 		edge->backward->capacity = 0;
 		return;
@@ -68,6 +68,7 @@ void reset_edge(t_edge * edge)
 
 	edge->capacity = edge->original_capacity;
 	edge->backward->capacity = edge->backward->original_capacity;
+	edge->mark = MARK_NONE;
 }
 
 void direct_edge(t_edge * edge)
@@ -77,7 +78,6 @@ void direct_edge(t_edge * edge)
 
 	edge->capacity = 0;
 	edge->backward->capacity = 1;
-//	printf("reduced edge: %s->%s(%d)\n", edge->backward->dst->name, edge->dst->name, edge->capacity);
 }
 
 void mark_edge(t_edge * edge)
@@ -128,9 +128,9 @@ void 			set_bfs_children(t_vector * queue, t_node_ptr current)
 	while (++i < current->links.size) {
 		edge = get_from_vec(&current->links, i);
 
-		if (edge->capacity == 0 || edge->dst->is_cross == 1) //add iscross
+		if (edge->capacity == 0 || edge->dst->is_cross == 1)
 			continue;
-		if (current->traversal_state == STATE_IN_PATH && edge->mark != MARK_BACKWARD_PATH) //
+		if (current->traversal_state == STATE_IN_PATH && edge->mark != MARK_BACKWARD_PATH)
 			continue;
 		if (edge->dst->traversal_state == STATE_IN_PATH
 			&& is_have_reverse_edge(edge->dst)) {
@@ -212,8 +212,9 @@ int reconstruct_way(t_node_ptr ptr, t_way * way, t_vector * nodes)
 		edge->dst->traversal_state = STATE_IN_PATH;
 		push_front_vec(&way->nodes, &ptr);
 		push_front_vec(&way->edges, &edge);
-		if (edge->mark == MARK_BACKWARD_PATH || edge->dst->is_cross == 1)
+		if (edge->mark == MARK_BACKWARD_PATH)
 			way->state = IS_CROSS;
+		ft_assert(edge->mark == MARK_BACKWARD_PATH || edge->mark == MARK_NONE, "Wrong edge in way");
 		ptr = edge->backward->dst;
 		i = -1;
 		if (edge->backward->dst->is_start_node) // SRC
@@ -509,10 +510,9 @@ void is_cross2(t_node_ptr curr, int i, t_vector ways)
 		for (int j = 1; j != way->nodes.size - 1; j++)
 		{
 			t_node *child = *(t_node_ptr *) get_from_vec(&way->nodes, j);
-			if (ft_strcmp(child->name, curr->name) == 0)
-			{
+			if (ft_strcmp(child->name, curr->name) == 0) {
 				//(ways);
-				printf("\nways is cross on %s\n", (*curr).name);
+				printf("Ways is cross on %s!\n", (*curr).name);
 
 			}
 		}
@@ -554,10 +554,12 @@ solve(t_node_ptr src, int ants_count, t_vector * nodes, char ** history) // Вр
 	while (reset_all_states(nodes)) {
 		ways = new_vector(10, sizeof(t_way));
 
-		while (find_by_bfs(src, get_place_for_way(&ways), nodes) == TRUE)
-		{
+		while (find_by_bfs(src, get_place_for_way(&ways), nodes) == TRUE) {
 			if (get_last_way(&ways)->state == IS_CROSS)
 				break;
+
+			is_cross(ways);
+
 			is_need_recalculate = try_candidate(&helper, src, ants_count, ways);
 			src->bfs = 0;
 		}
