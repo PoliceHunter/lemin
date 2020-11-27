@@ -18,7 +18,6 @@
 
 void print_way(t_way * way)
 {
-	printf("way:\nnodes:");
 	for (int i = 0; i != way->nodes.size; ++i) {
 		t_node_ptr * ptr = get_from_vec(&way->nodes, i);
 		printf("%s,", (*ptr)->name);
@@ -39,7 +38,8 @@ void printf_ways(t_vector ways)
 	i = -1;
 	while (++i != ways.size)
 	{
-		print_way((t_way *)get_from_vec(&ways, i));
+		printf("way %d:\n", i);
+		print_way((t_way *) get_from_vec(&ways, i));
 	}
 }
 
@@ -92,11 +92,9 @@ void direct_and_mark_way_edges(t_way * way)
 	int		i;
 
 	i = -1;
-	while (++i != way->edges.size)
-	{
-	    edge = *(t_edge**)get_from_vec(&way->edges, i);
-		if (edge->backward->dst->is_cross == 1)
-		{
+	while (++i != way->edges.size) {
+		edge = *(t_edge **) get_from_vec(&way->edges, i);
+		if (edge->backward->dst->is_cross == 1 && edge->dst->is_cross) {
 			disable_edge(edge);
 			continue;
 		}
@@ -258,9 +256,7 @@ int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes)
 			(*current)->is_cross = TRUE;
 		(*current)->traversal_state = STATE_IN_QUEUE; ////Если убрать, то нарушает логику, но рез-тат лучше
 		set_bfs_children(&queue, *current);
-
 		(*current)->traversal_state = STATE_VISITED;
-
 
 		free(current);
 	}
@@ -283,12 +279,19 @@ t_ants_tracker init_tracker(size_t count) {
 	return result;
 }
 
-void				write_history(t_vector ways, char **history)
-{
+void				write_history(t_vector ways, char **history) {
 	int way_i;
 	t_way * way;
 	int i;
 	t_node_ptr dst;
+
+	if (history == NULL) {
+		way = get_last(&ways);
+		dst = *(t_node_ptr *) get_last(&way->nodes);
+		ft_assert(dst->is_end_node == TRUE, "Last of way is't dst");
+		dst->ants.size = 0;
+		return;
+	}
 
 	way_i = -1;
 	while (++way_i < ways.size) {
@@ -450,13 +453,14 @@ t_way *get_last_way(t_vector * vec)
 }
 
 typedef struct s_solver_helper t_solver_helper;
-struct s_solver_helper
-{
+struct s_solver_helper {
 	char * best_history;
 	size_t best_ant_step;
 
 	char * current_history;
 	size_t current_ant_step;
+
+	int is_history_need;
 };
 
 t_solver_helper init_helper()
@@ -470,22 +474,26 @@ t_solver_helper init_helper()
 	return res;
 }
 
-void candidate_win(t_solver_helper * helper)
-{
+void candidate_win(t_solver_helper * helper) {
 	if (helper->best_history != NULL)
 		free(helper->best_history);
 	helper->best_ant_step = helper->current_ant_step;
 	helper->best_history = helper->current_history;
 	helper->current_history = NULL;
+	helper->is_history_need = FALSE;
 	helper->current_ant_step = 0;
 }
 
-int try_candidate(t_solver_helper * helper, t_node_ptr src, int ants_count, t_vector ways)
-{
-	if ((helper->current_ant_step = get_ant_step(src, ants_count, ways, &helper->current_history)) < helper->best_ant_step)
-	    candidate_win(helper);
-	else
-	{
+int process_candidate(t_solver_helper * helper, t_node_ptr src, int ants_count, t_vector ways) {
+	helper->current_ant_step = get_ant_step(src, ants_count, ways,
+											helper->is_history_need ? &helper->current_history : NULL);
+	return helper->current_ant_step;
+}
+
+int try_candidate(t_solver_helper * helper, t_node_ptr src, int ants_count, t_vector ways) {
+	if (process_candidate(helper, src, ants_count, ways) < helper->best_ant_step)
+		candidate_win(helper);
+	else {
 		ft_strclr(helper->current_history);
 		return FALSE;
 	}
@@ -513,27 +521,37 @@ void is_cross2(t_node_ptr curr, int i, t_vector ways)
 
 void is_cross(t_vector ways)
 {
-	for (int i = 0; i != ways.size - 1; i++)
-	{
-		t_way *way = get_from_vec(&ways, i);
-		for (int j = 1; j != way->nodes.size - 1; j++)
-		{
-			t_node *curr = *(t_node_ptr *) get_from_vec(&way->nodes, j);
+	for (int i = 0; i != ways.size - 1; i++) {
+		t_way * way = get_from_vec(&ways, i);
+		for (int j = 1; j != way->nodes.size - 1; j++) {
+			t_node * curr = *(t_node_ptr *) get_from_vec(&way->nodes, j);
 			is_cross2(curr, i + 1, ways);
 		}
 	}
 }
 
-int  solve(t_node_ptr src, int ants_count, t_vector * nodes) // Временно сделал возвращаемое значение int
+void free_way(t_way * way) {
+	free_vec(&way->nodes);
+	free_vec(&way->edges);
+	free(way);
+}
+
+void free_ways(t_vector * ways) {
+	while (ways->size != 0)
+		free_way(pop_back_vec(ways));
+	free_vec(ways);
+}
+
+int
+solve(t_node_ptr src, int ants_count, t_vector * nodes, char ** history) // Временно сделал возвращаемое значение int
 {
-	t_vector	ways;
-	int 		is_need_recalculate;
+	t_vector ways;
+	int is_need_recalculate;
 	t_solver_helper helper;
 
 	helper = init_helper();
 	is_need_recalculate = TRUE;
-	while (reset_all_states(nodes))
-	{
+	while (reset_all_states(nodes)) {
 		ways = new_vector(10, sizeof(t_way));
 
 		while (find_by_bfs(src, get_place_for_way(&ways), nodes) == TRUE)
@@ -543,13 +561,17 @@ int  solve(t_node_ptr src, int ants_count, t_vector * nodes) // Временно
 			is_need_recalculate = try_candidate(&helper, src, ants_count, ways);
 			src->bfs = 0;
 		}
-		if (is_need_recalculate == FALSE)
-		{
+		if (is_need_recalculate == FALSE) {
+			ways.size -= 1;
+			helper.is_history_need = TRUE;
+			process_candidate(&helper, src, ants_count, ways);
+			*history = helper.best_history;
+			free_ways(&ways);
 			return helper.best_ant_step;
 		}
 		is_need_recalculate = FALSE;
 		reset_all_edges(nodes);
-		free_vec(&ways);
+		free_ways(&ways);
 	}
 	return 0;
 }

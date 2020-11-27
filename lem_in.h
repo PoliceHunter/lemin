@@ -106,9 +106,10 @@ typedef struct			s_character
 	t_node				*target;
 }						t_character;
 
-int					solve(t_node_ptr src, int ants_count,
-						t_vector *nodes);
-void					insert_way(t_way *way, char *line);
+int solve(t_node_ptr src, int ants_count,
+		  t_vector * nodes, char ** history);
+
+void insert_way(t_way * way, char * line);
 t_way					init_way();
 int						write_link(const char *line, t_vector *node_vec);
 void					free_vec_node(t_vector *vec);
@@ -170,9 +171,12 @@ int						make_way_step(t_way *way);
 int						cmp_way(void *left_way, void *right_way);
 void					find_ways(t_node_ptr src, t_node_ptr dst,
 						char *tmp_buffer, t_vector *ways);
-char					*ft_strjoin_free3(char *s1, char *s2);
-void					free_ways(t_way *way);
-void					printf_ways(t_vector ways);
+
+char * ft_strjoin_free3(char * s1, char * s2);
+
+void free_ways(t_vector * way);
+
+void printf_ways(t_vector ways);
 
 void					ft_assert(int result, const char *error);
 void remove_all_not_free(t_vector *ants);
