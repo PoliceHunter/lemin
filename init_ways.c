@@ -19,6 +19,6 @@ t_way	init_way(unsigned int len)
 	len = 0;
 	result.nodes = new_vector(100, sizeof(t_node_ptr));
 	result.edges = new_vector(100, sizeof(t_edge*));
-	result.state = IS_CORRECTED;
+	result.is_have_backward_edges = FALSE;
 	return (result);
 }

@@ -3,6 +3,7 @@
 ##start
 start 4 0
 ##end
+#Here is the number of lines required: 5
 end 4 6
 4 0 4
 1 4 2

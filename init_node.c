@@ -25,7 +25,6 @@ t_node	init_node(char *name)
 	node.bfs = 0;
 	node.traversal_state = STATE_NO_INVOLVED;
 	node.is_cross = FALSE;
-	node.is_first_cross = FALSE;
 	node.ants = new_vector(5, sizeof(int));
 	return (node);
 }
@@ -44,7 +43,6 @@ t_node	init_and_write_node(t_help *help)
 	if (help->start == 1)
 		push_back_vec(&node.ants, &help->ants);
 	node.bfs = 0;
-	node.is_first_cross = FALSE;
 	node.traversal_state = STATE_NO_INVOLVED;
 	node.is_cross = FALSE;
 	return (node);

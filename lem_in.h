@@ -33,6 +33,7 @@
 # define STATE_IN_QUEUE 0
 # define STATE_VISITED 1
 # define STATE_IN_PATH 2
+# define STATE_IN_CROSS 3
 
 # define MARK_NONE 0
 # define MARK_FORWARD_PATH 1
@@ -70,7 +71,6 @@ struct s_node {
 	int bfs;
 	int traversal_state;
 	int is_cross;
-	int is_first_cross;
 
 	t_vector ants;
 	t_vector links;
@@ -95,7 +95,7 @@ struct					s_ways
 {
 	t_vector			nodes; // vector<t_node_ptr>
 	t_vector			edges;
-	int					state;
+	int					is_have_backward_edges;
 };
 
 t_node_ptr				get_node_from_way_const(const t_way *way,
@@ -168,7 +168,7 @@ char					*write_ants_in_line(t_vector *ways, int ants);
 t_vector				get_non_crossing_group(t_vector *ways, t_way *init_way);
 size_t					get_ant_step(t_node_ptr src, int ants_count,
 						t_vector ways, char **way_history);
-int						make_way_step(t_way *way);
+int						make_way_step(t_way *way, int * ants_in_way);
 int						cmp_way(void *left_way, void *right_way);
 void					find_ways(t_node_ptr src, t_node_ptr dst,
 						char *tmp_buffer, t_vector *ways);

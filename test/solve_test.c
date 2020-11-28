@@ -18,17 +18,18 @@ get_timestamp() {
     return now.tv_usec + (timestamp_t) now.tv_sec * 1000000;
 }
 static int i = 0;
-void solve_map(const char * filename) {
+int solve_map(const char * filename) {
     t_vector nodes = new_vector(100, sizeof(t_node));
-    char * map = process_file(filename, &nodes);
 
+    timestamp_t start = get_timestamp();
+    char * map = process_file(filename, &nodes);
     t_character character = get_character(&nodes);
     if (!(error_map_and_vec(&character)))
         free_map_and_vec(&nodes, map, 5);
-    timestamp_t start = get_timestamp();
     char * history = "";
     int result = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes, &history);
     float secs = (get_timestamp() - start) / 1000000.0L;
+
     char * ptr = ft_strchr(map, '\n');
     int cmp = 0;
     char * res;
@@ -39,11 +40,9 @@ void solve_map(const char * filename) {
             break;
         }
     }
-    if (result > cmp + 10)
-    {
-    	i++;
-		printf("%d %s time is - [%f] NEED [%d] - OUR [%d] - delta is %d\n", i, filename, secs, cmp, result, result - cmp);
-	}
+    i++;
+    printf("%d %s time is - [%f] NEED [%d] - OUR [%d] - delta is %d\n", i, filename, secs, cmp, result, result - cmp);
+    return 1;
 }
 
 void solve_maps() {
@@ -54,18 +53,26 @@ void solve_maps() {
                                "bo7.txt", "bo8.txt", "bo9.txt", "f1.txt", "f2.txt", "ft.txt", "ft1.txt", "fth1.txt"};
     for (int index = 0; index != size; ++index) {
         solve_map(ft_strjoin("./test/", maps[index]));
-        printf("\n");
     }
+}
+
+int solve_superposition_map(int i)
+{
+    return solve_map(ft_strjoin_free2("./supermaps/", ft_itoa(i)));
 }
 
 void solve_superposition_maps() {
-    const size_t size = 500;
-    for (int i = 266; i != size; ++i) {
-        solve_map(ft_strjoin_free2("./supermaps/", ft_itoa(i)));
+    const size_t size = 250;
+
+    size_t failed = 0;
+    for (int i = 1; i != size; ++i) {
+        failed += solve_superposition_map(i);
     }
+    printf("Failed %f\n", failed / size * 100.0);
 }
 
 int main() {
+    solve_maps();
     solve_superposition_maps();
     printf("%d", i /= 1000);
 }

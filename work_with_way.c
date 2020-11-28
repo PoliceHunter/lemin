@@ -22,25 +22,17 @@ void	shift_array_right(void *array, unsigned int size,
 
 void remove_all_not_free(t_vector *ants)
 {
-	int i;
-
-	i = -1;
-	if (ants->size == 0)
-		return;
-	while (++i < ants->size)
-	{
-		remove_from_vec(ants, i);
-	}
+	while (ants->size != 0)
+		free(pop_back_vec(ants));
 }
 // Return number of ant or NO_ANT
-int		make_way_step(t_way *way)
+int		make_way_step(t_way *way, int * ants_in_way)
 {
 	t_node_ptr	prev;
 	t_node_ptr	curr;
 	size_t		i;
 
 	i = way->nodes.size;
-	//// Потенциально может возникнуть ошибка, если у нас
 	while (--i > 0) // i := (size, 0]
 	{
 		curr = *(t_node_ptr *) get_from_vec(&way->nodes, i);
@@ -52,6 +44,9 @@ int		make_way_step(t_way *way)
 		int * ant = pop_front_vec(&prev->ants);
 		emplace_back_vec(&curr->ants, ant); // Закидываем в вектор мурашей мураша
 		free(ant);
+
+		if (curr->is_end_node == FALSE)
+			*ants_in_way += curr->ants.size;
 	}
 	curr = *(t_node_ptr *) get_last(&way->nodes); // dst node
 	ft_assert(curr->is_end_node, "Error last way node isn't last");

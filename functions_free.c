@@ -23,19 +23,6 @@ void	free_node(t_node *node)
 	}
 }
 
-void	free_vec_ways(t_vector ways)
-{
-	int i;
-
-	i = 0;
-	while (i != ways.size)
-	{
-		free_ways(get_from_vec(&ways, i));
-		i++;
-	}
-	free_vec(&ways);
-}
-
 void	free_vec_node(t_vector *vec)
 {
 	int i;
