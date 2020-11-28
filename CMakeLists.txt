@@ -138,12 +138,19 @@ set(SOURCE_CODE
         push_pop_vector.c
         init_free_vector.c
         get_ant_step.c
-        cross_group.c
+        reset_states.c
         work_with_way.c
         error.c
         get_emplace_vector.c
         insert_sort_vector.c
         parse_map.c
+        calculate.c
+        init_tracker_helper.c
+        queue.c
+        work_with_way2.c
+        direct_edges.c
+        is_cross.c
+        set_edges.c
         write_ants_path.c)
 
 add_executable(Lem_in ${SOURCE_CODE} main.c)

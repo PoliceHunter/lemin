@@ -48,3 +48,9 @@ void	free_array(char **array)
 	}
 	free(array);
 }
+
+void	remove_all_not_free(t_vector *ants)
+{
+	while (ants->size != 0)
+		free(pop_back_vec(ants));
+}

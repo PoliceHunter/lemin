@@ -98,14 +98,39 @@ struct					s_ways
 	int					is_have_backward_edges;
 };
 
-t_node_ptr				get_node_from_way_const(const t_way *way,
-						size_t index);
-
 typedef struct			s_character
 {
 	t_node				*root;
 	t_node				*target;
 }						t_character;
+
+typedef struct s_track	t_track;
+struct					s_track
+{
+	int finished;
+	int ready_to_go;
+	int all;
+	int ants_in_way;
+};
+
+typedef struct s_solver_helper t_solver_helper;
+struct s_solver_helper
+{
+	char * best_history;
+	size_t best_ant_step;
+
+	char * current_history;
+	size_t current_ant_step;
+
+	int is_history_need;
+	t_vector best_ways;
+};
+
+typedef struct s_queue
+{
+	t_node_ptr	val;
+	struct s_queue	*next;
+} t_queue;
 
 int solve(t_node_ptr src, int ants_count,
 		  t_vector * nodes, char ** history);
@@ -164,21 +189,39 @@ int						this_end(char *line, t_help *help);
 int						error_map_and_vec(t_character *character);
 void					free_map_and_vec(t_vector *vec,
 						char *map, int error_num);
-char					*write_ants_in_line(t_vector *ways, int ants);
-t_vector				get_non_crossing_group(t_vector *ways, t_way *init_way);
 size_t					get_ant_step(t_node_ptr src, int ants_count,
 						t_vector ways, char **way_history);
 int						make_way_step(t_way *way, int * ants_in_way);
 int						cmp_way(void *left_way, void *right_way);
-void					find_ways(t_node_ptr src, t_node_ptr dst,
-						char *tmp_buffer, t_vector *ways);
 
 char * ft_strjoin_free3(char * s1, char * s2);
 
-void free_ways(t_vector * way);
 
 void printf_ways(t_vector ways);
 
 void					ft_assert(int result, const char *error);
 void remove_all_not_free(t_vector *ants);
+int refresh_state(t_vector * ways, t_vector * nodes);
+void reset_state(t_vector * nodes, int except_mark);
+t_solver_helper init_helper(void);
+t_track init_tracker(size_t count);
+void			write_history(t_vector ways, char **history);
+int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes);
+void queue_up(t_queue ** queue, t_node_ptr node, int new_bfs);
+int			is_in_path(t_edge * edge, t_node_ptr src);
+int		finish_reconstruct(t_way *way, t_edge *edge, t_vector *nodes);
+void		direct_and_mark_way_edges(t_way * way);
+t_way *get_last_way(t_vector * vec);
+t_way *get_place_for_way(t_vector * vec);
+int try_candidate(t_solver_helper * helper, t_node_ptr src, int ants_count, t_vector ways);
+void calculate_best_history(t_solver_helper * helper, t_node_ptr src, int ants_count);
+int is_cross(t_vector * ways);
+int					process_way(t_way *way, t_track *tracker,
+								   int *previous_ways_len, const int index);
+t_edge * get_reverse_edge(t_node_ptr node, int expect_state);
+t_node_ptr dequeue(t_queue **head);
+void clear_queue(t_queue *queue);
+void	set_backward_edge(t_node_ptr src, t_edge *edge);
+void	set_backward_edges(t_vector *nodes);
+
 #endif

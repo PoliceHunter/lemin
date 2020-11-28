@@ -6,71 +6,105 @@
 /*   By: tmyrcell <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/14 13:23:20 by tmyrcell          #+#    #+#             */
-/*   Updated: 2020/11/14 13:23:22 by tmyrcell         ###   ########.fr       */
+/*   Updated: 2020/11/28 22:51:27 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lem_in.h"
 
-void	shift_array_right(void *array, unsigned int size,
-						unsigned int element_size)
+void		set_bfs_children(t_queue **queue, t_node_ptr current)
 {
-	ft_memmove(array + element_size, array, (size - 1) * element_size);
-	ft_memset(array, 0, element_size);
-}
+	t_edge	*edge;
+	t_edge	*backward_edge;
+	int		i;
 
-
-void remove_all_not_free(t_vector *ants)
-{
-	while (ants->size != 0)
-		free(pop_back_vec(ants));
-}
-// Return number of ant or NO_ANT
-int		make_way_step(t_way *way, int * ants_in_way)
-{
-	t_node_ptr	prev;
-	t_node_ptr	curr;
-	size_t		i;
-
-	i = way->nodes.size;
-	while (--i > 0) // i := (size, 0]
+	i = -1;
+	while (++i < current->links.size)
 	{
-		curr = *(t_node_ptr *) get_from_vec(&way->nodes, i);
-		prev = *(t_node_ptr *) get_from_vec(&way->nodes, i - 1);
-
-		if (prev->ants.size == 0)
-			continue;
-
-		int * ant = pop_front_vec(&prev->ants);
-		emplace_back_vec(&curr->ants, ant); // Закидываем в вектор мурашей мураша
-		free(ant);
-
-		if (curr->is_end_node == FALSE)
-			*ants_in_way += curr->ants.size;
+		edge = get_from_vec(&current->links, i);
+		if (edge->capacity == 0)
+			continue ;
+		if (edge->dst->traversal_state == STATE_IN_PATH && (backward_edge =
+				get_reverse_edge(edge->dst, STATE_IN_PATH)) != NULL)
+		{
+			if (edge->dst->traversal_state == STATE_VISITED)
+				continue ;
+			edge->dst->bfs = current->bfs + 1;
+			edge->dst->traversal_state = STATE_IN_CROSS;
+			if (backward_edge->dst->traversal_state == STATE_IN_PATH)
+				queue_up(queue, backward_edge->dst, current->bfs + 2);
+			continue ;
+		}
+		if (edge->dst->traversal_state != STATE_NO_INVOLVED)
+			continue ;
+		queue_up(queue, edge->dst, current->bfs + 1);
 	}
-	curr = *(t_node_ptr *) get_last(&way->nodes); // dst node
-	ft_assert(curr->is_end_node, "Error last way node isn't last");
-	return (curr->ants.size);
 }
 
-//static size_t			count_words(const char *s, char c)
-//{
-//	size_t index;
-//	size_t words;
-//
-//	index = 0;
-//	words = 0;
-//	while (s[index] != '\0')
-//	{
-//		while (s[index] == c)
-//			index++;
-//		while (s[index] != c && s[index] != '\0')
-//		{
-//			words++;
-//			while (s[index] != c && s[index] != '\0')
-//				index++;
-//		}
-//	}
-//	return (words);
-//}
+int			skip_reconstruct(t_edge *edge, t_node_ptr ptr)
+{
+	if (edge->backward->dst->traversal_state == STATE_IN_CROSS)
+	{
+		if (edge->mark != MARK_BACKWARD_PATH)
+			return (TRUE);
+	}
+	else if (is_in_path(edge, ptr) == FALSE)
+		return (TRUE);
+	if (edge->dst->is_end_node == FALSE)
+		edge->dst->traversal_state = STATE_IN_PATH;
+	return (FALSE);
+}
 
+int			reconstruct_way(t_node_ptr ptr, t_way *way, t_vector *nodes)
+{
+	t_edge	*edge;
+	int		i;
+
+	*way = init_way();
+	i = -1;
+	while (++i < ptr->links.size)
+	{
+		edge = get_from_vec(&ptr->links, i);
+		edge = edge->backward;
+		if (skip_reconstruct(edge, ptr))
+			continue ;
+		push_front_vec(&way->nodes, &ptr);
+		push_front_vec(&way->edges, &edge);
+		way->is_have_backward_edges = way->is_have_backward_edges ||
+				edge->mark == MARK_BACKWARD_PATH;
+		ptr = edge->backward->dst;
+		i = -1;
+		if (edge->backward->dst->is_start_node)
+			return (finish_reconstruct(way, edge, nodes));
+	}
+	return (FALSE);
+}
+
+int			find_by_bfs(t_node_ptr src, t_way *way, t_vector *nodes)
+{
+	t_node_ptr	current;
+	t_queue		*queue;
+	int			res;
+
+	queue = NULL;
+	queue_up(&queue, src, 1);
+	while (queue != NULL)
+	{
+		current = dequeue(&queue);
+		if (current->traversal_state == STATE_VISITED)
+		{
+			free(current);
+			continue ;
+		}
+		if (current->is_end_node)
+		{
+			res = reconstruct_way(current, way, nodes);
+			reset_state(nodes, STATE_IN_PATH);
+			clear_queue(queue);
+			return (res);
+		}
+		set_bfs_children(&queue, current);
+		current->traversal_state = STATE_VISITED;
+	}
+	return (FALSE);
+}

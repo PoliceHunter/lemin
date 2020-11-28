@@ -14,7 +14,7 @@
 
 int		check_duplicate_links(t_node_ptr src, t_node_ptr dst)
 {
-	t_edge 		*tmp;
+	t_edge		*tmp;
 	int			index;
 
 	index = 0;

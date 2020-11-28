@@ -51,7 +51,8 @@ void solve_maps() {
                                "p1.txt", "p2.txt", "p3.txt", "p4.txt", "p5.txt", "p6.txt",
                                "b6.txt", "bo1.txt", "bo2.txt", "bo3.txt", "bo4.txt", "bo5.txt", "bo6.txt",
                                "bo7.txt", "bo8.txt", "bo9.txt", "f1.txt", "f2.txt", "ft.txt", "ft1.txt", "fth1.txt"};
-    for (int index = 0; index != size; ++index) {
+    for (int index = 1; index != size; ++index)
+    {
         solve_map(ft_strjoin("./test/", maps[index]));
     }
 }

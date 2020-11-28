@@ -23,6 +23,7 @@ int		main(int ac, char **av)
 	t_vector	nodes_vec;
 	char		*result;
 	char		*map;
+	int			steps;
 
 	map = NULL;
 	result = NULL;
@@ -35,7 +36,7 @@ int		main(int ac, char **av)
 		free_map_and_vec(&nodes_vec, map, STDERR_FILENO);
 		return (0);
 	}
-	int steps = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes_vec, &result);
+	steps = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes_vec, &result);
 	if (result != NULL)
 	{
 		ft_printf("%s%s", map, result);
