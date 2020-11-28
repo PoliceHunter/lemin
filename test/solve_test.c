@@ -63,17 +63,17 @@ int solve_superposition_map(int i)
 }
 
 void solve_superposition_maps() {
-    const size_t size = 250;
+    const size_t size = 500;
 
     size_t failed = 0;
-    for (int i = 1; i != size; ++i) {
+    for (int i = 250; i != size; ++i) {
         failed += solve_superposition_map(i);
     }
     printf("Failed %f\n", failed / size * 100.0);
 }
 
 int main() {
-    solve_maps();
+    //solve_maps();
     solve_superposition_maps();
     printf("%d", i /= 1000);
 }

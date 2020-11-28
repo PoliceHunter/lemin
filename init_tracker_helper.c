@@ -21,6 +21,7 @@ t_solver_helper		init_helper(void)
 	res.best_history = NULL;
 	res.current_history = NULL;
 	res.is_history_need = FALSE;
+	res.best_ways = new_vector(1, sizeof(t_way));
 	return (res);
 }
 

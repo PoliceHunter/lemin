@@ -13,8 +13,10 @@
 SRC = validation.c validation2.c validation3.c functions_free.c init_ways.c \
 		addapt_vector.c addapt_vector2.c find_or_insert.c \
 			init_node.c main.c solve.c sort_vector.c get_emplace_vector.c push_pop_vector.c \
-				init_free_vector.c insert_sort_vector.c error.c parse_map.c cross_group.c \
-				    get_ant_step.c work_with_way.c write_ants_path.c
+				init_free_vector.c insert_sort_vector.c error.c parse_map.c \
+				    get_ant_step.c work_with_way.c write_ants_path.c \
+				     init_tracker_helper.c queue.c set_edges.c reset_states.c work_with_way2.c \
+				     direct_edges.c calculate.c is_cross.c
 
 BIN = lem-in
 OBJ = $(SRC:.c=.o)

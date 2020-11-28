@@ -35,8 +35,9 @@ int		try_candidate(t_solver_helper *helper, t_node_ptr src,
 			int ants_count, t_vector ways)
 {
 	if (process_candidate(helper, src, ants_count,
-				ways) < helper->best_ant_step)
+				ways) < (int)helper->best_ant_step)
 	{
+		free_ways(&helper->best_ways);
 		helper->best_ways = ways;
 		candidate_win(helper);
 		return (TRUE);

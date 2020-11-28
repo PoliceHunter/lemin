@@ -139,7 +139,6 @@ void insert_way(t_way * way, char * line);
 t_way					init_way();
 int						write_link(const char *line, t_vector *node_vec);
 void					free_vec_node(t_vector *vec);
-void					free_vec_ways(t_vector ways);
 void					free_array(char **array);
 
 t_node					init_node();
@@ -223,5 +222,7 @@ t_node_ptr dequeue(t_queue **head);
 void clear_queue(t_queue *queue);
 void	set_backward_edge(t_node_ptr src, t_edge *edge);
 void	set_backward_edges(t_vector *nodes);
+void	free_way(t_way *way);
+void	free_ways(t_vector *ways);
 
 #endif

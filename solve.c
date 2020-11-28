@@ -63,22 +63,38 @@ t_edge	*get_reverse_edge(t_node_ptr node, int expect_state)
 
 void	mark_ways(t_vector *ways)
 {
-	int		i;
-	int		j;
-	t_way	*way;
+	int i;
+	t_way *way;
 
 	i = -1;
-	j = 1;
 	while (++i != ways->size - 1)
 	{
 		way = get_from_vec(ways, i);
-		while (j < way->nodes.size - 1)
+		for (int j = 1; j != way->nodes.size - 1; j++)
 		{
-			(*(t_node_ptr *)get_from_vec(&way->nodes, j))->
-					traversal_state = STATE_IN_PATH;
-			j++;
+			(*(t_node_ptr *) get_from_vec(&way->nodes, j))->traversal_state = STATE_IN_PATH;
 		}
 	}
+}
+
+void	free_way(t_way *way)
+{
+	free_vec(&way->nodes);
+	free_vec(&way->edges);
+	free(way);
+}
+
+void	free_ways(t_vector *ways)
+{
+	if (ways->size == 0)
+	{
+		free_vec(ways);
+		return ;
+	}
+	while (ways->size != 0)
+		free_way(pop_back_vec(ways));
+	if (ways->data != NULL)
+		free_vec(ways);
 }
 
 int		solve(t_node_ptr src, int ants_count, t_vector *nodes, char **history)
@@ -107,5 +123,6 @@ int		solve(t_node_ptr src, int ants_count, t_vector *nodes, char **history)
 	calculate_best_history(&helper, src, ants_count);
 	*history = helper.best_history == NULL ?
 			helper.current_history : helper.best_history;
+	free_ways(&helper.best_ways);
 	return (helper.best_ant_step);
 }
