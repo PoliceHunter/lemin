@@ -136,14 +136,19 @@ set(SOURCE_CODE
         validation3.c
         vector.h
         push_pop_vector.c
-        init_free_vector.c
         get_ant_step.c
-        cross_group.c
         work_with_way.c
         error.c
         get_emplace_vector.c
         insert_sort_vector.c
         parse_map.c
+        set_edges.c
+        reset_states.c
+        direct_edges.c
+        test_print.c
+        init_tracker_helper.c
+        work_with_way2.c
+        init_free_vector.c
         write_ants_path.c)
 
 add_executable(Lem_in ${SOURCE_CODE} main.c)

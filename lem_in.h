@@ -107,6 +107,26 @@ typedef struct			s_character
 	t_node				*target;
 }						t_character;
 
+typedef struct s_solver_helper t_solver_helper;
+struct s_solver_helper
+{
+	char * best_history;
+	size_t best_ant_step;
+
+	char * current_history;
+	size_t current_ant_step;
+
+	int is_history_need;
+};
+
+typedef struct s_ant_tracker t_ants_tracker;
+struct s_ant_tracker
+{
+	int finished;
+	int ready_to_go;
+	int all;
+};
+
 int solve(t_node_ptr src, int ants_count,
 		  t_vector * nodes, char ** history);
 
@@ -114,7 +134,6 @@ void insert_way(t_way * way, char * line);
 t_way					init_way();
 int						write_link(const char *line, t_vector *node_vec);
 void					free_vec_node(t_vector *vec);
-void					free_vec_ways(t_vector ways);
 void					free_array(char **array);
 
 t_node					init_node();
@@ -164,21 +183,30 @@ int						this_end(char *line, t_help *help);
 int						error_map_and_vec(t_character *character);
 void					free_map_and_vec(t_vector *vec,
 						char *map, int error_num);
-char					*write_ants_in_line(t_vector *ways, int ants);
-t_vector				get_non_crossing_group(t_vector *ways, t_way *init_way);
 size_t					get_ant_step(t_node_ptr src, int ants_count,
 						t_vector ways, char **way_history);
 int						make_way_step(t_way *way);
 int						cmp_way(void *left_way, void *right_way);
-void					find_ways(t_node_ptr src, t_node_ptr dst,
-						char *tmp_buffer, t_vector *ways);
-
 char * ft_strjoin_free3(char * s1, char * s2);
-
 void free_ways(t_vector * way);
-
 void printf_ways(t_vector ways);
-
 void					ft_assert(int result, const char *error);
 void remove_all_not_free(t_vector *ants);
+void		set_backward_edges(t_vector *nodes);
+int is_have_reverse_edge(t_node_ptr node);
+void direct_and_mark_way_edges(t_way * way);
+void reset_edge(t_edge * edge);
+t_ants_tracker init_tracker(size_t count);
+int 			find_by_bfs(t_node_ptr src, t_way * way, t_vector * nodes);
+void reset_state(t_vector * nodes, int except_mark);
+int reset_all_states(t_vector * nodes);
+void reset_all_edges(t_vector * nodes);
+void candidate_win(t_solver_helper * helper);
+t_solver_helper init_helper();
+int is_skip_in_reconstruction(t_edge * edge, t_node_ptr src);
+t_way *get_last_way(t_vector * vec);
+t_way *get_place_for_way(t_vector * vec);
+
+
+
 #endif

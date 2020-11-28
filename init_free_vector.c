@@ -43,7 +43,7 @@ int			remove_from_vec(t_vector *vec, int index)
 		return (-1);
 	ft_memmove(vec->data + (vec->elem_size * index),
 			vec->data + (vec->elem_size * (index + 1)),
-			vec->elem_size * (vec->size - index));
+		vec->elem_size * (vec->size - index));
 	vec->size--;
 	return (0);
 }

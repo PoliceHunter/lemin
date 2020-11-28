@@ -43,7 +43,8 @@ void		*pop_front_vec(t_vector *vec)
 
 	if (vec->size == 0)
 		return (NULL);
-	result = malloc(vec->elem_size);
+	if (!(result = malloc(vec->elem_size)))
+		return (NULL);
 	ft_memmove(result, vec->data, vec->elem_size);
 	ft_memmove(vec->data, vec->data + vec->elem_size,
 	--vec->size * vec->elem_size);

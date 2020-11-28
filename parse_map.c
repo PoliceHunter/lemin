@@ -12,7 +12,7 @@
 
 #include "lem_in.h"
 
-int		check_room(char *line, t_help *help)
+int			check_room(char *line, t_help *help)
 {
 	char	**room;
 
@@ -39,7 +39,7 @@ int		check_room(char *line, t_help *help)
 	return (help->errors);
 }
 
-void	parse_line(char *line, t_help *help, t_vector *vec)
+void		parse_line(char *line, t_help *help, t_vector *vec)
 {
 	if (this_start(line, help))
 		return ;
@@ -62,42 +62,7 @@ void	parse_line(char *line, t_help *help, t_vector *vec)
 		help->errors += write_link(line, vec);
 }
 
-void set_backward_edge(t_node_ptr src, t_edge * edge)
-{
-	int candidate_index;
-
-	if (edge->backward != NULL)
-		return;
-
-	candidate_index = -1;
-	while(++candidate_index < edge->dst->links.size)
-	{
-		t_edge * candidate = get_from_vec(&edge->dst->links, candidate_index);
-		if (candidate->dst != src)
-			continue;
-
-		edge->backward = candidate;
-		edge->backward->backward = edge;
-		break;
-	}
-}
-
-void set_backward_edges(t_vector * nodes)
-{
-	int node_index;
-	int edge_index;
-
-	node_index = -1;
-	while (++node_index < nodes->size)
-	{
-		t_node_ptr node = get_from_vec(nodes, node_index);
-		edge_index = -1;
-		while (++edge_index < node->links.size)
-			set_backward_edge(node, get_from_vec(&node->links, edge_index));
-	}
-}
-
-void	*parse_file2(int fd, char *map, t_help *help, t_vector *vec)
+void		*parse_file2(int fd, char *map, t_help *help, t_vector *vec)
 {
 	char *line;
 
@@ -125,7 +90,7 @@ void	*parse_file2(int fd, char *map, t_help *help, t_vector *vec)
 	return (map);
 }
 
-void	*parse_file(int fd, char *line, t_help *help, t_vector *vec)
+void		*parse_file(int fd, char *line, t_help *help, t_vector *vec)
 {
 	char *map;
 
@@ -154,7 +119,7 @@ void	*parse_file(int fd, char *line, t_help *help, t_vector *vec)
 	return (parse_file2(fd, map, help, vec));
 }
 
-char	*process_file(const char *filename, t_vector *vec)
+char		*process_file(const char *filename, t_vector *vec)
 {
 	t_help	help;
 	int		fd;

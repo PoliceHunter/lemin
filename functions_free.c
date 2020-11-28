@@ -23,19 +23,6 @@ void	free_node(t_node *node)
 	}
 }
 
-void	free_vec_ways(t_vector ways)
-{
-	int i;
-
-	i = 0;
-	while (i != ways.size)
-	{
-		free_ways(get_from_vec(&ways, i));
-		i++;
-	}
-	free_vec(&ways);
-}
-
 void	free_vec_node(t_vector *vec)
 {
 	int i;
@@ -60,4 +47,17 @@ void	free_array(char **array)
 		i++;
 	}
 	free(array);
+}
+
+void remove_all_not_free(t_vector *ants)
+{
+	int i;
+
+	i = -1;
+	if (ants->size == 0)
+		return;
+	while (++i < ants->size)
+	{
+		remove_from_vec(ants, i);
+	}
 }

@@ -17,12 +17,13 @@ char	*parse_arguments(char **av, t_vector *vec)
 	return (process_file(av[1], vec));
 }
 
-int		main(int ac, char **av)
+int		main(int ac, char **av) ///28/25
 {
 	t_character	character;
 	t_vector	nodes_vec;
 	char		*result;
 	char		*map;
+	int			steps;
 
 	map = NULL;
 	result = NULL;
@@ -35,10 +36,11 @@ int		main(int ac, char **av)
 		free_map_and_vec(&nodes_vec, map, STDERR_FILENO);
 		return (0);
 	}
-	int steps = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes_vec, &result);
+	steps = solve(character.root, *(int *)
+	get_from_vec(&character.root->ants, 0), &nodes_vec, &result);
 	if (result != NULL)
 	{
-		ft_printf("%s%s", map, result);
+		ft_printf("%s\n%s", map, result);
 		free(result);
 	}
 	else
