@@ -54,6 +54,8 @@ t_vector	try_candidate(t_solver_helper *helper, t_node_ptr src,
 char		*calculate_best_history(t_solver_helper *helper,
 						t_node_ptr src, int ants_count)
 {
+	if (helper->best_ways.size == 0)
+		return NULL;
 	helper->is_history_need = TRUE;
 	process_candidate(helper, src, ants_count, helper->best_ways);
 	helper->best_history = helper->current_history;

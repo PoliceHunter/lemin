@@ -86,8 +86,6 @@ t_vector	solve(t_node_ptr src, int *ants_count,
 		if (is_cross(&ways) != FALSE)
 			break ;
 	}
-	if (ways.size == 0)
-		return (helper.best_ways);
 	ways = try_candidate(&helper, src, *ants_count, ways);
 	free_ways(&ways);
 	if (history != NULL)

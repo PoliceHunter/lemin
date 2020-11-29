@@ -51,6 +51,7 @@ void			solve_by_helper(t_main_helper *helper)
 	if (helper->ways.size == 0 || helper->ants == 0)
 	{
 		free_ways(&helper->ways);
+		ft_printf("Error");
 		free_map_and_vec(&helper->nodes_vec, helper->map, STDERR_FILENO);
 	}
 }
