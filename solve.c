@@ -11,9 +11,6 @@
 /* ************************************************************************** */
 
 #include "lem_in.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
 t_edge		*get_reverse_edge(t_node_ptr node, int expect_state)
 {

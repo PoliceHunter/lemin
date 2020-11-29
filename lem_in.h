@@ -40,16 +40,21 @@
 # define MARK_BACKWARD_PATH 2
 # define MARK_DISABLE 3
 
-# define IS_CORRECTED 1 // if path not cross
-# define IS_CROSS -1 //if path cross
-
-typedef struct			s_ants
-{
-	char				**ants;
-}						t_ants;
-
-struct s_node;
 typedef struct s_node	t_node;
+struct					s_node
+{
+	char				*name;
+	int					x;
+	int					y;
+	int					is_start_node;
+	int					is_end_node;
+	int					bfs;
+	int					traversal_state;
+	int					is_cross;
+	t_vector			ants;
+	t_vector			links;
+};
+
 typedef t_node			*t_node_ptr;
 
 typedef struct s_edge	t_edge;
@@ -68,30 +73,15 @@ typedef struct			s_character
 	t_node				*target;
 }						t_character;
 
-typedef struct s_main_helper t_main_helper;
-struct s_main_helper
+typedef struct s_main_helper	t_main_helper;
+struct							s_main_helper
 {
-	t_character	character;
-	char		*result;
-	t_vector	nodes_vec;
-	char		*map;
-	int			ants;
-	t_vector	ways;
-};
-
-struct s_node
-{
-	char * name;
-	int x;
-	int y;
-	int is_start_node;
-	int is_end_node;
-	int bfs;
-	int traversal_state;
-	int is_cross;
-
-	t_vector ants;
-	t_vector links;
+	t_character					character;
+	char						*result;
+	t_vector					nodes_vec;
+	char						*map;
+	int							ants;
+	t_vector					ways;
 };
 
 typedef struct s_help	t_help;
@@ -108,10 +98,9 @@ struct					s_help
 };
 
 typedef struct s_ways	t_way;
-
 struct					s_ways
 {
-	t_vector			nodes; // vector<t_node_ptr>
+	t_vector			nodes;
 	t_vector			edges;
 	int					is_have_backward_edges;
 };
