@@ -17,26 +17,36 @@ char	*parse_arguments(char **av, t_vector *vec)
 	return (process_file(av[1], vec));
 }
 
+t_args init_args()
+{
+	t_args args;
+
+	args.flag_way = FALSE;
+	args.flag_help = FALSE;
+	args.flag_steps = FALSE;
+
+	return args;
+}
+
 int		main(int ac, char **av)
 {
 	t_character	character;
 	t_vector	nodes_vec;
 	char		*result;
 	char		*map;
-	int			steps;
+	t_args 		args;
+	int			ant;
+	t_vector	ways;
 
 	map = NULL;
 	result = NULL;
-	ac = 1;
 	nodes_vec = new_vector(1, sizeof(t_node));
 	map = parse_arguments(av, &nodes_vec);
 	character = get_character(&nodes_vec);
 	if (!(error_map_and_vec(&character)))
-	{
 		free_map_and_vec(&nodes_vec, map, STDERR_FILENO);
-		return (0);
-	}
-	steps = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes_vec, &result);
+	ant = *(int *) get_from_vec(&character.root->ants, 0);
+	ways = solve(character.root, &ant, &nodes_vec, &result);
 	if (result != NULL)
 	{
 		ft_printf("%s%s", map, result);

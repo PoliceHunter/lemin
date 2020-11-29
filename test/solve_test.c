@@ -84,19 +84,21 @@ int print_help() {
     return 0;
 }
 
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
     int is_history = FALSE;
     int is_ways = FALSE;
     char * history;
-    char ** history_argument = NULL;
+  	int is_steps_count = FALSE;
+
 
     while (argc != 1) {
-        if (strcmp(argv[argc], "--help") == 0)
+        if (strcmp(argv[argc], "-h") == 0)
             return print_help();
-        if (strcmp(argv[argc], "--ways") == 0)
+        if (strcmp(argv[argc], "-w") == 0)
             is_ways = TRUE;
-        if (strcmp(argv[argc], "--history") == 0)
-            history_argument = &history;
+        if (strcmp(argv[argc], "-s") == 0)
+
         --argc;
     }
 

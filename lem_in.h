@@ -104,6 +104,14 @@ typedef struct			s_character
 	t_node				*target;
 }						t_character;
 
+typedef struct s_args	t_args;
+struct					s_args
+{
+	int 				flag_way;
+	int 				flag_steps;
+	int 				flag_help;
+};
+
 typedef struct s_track	t_track;
 struct					s_track
 {
@@ -132,8 +140,7 @@ typedef struct s_queue
 	struct s_queue	*next;
 } t_queue;
 
-t_vector solve(t_node_ptr src, int * ants_count,
-			   t_vector * nodes, char ** history);
+t_vector solve(t_node_ptr src, int * ants_count, t_vector * nodes, char ** history);
 
 void insert_way(t_way * way, char * line);
 t_way					init_way();
