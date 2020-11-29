@@ -12,48 +12,84 @@
 
 #include "lem_in.h"
 
-char	*parse_arguments(char **av, t_vector *vec)
-{
-	return (process_file(av[1], vec));
+char * parse_arguments(char ** av, t_vector * vec) {
+    return (process_file(av[1], vec));
 }
 
-t_args init_args()
-{
-	t_args args;
-
-	args.flag_way = FALSE;
-	args.flag_help = FALSE;
-	args.flag_steps = FALSE;
-
-	return args;
+int print_help() {
+    exit(0);
 }
 
-int		main(int ac, char **av)
-{
-	t_character	character;
-	t_vector	nodes_vec;
-	char		*result;
-	char		*map;
-	t_args 		args;
-	int			ant;
-	t_vector	ways;
+t_args init_args(int ac, char ** av) {
+    t_args args;
 
-	map = NULL;
-	result = NULL;
-	nodes_vec = new_vector(1, sizeof(t_node));
-	map = parse_arguments(av, &nodes_vec);
-	character = get_character(&nodes_vec);
-	if (!(error_map_and_vec(&character)))
-		free_map_and_vec(&nodes_vec, map, STDERR_FILENO);
-	ant = *(int *) get_from_vec(&character.root->ants, 0);
-	ways = solve(character.root, &ant, &nodes_vec, &result);
-	if (result != NULL)
-	{
-		ft_printf("%s%s", map, result);
-		free(result);
-	}
-	else
-		free_map_and_vec(&nodes_vec, map, STDERR_FILENO);
-	free_map_and_vec(&nodes_vec, map, -1);
-	return (0);
+    args.flag_way = FALSE;
+    args.flag_help = FALSE;
+    args.flag_steps = FALSE;
+
+    while (ac != 1) {
+        if (strcmp(av[ac], "-h") == 0)
+            print_help();
+        if (strcmp(av[ac], "-w") == 0)
+            args.flag_way = TRUE;
+        if (strcmp(av[ac], "-s") == 0)
+            args.flag_steps = TRUE;
+        --ac;
+    }
+    return args;
+}
+
+struct s_main_helper {
+    t_character character;
+    char * result;
+    t_vector nodes_vec;
+    char * map;
+    int ants;
+    t_vector ways;
+};
+
+typedef struct s_main_helper t_main_helper;
+
+t_main_helper init_main_helper() {
+    t_main_helper helper;
+    helper.map = NULL;
+    helper.result = NULL;
+    helper.nodes_vec = new_vector(1, sizeof(t_node));
+    return helper;
+}
+
+void solve_by_helper(char ** av, t_main_helper * helper) {
+    helper->map = parse_arguments(av, &helper->nodes_vec);
+    helper->character = get_character(&helper->nodes_vec);
+    if (!(error_map_and_vec(&helper->character)))
+        free_map_and_vec(&helper->nodes_vec, helper->map, STDERR_FILENO);
+    helper->ants = *(int *) get_from_vec(&helper->character.root->ants, 0);
+    helper->ways = solve(helper->character.root, &helper->ants, &helper->nodes_vec, &helper->result);
+}
+
+void print_by_helper(t_main_helper * helper, t_args * args) {
+    if (args->flag_way)
+        printf_ways(helper->ways);
+    if (args->flag_steps)
+        printf("%d", helper->ants);
+}
+
+void free_helper(t_main_helper * helper) {
+    if (helper->result != NULL) {
+        ft_printf("%s%s", helper->map, helper->result);
+        free(helper->result);
+    }
+    free_map_and_vec(&helper->nodes_vec, helper->map, helper->result == NULL ? STDERR_FILENO : -1);
+}
+
+int main(int ac, char ** av) {
+    t_args args;
+    t_main_helper helper;
+
+    args = init_args(ac, av);
+    helper = init_main_helper();
+    solve_by_helper(av, &helper);
+    print_by_helper(&helper, &args);
+    free_helper(&helper);
+    return (0);
 }
