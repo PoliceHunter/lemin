@@ -27,7 +27,9 @@ int solve_map(const char * filename) {
     if (!(error_map_and_vec(&character)))
         free_map_and_vec(&nodes, map, 5);
     char * history;
-    int result = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes, &history);
+    int ant_counts = *(int *) get_from_vec(&character.root->ants, 0);
+    t_vector ways = solve(character.root, &ant_counts, &nodes, &history);
+    free_vec(&ways);
     float secs = (get_timestamp() - start) / 1000000.0L;
     if (history)
         free(history);
@@ -43,7 +45,8 @@ int solve_map(const char * filename) {
         }
     }
     i++;
-    printf("%d %s time is - [%f] NEED [%d] - OUR [%d] - delta is %d\n", i, filename, secs, cmp, result, result - cmp);
+    printf("%d %s time is - [%f] NEED [%d] - OUR [%d] - delta is %d\n", i, filename, secs, cmp, ant_counts,
+           ant_counts - cmp);
     free_map_and_vec(&nodes, map, -1);
     return 1;
 }
@@ -68,7 +71,7 @@ int solve_superposition_map(int i) {
 }
 
 void solve_superposition_maps() {
-    const size_t size = 100;
+    const size_t size = 2;
 
     size_t failed = 0;
     for (int i = 1; i != size; ++i) {
@@ -77,9 +80,26 @@ void solve_superposition_maps() {
     printf("Failed %f\n", failed / size * 100.0);
 }
 
-int main() {
-    solve_map("./maps/txt.txt");
-    solve_maps();
+int print_help() {
+    return 0;
+}
+
+int main(int argc, char * argv[]) {
+    int is_history = FALSE;
+    int is_ways = FALSE;
+    char * history;
+    char ** history_argument = NULL;
+
+    while (argc != 1) {
+        if (strcmp(argv[argc], "--help") == 0)
+            return print_help();
+        if (strcmp(argv[argc], "--ways") == 0)
+            is_ways = TRUE;
+        if (strcmp(argv[argc], "--history") == 0)
+            history_argument = &history;
+        --argc;
+    }
+
     solve_superposition_maps();
     printf("%d", i /= 1000);
 }

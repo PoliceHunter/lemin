@@ -31,21 +31,19 @@ void	candidate_win(t_solver_helper *helper)
 	helper->current_ant_step = 0;
 }
 
-int		try_candidate(t_solver_helper *helper, t_node_ptr src,
-			int ants_count, t_vector ways)
-{
+t_vector try_candidate(t_solver_helper * helper, t_node_ptr src,
+					   int ants_count, t_vector ways) {
+	if (ways.size == 0)
+		return ways;
 	if (process_candidate(helper, src, ants_count,
-				ways) < (int)helper->best_ant_step)
-	{
+						  ways) < (int) helper->best_ant_step) {
 		free_ways(&helper->best_ways);
 		helper->best_ways = ways;
 		candidate_win(helper);
-		return (TRUE);
-	}
-	else
-	{
+		return new_vector(10, sizeof(t_way));
+	} else {
 		ft_strclr(helper->current_history);
-		return (FALSE);
+		return ways;
 	}
 }
 

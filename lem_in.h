@@ -132,8 +132,8 @@ typedef struct s_queue
 	struct s_queue	*next;
 } t_queue;
 
-int solve(t_node_ptr src, int ants_count,
-		  t_vector * nodes, char ** history);
+t_vector solve(t_node_ptr src, int * ants_count,
+			   t_vector * nodes, char ** history);
 
 void insert_way(t_way * way, char * line);
 t_way					init_way();
@@ -199,8 +199,11 @@ char * ft_strjoin_free3(char * s1, char * s2);
 void printf_ways(t_vector ways);
 
 void					ft_assert(int result, const char *error);
-void remove_all_not_free(t_vector *ants);
-int refresh_state(t_vector * ways, t_vector * nodes);
+
+void remove_all_not_free(t_vector * ants);
+
+int refresh_state(t_vector * ways, t_way * way, t_vector * nodes);
+
 void reset_state(t_vector * nodes, int except_mark);
 t_solver_helper init_helper(void);
 t_track init_tracker(size_t count);
@@ -211,8 +214,10 @@ int			is_in_path(t_edge * edge, t_node_ptr src);
 int		finish_reconstruct(t_way *way, t_edge *edge, t_vector *nodes);
 void		direct_and_mark_way_edges(t_way * way);
 t_way *get_last_way(t_vector * vec);
-t_way *get_place_for_way(t_vector * vec);
-int try_candidate(t_solver_helper * helper, t_node_ptr src, int ants_count, t_vector ways);
+
+t_way * get_place_for_way(t_vector * vec);
+
+t_vector try_candidate(t_solver_helper * helper, t_node_ptr src, int ants_count, t_vector ways);
 
 char * calculate_best_history(t_solver_helper * helper, t_node_ptr src, int ants_count);
 
