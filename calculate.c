@@ -49,10 +49,11 @@ int		try_candidate(t_solver_helper *helper, t_node_ptr src,
 	}
 }
 
-void	calculate_best_history(t_solver_helper *helper,
-						t_node_ptr src, int ants_count)
-{
+char * calculate_best_history(t_solver_helper * helper,
+							  t_node_ptr src, int ants_count) {
 	helper->is_history_need = TRUE;
 	process_candidate(helper, src, ants_count, helper->best_ways);
+	helper->best_history = helper->current_history;
 	helper->is_history_need = FALSE;
+	return helper->best_history;
 }

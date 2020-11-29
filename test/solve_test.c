@@ -26,9 +26,11 @@ int solve_map(const char * filename) {
     t_character character = get_character(&nodes);
     if (!(error_map_and_vec(&character)))
         free_map_and_vec(&nodes, map, 5);
-    char * history = "";
+    char * history;
     int result = solve(character.root, *(int *) get_from_vec(&character.root->ants, 0), &nodes, &history);
     float secs = (get_timestamp() - start) / 1000000.0L;
+    if (history)
+        free(history);
 
     char * ptr = ft_strchr(map, '\n');
     int cmp = 0;
@@ -42,6 +44,7 @@ int solve_map(const char * filename) {
     }
     i++;
     printf("%d %s time is - [%f] NEED [%d] - OUR [%d] - delta is %d\n", i, filename, secs, cmp, result, result - cmp);
+    free_map_and_vec(&nodes, map, -1);
     return 1;
 }
 
@@ -57,23 +60,26 @@ void solve_maps() {
     }
 }
 
-int solve_superposition_map(int i)
-{
-    return solve_map(ft_strjoin_free2("./supermaps/", ft_itoa(i)));
+int solve_superposition_map(int i) {
+    char * map = ft_strjoin_free2("./supermaps/", ft_itoa(i));
+    int res = solve_map(map);
+    free(map);
+    return res;
 }
 
 void solve_superposition_maps() {
-    const size_t size = 500;
+    const size_t size = 100;
 
     size_t failed = 0;
-    for (int i = 250; i != size; ++i) {
+    for (int i = 1; i != size; ++i) {
         failed += solve_superposition_map(i);
     }
     printf("Failed %f\n", failed / size * 100.0);
 }
 
 int main() {
-    //solve_maps();
+    solve_map("./maps/txt.txt");
+    solve_maps();
     solve_superposition_maps();
     printf("%d", i /= 1000);
 }

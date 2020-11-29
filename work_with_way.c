@@ -67,16 +67,18 @@ int			reconstruct_way(t_node_ptr ptr, t_way *way, t_vector *nodes)
 		edge = get_from_vec(&ptr->links, i);
 		edge = edge->backward;
 		if (skip_reconstruct(edge, ptr))
-			continue ;
+			continue;
 		push_front_vec(&way->nodes, &ptr);
 		push_front_vec(&way->edges, &edge);
 		way->is_have_backward_edges = way->is_have_backward_edges ||
-				edge->mark == MARK_BACKWARD_PATH;
+									  edge->mark == MARK_BACKWARD_PATH;
 		ptr = edge->backward->dst;
 		i = -1;
 		if (edge->backward->dst->is_start_node)
 			return (finish_reconstruct(way, edge, nodes));
 	}
+	free_vec(&way->nodes);
+	free_vec(&way->edges);
 	return (FALSE);
 }
 

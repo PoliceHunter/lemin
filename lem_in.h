@@ -213,7 +213,9 @@ void		direct_and_mark_way_edges(t_way * way);
 t_way *get_last_way(t_vector * vec);
 t_way *get_place_for_way(t_vector * vec);
 int try_candidate(t_solver_helper * helper, t_node_ptr src, int ants_count, t_vector ways);
-void calculate_best_history(t_solver_helper * helper, t_node_ptr src, int ants_count);
+
+char * calculate_best_history(t_solver_helper * helper, t_node_ptr src, int ants_count);
+
 int is_cross(t_vector * ways);
 int					process_way(t_way *way, t_track *tracker,
 								   int *previous_ways_len, const int index);

@@ -86,43 +86,38 @@ void	free_way(t_way *way)
 
 void	free_ways(t_vector *ways)
 {
-	if (ways->size == 0)
-	{
-		free_vec(ways);
-		return ;
-	}
 	while (ways->size != 0)
 		free_way(pop_back_vec(ways));
-	if (ways->data != NULL)
-		free_vec(ways);
+	free_vec(ways);
 }
 
-int		solve(t_node_ptr src, int ants_count, t_vector *nodes, char **history)
-{
-	t_solver_helper	helper;
-	t_vector		ways;
+int		solve(t_node_ptr src, int ants_count, t_vector *nodes, char **history) {
+	t_solver_helper helper;
+	t_vector ways;
+	t_way way;
 
 	helper = init_helper();
 	ways = new_vector(10, sizeof(t_way));
-	while (find_by_bfs(src, get_place_for_way(&ways), nodes))
-	{
-		if (get_last_way(&ways)->is_have_backward_edges == TRUE)
-		{
-			free(pop_back_vec(&ways));
+	while (find_by_bfs(src, &way, nodes)) {
+		if (way.is_have_backward_edges == TRUE) {
 			if (ways.size != 0 && try_candidate(&helper, src, ants_count, ways))
 				ways = new_vector(10, sizeof(t_way));
 			refresh_state(&ways, nodes);
-			continue ;
+			free_vec(&way.nodes);
+			free_vec(&way.edges);
+			continue;
 		}
+
+		push_back_vec(&ways, &way);
 		mark_ways(&ways);
 		if (is_cross(&ways) != FALSE)
-			break ;
+			break;
 	}
-	free(pop_back_vec(&ways));
-	try_candidate(&helper, src, ants_count, ways);
-	calculate_best_history(&helper, src, ants_count);
-	*history = helper.best_history == NULL ?
-			helper.current_history : helper.best_history;
+	if (try_candidate(&helper, src, ants_count, ways) == FALSE)
+		free_ways(&ways);
+
+	if (history != NULL)
+		*history = calculate_best_history(&helper, src, ants_count);
 	free_ways(&helper.best_ways);
 	return (helper.best_ant_step);
 }
