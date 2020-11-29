@@ -12,74 +12,76 @@
 
 #include "../inc/libft.h"
 
-void ft_memmove_less(register char *dst, register const char *src, size_t length)
+void	ft_memmove_less(register char *dst, register const char *src,
+						size_t length)
 {
-    register size_t t;
+	register size_t t;
 
-    t = (int)src;
-    if ((t | (int)dst) & WMASK)
-    {
-        if ((t ^ (int)dst) & WMASK || length < WSIZE)
-            t = length;
-        else
-            t = WSIZE - (t & WMASK);
-        length -= t;
-        while (t-- != 0)
-            *dst++ = *src++;
-    }
-    t = length / WSIZE;
-    while (t-- != 0)
-    {
-        *(int *)dst = *(int *)src;
-        src += WSIZE;
-        dst += WSIZE;
-    }
-    t = length & WMASK;
-    while (t-- != 0)
-        *dst++ = *src++;
+	t = (int)src;
+	if ((t | (int)dst) & WMASK)
+	{
+		if ((t ^ (int)dst) & WMASK || length < WSIZE)
+			t = length;
+		else
+			t = WSIZE - (t & WMASK);
+		length -= t;
+		while (t-- != 0)
+			*dst++ = *src++;
+	}
+	t = length / WSIZE;
+	while (t-- != 0)
+	{
+		*(int *)dst = *(int *)src;
+		src += WSIZE;
+		dst += WSIZE;
+	}
+	t = length & WMASK;
+	while (t-- != 0)
+		*dst++ = *src++;
 }
 
-void ft_memmove_greater(register char *dst, register const char *src, size_t length)
+void	ft_memmove_greater(register char *dst, register const char *src,
+								size_t length)
 {
-    register size_t t;
+	register size_t t;
 
-    src += length;
-    dst += length;
-    t = (int)src;
-    if ((t | (int)dst) & WMASK)
-    {
-        if ((t ^ (int)dst) & WMASK || length <= WSIZE)
-            t = length;
-        else
-            t &= WMASK;
-        length -= t;
-        while (t-- != 0)
-            *--dst = *--src;
-    }
-    t = length / WSIZE;
-    while (t-- != 0)
-    {
-        src -= WSIZE;
-        dst -= WSIZE;
-        *(int *)dst = *(int *)src;
-    }
-    t = length & WMASK;
-    while (t-- != 0)
-        *--dst = *--src;
+	src += length;
+	dst += length;
+	t = (int)src;
+	if ((t | (int)dst) & WMASK)
+	{
+		if ((t ^ (int)dst) & WMASK || length <= WSIZE)
+			t = length;
+		else
+			t &= WMASK;
+		length -= t;
+		while (t-- != 0)
+			*--dst = *--src;
+	}
+	t = length / WSIZE;
+	while (t-- != 0)
+	{
+		src -= WSIZE;
+		dst -= WSIZE;
+		*(int *)dst = *(int *)src;
+	}
+	t = length & WMASK;
+	while (t-- != 0)
+		*--dst = *--src;
 }
 
-void * ft_memmove(void *dst0, const void *src0, size_t length)
+void	*ft_memmove(void *dst0, const void *src0, size_t length)
 {
-    register char *dst = dst0;
-    register const char *src = src0;
+	register char		*dst;
+	register const char	*src;
 
-    if (length == 0 || dst == src)    /* nothing to do */
-        return (dst0);
-
-    if ((unsigned long)dst < (unsigned long)src)
-        ft_memmove_less(dst, src, length);
-    else
-        ft_memmove_greater(dst, src, length);
-
-    return (dst0);
+	src = src0;
+	dst = dst0;
+	if (length == 0 || dst == src)
+		return (dst0);
+	if ((unsigned long)dst < (unsigned long)src)
+		ft_memmove_less(dst, src, length);
+	else
+		ft_memmove_greater(dst, src, length);
+	return (dst0);
 }
