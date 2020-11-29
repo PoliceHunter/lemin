@@ -6,7 +6,7 @@
 /*   By: tmyrcell <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/28 22:54:54 by tmyrcell          #+#    #+#             */
-/*   Updated: 2020/11/28 22:54:55 by tmyrcell         ###   ########.fr       */
+/*   Updated: 2020/11/29 17:40:17 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ char		*calculate_best_history(t_solver_helper *helper,
 						t_node_ptr src, int ants_count)
 {
 	if (helper->best_ways.size == 0)
-		return NULL;
+		return (NULL);
 	helper->is_history_need = TRUE;
 	process_candidate(helper, src, ants_count, helper->best_ways);
 	helper->best_history = helper->current_history;

@@ -6,7 +6,7 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 22:24:34 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/29 16:49:55 by tmyrcell         ###   ########.fr       */
+/*   Updated: 2020/11/29 18:12:46 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void			solve_by_helper(t_main_helper *helper)
 	if (helper->ways.size == 0 || helper->ants == 0)
 	{
 		free_ways(&helper->ways);
-		ft_printf("Error");
+		ft_printf("Error\n");
 		free_map_and_vec(&helper->nodes_vec, helper->map, STDERR_FILENO);
 	}
 }
@@ -60,7 +60,7 @@ void			free_helper(t_main_helper *helper, t_args args)
 {
 	if (helper->result != NULL)
 	{
-		ft_printf("%s\n%s", helper->map, helper->result);
+		ft_printf("%s\n%s", helper->map, helper->result);	
 		free(helper->result);
 	}
 	print_by_helper(helper, &args);
