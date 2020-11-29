@@ -6,7 +6,7 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/24 18:24:33 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/15 12:37:04 by tmyrcell         ###   ########.fr       */
+/*   Updated: 2020/11/29 16:56:19 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,8 @@ t_vector	solve(t_node_ptr src, int *ants_count,
 		if (is_cross(&ways) != FALSE)
 			break ;
 	}
+	if (ways.size == 0)
+		return (helper.best_ways);
 	ways = try_candidate(&helper, src, *ants_count, ways);
 	free_ways(&ways);
 	if (history != NULL)
