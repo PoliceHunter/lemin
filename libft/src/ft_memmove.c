@@ -14,22 +14,14 @@
 
 void	*ft_memmove(void *dest, const void *src, size_t n)
 {
-	char		*d;
-	const char	*s;
-	char		*lasts;
-	char		*lastd;
+	void *tmp;
 
-	s = src;
-	d = dest;
-	if (d < s)
-		while (n--)
-			*d++ = *s++;
-	else
+	tmp = ft_memalloc(n);
+	if (tmp != NULL)
 	{
-		lasts = s + (n - 1);
-		lastd = d + (n - 1);
-		while (n--)
-			*lastd-- = *lasts--;
+		tmp = ft_memcpy(tmp, src, n);
+		dest = ft_memcpy(dest, tmp, n);
+		free(tmp);
 	}
 	return (dest);
 }

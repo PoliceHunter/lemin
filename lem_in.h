@@ -176,9 +176,9 @@ int								insert_into_node_vec(t_vector *vec,
 									size_t index, t_node node);
 
 int								cmp_node(t_vector *vec, size_t index1,
-									t_node *new_node);
+								t_node *new_node);
 int								insert_with_sort_node_internal(t_vector *vec,
-									size_t start, size_t end, t_node new_node);
+								size_t start, size_t end, t_node new_node);
 int								insert_with_sort_node(t_vector *vec,
 									t_node new_node);
 int								is_sorted(t_vector vec);
@@ -206,6 +206,7 @@ size_t							get_ant_step(t_node_ptr src, int ants_count,
 								t_vector ways, char **way_history);
 int								make_way_step(t_way *way, int *ants_in_way);
 int								cmp_way(void *left_way, void *right_way);
+
 char							*ft_strjoin_free3(char *s1, char *s2);
 
 void							printf_ways(t_vector ways);
@@ -217,8 +218,7 @@ void							remove_all_not_free(t_vector *ants);
 int								refresh_state(t_vector *ways, t_way *way,
 									t_vector *nodes);
 
-void							reset_state(t_vector *nodes,
-									int except_mark);
+void							reset_state(t_vector *nodes, int except_mark);
 t_solver_helper					init_helper(void);
 t_track							init_tracker(size_t count);
 void							write_history(t_vector ways, char **history);
@@ -238,9 +238,8 @@ t_vector						try_candidate(t_solver_helper *helper,
 									t_node_ptr src, int ants_count,
 										t_vector ways);
 
-char							*calculate_best_history(
-									t_solver_helper *helper, t_node_ptr src,
-										int ants_count);
+char							*calculate_best_history(t_solver_helper *helper,
+									t_node_ptr src, int ants_count);
 
 int								is_cross(t_vector *ways);
 int								process_way(t_way *way, t_track *tracker,
