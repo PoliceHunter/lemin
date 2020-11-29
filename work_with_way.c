@@ -71,7 +71,7 @@ int			reconstruct_way(t_node_ptr ptr, t_way *way, t_vector *nodes)
 		push_front_vec(&way->nodes, &ptr);
 		push_front_vec(&way->edges, &edge);
 		way->is_have_backward_edges = way->is_have_backward_edges ||
-									  edge->mark == MARK_BACKWARD_PATH;
+									edge->mark == MARK_BACKWARD_PATH;
 		ptr = edge->backward->dst;
 		i = -1;
 		if (edge->backward->dst->is_start_node)

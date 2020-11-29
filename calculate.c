@@ -12,7 +12,7 @@
 
 #include "lem_in.h"
 
-int		process_candidate(t_solver_helper *helper, t_node_ptr src,
+int			process_candidate(t_solver_helper *helper, t_node_ptr src,
 			int ants_count, t_vector ways)
 {
 	helper->current_ant_step = get_ant_step(src, ants_count, ways,
@@ -20,7 +20,7 @@ int		process_candidate(t_solver_helper *helper, t_node_ptr src,
 	return (helper->current_ant_step);
 }
 
-void	candidate_win(t_solver_helper *helper)
+void		candidate_win(t_solver_helper *helper)
 {
 	if (helper->best_history != NULL)
 		free(helper->best_history);
@@ -31,23 +31,27 @@ void	candidate_win(t_solver_helper *helper)
 	helper->current_ant_step = 0;
 }
 
-t_vector try_candidate(t_solver_helper * helper, t_node_ptr src,
-					   int ants_count, t_vector ways) {
+t_vector	try_candidate(t_solver_helper *helper, t_node_ptr src,
+					int ants_count, t_vector ways)
+{
 	if (ways.size == 0)
-		return ways;
+		return (ways);
 	if (process_candidate(helper, src, ants_count,
-						  ways) < (int) helper->best_ant_step) {
+						ways) < (int)helper->best_ant_step)
+	{
 		free_ways(&helper->best_ways);
 		helper->best_ways = ways;
 		candidate_win(helper);
-		return new_vector(10, sizeof(t_way));
-	} else {
+		return (new_vector(10, sizeof(t_way)));
+	}
+	else
+	{
 		ft_strclr(helper->current_history);
-		return ways;
+		return (ways);
 	}
 }
 
-char	*calculate_best_history(t_solver_helper *helper,
+char		*calculate_best_history(t_solver_helper *helper,
 						t_node_ptr src, int ants_count)
 {
 	helper->is_history_need = TRUE;

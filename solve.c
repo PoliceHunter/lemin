@@ -15,31 +15,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-void		print_way(t_way *way)
-{
-	t_node_ptr	*ptr;
-	int			i;
-
-	i = -1;
-	while (++i != way->nodes.size)
-	{
-		ptr = get_from_vec(&way->nodes, i);
-		ft_printf("%s->", (*ptr)->name);
-	}
-	ft_printf("\n");
-}
-
-void		printf_ways(t_vector ways)
-{
-	int i;
-
-	i = -1;
-	while (++i != ways.size)
-	{
-		print_way((t_way *)get_from_vec(&ways, i));
-	}
-}
-
 t_edge		*get_reverse_edge(t_node_ptr node, int expect_state)
 {
 	t_edge	*edge;

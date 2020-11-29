@@ -67,11 +67,12 @@ int		reset_all_states(t_vector *nodes)
 	return (TRUE);
 }
 
-int refresh_state(t_vector * ways, t_way * way, t_vector * nodes) {
+int		refresh_state(t_vector *ways, t_way *way, t_vector *nodes)
+{
 	free_vec(&way->edges);
 	free_vec(&way->nodes);
-
-	while (ways->size != 0) {
+	while (ways->size != 0)
+	{
 		way = pop_back_vec(ways);
 		free_vec(&way->nodes);
 		free_vec(&way->edges);

@@ -119,7 +119,7 @@ void	*parse_file(int fd, char *line, t_help *help, t_vector *vec)
 	return (parse_file2(fd, map, help, vec));
 }
 
-char	*process_file(const char *filename, t_vector *vec)
+char	*process_file(t_vector *vec)
 {
 	t_help	help;
 	int		fd;
@@ -128,7 +128,7 @@ char	*process_file(const char *filename, t_vector *vec)
 
 	line = NULL;
 	help = init_help();
-	fd = open(filename, O_RDONLY, 0);
+	fd = 0;
 	map = parse_file(fd, line, &help, vec);
 	if (help.errors != 0)
 	{

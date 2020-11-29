@@ -62,7 +62,25 @@ struct					s_edge
 	int					mark;
 };
 
-struct s_node {
+typedef struct			s_character
+{
+	t_node				*root;
+	t_node				*target;
+}						t_character;
+
+typedef struct s_main_helper t_main_helper;
+struct s_main_helper
+{
+	t_character	character;
+	char		*result;
+	t_vector	nodes_vec;
+	char		*map;
+	int			ants;
+	t_vector	ways;
+};
+
+struct s_node
+{
 	char * name;
 	int x;
 	int y;
@@ -98,11 +116,6 @@ struct					s_ways
 	int					is_have_backward_edges;
 };
 
-typedef struct			s_character
-{
-	t_node				*root;
-	t_node				*target;
-}						t_character;
 
 typedef struct s_args	t_args;
 struct					s_args
@@ -180,7 +193,7 @@ int						is_sorted(t_vector vec);
 int						ft_is_digitstr(const char *str);
 void					parse_line(char *line, t_help *help, t_vector *vec);
 
-char					*process_file(const char *filename, t_vector *vec);
+char					*process_file(t_vector *vec);
 int						check_room(char *line, t_help *help);
 int						check_duplicate_links(t_node_ptr src, t_node_ptr dst);
 int						it_is_link(const char *line);
@@ -238,5 +251,8 @@ void	set_backward_edge(t_node_ptr src, t_edge *edge);
 void	set_backward_edges(t_vector *nodes);
 void	free_way(t_way *way);
 void	free_ways(t_vector *ways);
+void print_by_helper(t_main_helper *helper, t_args *args);
+int		print_help(void);
+t_main_helper	init_main_helper(void);
 
 #endif

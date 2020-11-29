@@ -35,3 +35,13 @@ t_track				init_tracker(size_t count)
 	result.ants_in_way = 0;
 	return (result);
 }
+
+t_main_helper		init_main_helper(void)
+{
+	t_main_helper helper;
+
+	helper.map = NULL;
+	helper.result = NULL;
+	helper.nodes_vec = new_vector(1, sizeof(t_node));
+	return (helper);
+}
