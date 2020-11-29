@@ -3,71 +3,111 @@
 /*                                                        :::      ::::::::   */
 /*   write_ants_path.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tmyrcell <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/12 13:30:22 by tmyrcell          #+#    #+#             */
-/*   Updated: 2020/11/12 21:12:32 by ksean            ###   ########.fr       */
+/*   Created: 2020/11/14 13:23:28 by tmyrcell          #+#    #+#             */
+/*   Updated: 2020/11/28 22:51:33 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lem_in.h"
 
-int			is_degenerate(t_group_handler *handler)
+int			make_way_step(t_way *way, int *ants_in_way)
 {
-	if (is_group_identical(handler->candidate_group, handler->min_group))
+	t_node_ptr	prev;
+	t_node_ptr	curr;
+	int			i;
+	int			*ant;
+
+	i = way->nodes.size;
+	while (--i > 0)
 	{
-		free_vec(&handler->candidate_group);
-		return (1);
-	}
-	return (0);
-}
-
-void		win_candidate(t_group_handler *handler)
-{
-	free_vec(&handler->min_group);
-	handler->min_group = handler->candidate_group;
-}
-
-void		lose_candidate(t_group_handler *handler)
-{
-	free_vec(&handler->candidate_group);
-}
-
-void		decide_candidate(t_group_handler *handler,
-			unsigned int candidate_step, char *way_history)
-{
-	if (candidate_step < handler->min_group_step)
-	{
-		handler->min_group_step = candidate_step;
-		win_candidate(handler);
-		handler->result = way_history;
-	}
-	else
-	{
-		lose_candidate(handler);
-		free(way_history);
-	}
-}
-
-char		*write_ants_in_line(t_vector *ways, int ants)
-{
-	t_group_handler	group_helper;
-	char			*way_history;
-	int				index;
-
-	index = -1;
-	way_history = NULL;
-	group_helper = init_group_handler();
-	while (++index != ways->size)
-	{
-		group_helper.candidate_group =
-				get_non_crossing_group(ways, get_from_vec(ways, index));
-		if (is_degenerate(&group_helper))
+		curr = *(t_node_ptr *)get_from_vec(&way->nodes, i);
+		prev = *(t_node_ptr *)get_from_vec(&way->nodes, i - 1);
+		if (prev->ants.size == 0)
 			continue;
-		decide_candidate(&group_helper,
-			get_ant_step(group_helper.candidate_group,
-				ants, &way_history, group_helper.min_group_step), way_history);
+		ant = pop_front_vec(&prev->ants);
+		emplace_back_vec(&curr->ants, ant);
+		free(ant);
+		if (curr->is_end_node == FALSE)
+			*ants_in_way += curr->ants.size;
 	}
-	free_vec(&group_helper.min_group);
-	return (group_helper.result);
+	curr = *(t_node_ptr *)get_last(&way->nodes);
+	return (curr->ants.size);
+}
+
+t_node_ptr	write_history_help(t_vector ways, char **history, int way_i)
+{
+	t_way		*way;
+	int			i;
+	t_node_ptr	dst;
+	t_node_ptr	node;
+
+	way = get_from_vec(&ways, way_i);
+	i = 0;
+	while (++i < way->nodes.size)
+	{
+		node = *(t_node_ptr *)get_from_vec(&way->nodes, i);
+		if (node->is_end_node)
+		{
+			dst = node;
+			continue ;
+		}
+		if (node->ants.size != 0)
+			*history = ft_strjoin_free3(*history, ft_strjoin_free(
+					ft_strjoin_free(ft_strjoin_free(ft_strjoin_free2(
+							"L", ft_itoa(*(int *)get_from_vec(&node->ants, 0))),
+													"-"), node->name), " "));
+	}
+	return (dst);
+}
+
+void		write_history(t_vector ways, char **history)
+{
+	int			way_i;
+	t_way		*way;
+	t_node_ptr	dst;
+	int			*ant;
+
+	dst = NULL;
+	if (history == NULL)
+	{
+		way = get_last(&ways);
+		dst = *(t_node_ptr *)get_last(&way->nodes);
+		dst->ants.size = 0;
+		return ;
+	}
+	way_i = -1;
+	while (++way_i < ways.size)
+		dst = write_history_help(ways, history, way_i);
+	while (dst->ants.size != 0)
+	{
+		ant = pop_back_vec(&dst->ants);
+		*history = ft_strjoin_free3(*history, ft_strjoin_free(ft_strjoin_free(
+				ft_strjoin_free(ft_strjoin_free2("L", ft_itoa(*ant))
+						, "-"), dst->name), " "));
+		free(ant);
+	}
+	*history = ft_strjoin_free(*history, "\n");
+}
+
+int			process_way(t_way *way, t_track *tracker,
+				int *previous_ways_len, const int index)
+{
+	t_node_ptr	curr;
+	int			ant;
+
+	ant = 1 + tracker->all - tracker->ready_to_go;
+	curr = *(t_node_ptr *)get_from_vec(&way->nodes, 1);
+	make_way_step(way, &tracker->ants_in_way);
+	if (tracker->ready_to_go > (way->nodes.size * index - *previous_ways_len))
+	{
+		push_back_vec(&curr->ants, &ant);
+		--tracker->ready_to_go;
+		tracker->ants_in_way++;
+	}
+	if (tracker->ready_to_go <= 0)
+		return (TRUE);
+	*previous_ways_len += way->nodes.size;
+	return (FALSE);
 }

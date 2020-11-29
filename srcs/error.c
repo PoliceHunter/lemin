@@ -16,12 +16,12 @@ int		error_map_and_vec(t_character *character)
 {
 	if (character->root == NULL || character->target == NULL)
 	{
-		perror("Error\nStart or end missing\n");
+		ft_printf("Error\n");
 		return (0);
 	}
 	if (character->target->links.size == 0 || character->root->links.size == 0)
 	{
-		perror("Error\nStart or end not connected\n");
+		ft_printf("Error\n");
 		return (0);
 	}
 	return (1);

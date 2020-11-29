@@ -6,7 +6,7 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 23:42:06 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/09 15:06:41 by ksean            ###   ########.fr       */
+/*   Updated: 2020/11/19 00:09:22 by ksean            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,13 @@ int		this_start(char *line, t_help *help)
 {
 	if (ft_strcmp("##start", line) == 0)
 	{
+		if (help->multi_st_end == 2)
+		{
+			help->errors++;
+			return (0);
+		}
 		help->start = 1;
+		help->multi_st_end++;
 		return (1);
 	}
 	return (0);
@@ -26,7 +32,13 @@ int		this_end(char *line, t_help *help)
 {
 	if (ft_strcmp("##end", line) == 0)
 	{
+		if (help->multi_st_end == 2)
+		{
+			help->errors++;
+			return (0);
+		}
 		help->end = 1;
+		help->multi_st_end++;
 		return (1);
 	}
 	return (0);
@@ -39,12 +51,7 @@ int		empty_string(const char *line, t_help *help)
 		help->errors++;
 		return (1);
 	}
-	if (line[0] == '\0')
-	{
-		help->errors++;
-		return (1);
-	}
-	else if (line[0] == '\0')
+	if (line[0] == '\0' || line[0] == 'L')
 	{
 		help->errors++;
 		return (1);

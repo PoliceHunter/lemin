@@ -5,68 +5,108 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: tmyrcell <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/12 13:29:29 by tmyrcell          #+#    #+#             */
-/*   Updated: 2020/11/12 13:29:31 by tmyrcell         ###   ########.fr       */
+/*   Created: 2020/11/14 13:23:20 by tmyrcell          #+#    #+#             */
+/*   Updated: 2020/11/28 22:51:27 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lem_in.h"
 
-t_way			*new_way(char *raw_way, const char separator)
+void		set_bfs_children(t_queue **queue, t_node_ptr current)
 {
-	t_way *result;
-
-	result = (t_way *)malloc(sizeof(t_way));
-	result->way_nodes = ft_strsplit_with_len(raw_way, separator,
-						&result->way_len);
-	result->ants = malloc(sizeof(unsigned short) * result->way_len);
-	ft_memset(result->ants, 0, sizeof(unsigned short) * result->way_len);
-	free(raw_way);
-	return (result);
-}
-
-void			shift_array_right(void *array, unsigned int size,
-				unsigned int element_size)
-{
-	ft_memmove(array + element_size, array, (size - 1) * element_size);
-	ft_memset(array, 0, element_size);
-}
-
-int				make_way_step(t_way *way)
-{
-	int result;
-
-	result = 0;
-	if (way->ants[way->way_len - 1] != 0)
-		result = 1;
-	shift_array_right(way->ants, way->way_len, sizeof(unsigned short));
-	return (result);
-}
-
-void			find_ways(t_node_ptr src, t_node_ptr dst, char *tmp_buffer,
-				t_vector *ways)
-{
-	t_way		*way;
-	t_node_ptr	*child;
-	int			i;
+	t_edge	*edge;
+	t_edge	*backward_edge;
+	int		i;
 
 	i = -1;
-	way = NULL;
-	tmp_buffer = ft_strjoin_free(ft_strjoin_free(tmp_buffer, src->name), " ");
-	while (++i != (src)->links.size)
+	while (++i < current->links.size)
 	{
-		child = get_from_vec(&(src)->links, i);
-		if ((*child)->bfs <= src->bfs)
-			continue;
-		if (ft_strcmp((*child)->name, dst->name) != 0)
+		edge = get_from_vec(&current->links, i);
+		if (edge->capacity == 0)
+			continue ;
+		if (edge->dst->traversal_state == STATE_IN_PATH && (backward_edge =
+				get_reverse_edge(edge->dst, STATE_IN_PATH)) != NULL)
 		{
-			find_ways(*child, dst, ft_strdup(tmp_buffer), ways);
-			continue;
+			if (edge->dst->traversal_state == STATE_VISITED)
+				continue ;
+			edge->dst->bfs = current->bfs + 1;
+			edge->dst->traversal_state = STATE_IN_CROSS;
+			if (backward_edge->dst->traversal_state == STATE_IN_PATH)
+				queue_up(queue, backward_edge->dst, current->bfs + 2);
+			continue ;
 		}
-		way = new_way(ft_strjoin_free(tmp_buffer, dst->name), ' ');
-		insert_with_sort(ways, way, &cmp_way);
-		free(way);
-		return ;
+		if (edge->dst->traversal_state != STATE_NO_INVOLVED)
+			continue ;
+		queue_up(queue, edge->dst, current->bfs + 1);
 	}
-	free(tmp_buffer);
+}
+
+int			skip_reconstruct(t_edge *edge, t_node_ptr ptr)
+{
+	if (edge->backward->dst->traversal_state == STATE_IN_CROSS)
+	{
+		if (edge->mark != MARK_BACKWARD_PATH)
+			return (TRUE);
+	}
+	else if (is_in_path(edge, ptr) == FALSE)
+		return (TRUE);
+	if (edge->dst->is_end_node == FALSE)
+		edge->dst->traversal_state = STATE_IN_PATH;
+	return (FALSE);
+}
+
+int			reconstruct_way(t_node_ptr ptr, t_way *way, t_vector *nodes)
+{
+	t_edge	*edge;
+	int		i;
+
+	*way = init_way();
+	i = -1;
+	while (++i < ptr->links.size)
+	{
+		edge = get_from_vec(&ptr->links, i);
+		edge = edge->backward;
+		if (skip_reconstruct(edge, ptr))
+			continue;
+		push_front_vec(&way->nodes, &ptr);
+		push_front_vec(&way->edges, &edge);
+		way->is_have_backward_edges = way->is_have_backward_edges ||
+									edge->mark == MARK_BACKWARD_PATH;
+		ptr = edge->backward->dst;
+		i = -1;
+		if (edge->backward->dst->is_start_node)
+			return (finish_reconstruct(way, edge, nodes));
+	}
+	free_vec(&way->nodes);
+	free_vec(&way->edges);
+	return (FALSE);
+}
+
+int			find_by_bfs(t_node_ptr src, t_way *way, t_vector *nodes)
+{
+	t_node_ptr	current;
+	t_queue		*queue;
+	int			res;
+
+	queue = NULL;
+	queue_up(&queue, src, 1);
+	while (queue != NULL)
+	{
+		current = dequeue(&queue);
+		if (current->traversal_state == STATE_VISITED)
+		{
+			free(current);
+			continue ;
+		}
+		if (current->is_end_node)
+		{
+			res = reconstruct_way(current, way, nodes);
+			reset_state(nodes, STATE_IN_PATH);
+			clear_queue(queue);
+			return (res);
+		}
+		set_bfs_children(&queue, current);
+		current->traversal_state = STATE_VISITED;
+	}
+	return (FALSE);
 }

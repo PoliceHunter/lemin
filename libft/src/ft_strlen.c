@@ -17,9 +17,9 @@ size_t	ft_strlen(const char *s)
 	size_t		len;
 	unsigned	x;
 
-	len = 0;
-	if (!s)
+	if (s == NULL)
 		return (0);
+	len = 0;
 	while (1)
 	{
 		x = *(unsigned*)s;

@@ -14,17 +14,18 @@
 
 t_node	init_node(char *name)
 {
-	t_node	node;
+	t_node node;
 
-	node.n_ants = 0;
 	node.name = ft_strdup(name);
 	node.x = 0;
 	node.y = 0;
-	node.links = new_vector(5, sizeof(t_node*));
+	node.links = new_vector(5, sizeof(t_edge));
 	node.is_end_node = 0;
 	node.is_start_node = 0;
 	node.bfs = 0;
-	node.visited = -1;
+	node.traversal_state = STATE_NO_INVOLVED;
+	node.is_cross = FALSE;
+	node.ants = new_vector(5, sizeof(int));
 	return (node);
 }
 
@@ -32,17 +33,18 @@ t_node	init_and_write_node(t_help *help)
 {
 	t_node node;
 
-	node.n_ants = 0;
 	node.name = ft_strdup(help->name);
 	node.x = help->x;
 	node.y = help->y;
-	node.links = new_vector(5, sizeof(t_node*));
+	node.links = new_vector(5, sizeof(t_edge));
+	node.ants = new_vector(5, sizeof(int));
 	node.is_end_node = help->end;
 	node.is_start_node = help->start;
 	if (help->start == 1)
-		node.n_ants = help->ants;
+		push_back_vec(&node.ants, &help->ants);
 	node.bfs = 0;
-	node.visited = -1;
+	node.traversal_state = STATE_NO_INVOLVED;
+	node.is_cross = FALSE;
 	return (node);
 }
 
@@ -57,5 +59,6 @@ t_help	init_help(void)
 	help.y = 0;
 	help.end = 0;
 	help.start = 0;
+	help.multi_st_end = 0;
 	return (help);
 }

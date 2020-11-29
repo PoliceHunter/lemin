@@ -12,6 +12,13 @@
 
 #include "lem_in.h"
 
+void	*get_from_vec(t_vector *vec, int index)
+{
+	if (index >= vec->size)
+		return (NULL);
+	return (vec->data + (index * vec->elem_size));
+}
+
 void	printf_node_vec(t_vector *vec)
 {
 	int i;

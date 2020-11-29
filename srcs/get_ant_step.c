@@ -3,99 +3,79 @@
 /*                                                        :::      ::::::::   */
 /*   get_ant_step.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tmyrcell <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/11/12 13:28:34 by tmyrcell          #+#    #+#             */
-/*   Updated: 2020/11/12 18:11:16 by ksean            ###   ########.fr       */
+/*   Created: 2020/11/14 13:32:52 by tmyrcell          #+#    #+#             */
+/*   Updated: 2020/11/14 13:32:53 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lem_in.h"
 
-t_ants_tracker		new_tracker(const unsigned int ants_count)
-{
-	t_ants_tracker result;
-
-	result.finished = 0;
-	result.in_path = ants_count;
-	result.count = ants_count;
-	return (result);
-}
-
-void				write_history(t_vector way_vector, char **history)
-{
-	char *ants_way;
-
-	ants_way = get_ant_pos(&way_vector);
-	if (ants_way == NULL)
-		return ;
-	*history = ft_strjoin_free3(*history, ft_strjoin("\n", ants_way));
-	free(ants_way);
-}
-
-unsigned int		get_rest_ant_step(t_ants_tracker tracker,
-				const unsigned int steps_limit, t_vector *ways, char **history)
+unsigned int	get_rest_ant_step(t_track tracker,
+							t_vector *ways, char **history)
 {
 	unsigned int	steps_count;
-	int				index;
+	int				way_index;
+	int				finish_hp;
+	int				ants_in_way;
 
+	finish_hp = 0;
 	steps_count = 0;
-	while (tracker.finished != tracker.count)
+	while (tracker.finished != tracker.all)
 	{
-		index = 0;
-		while (index != ways->size)
+		way_index = 0;
+		ants_in_way = 0;
+		while (way_index != ways->size)
 		{
-			tracker.finished += make_way_step(get_from_vec(ways, index));
-			index++;
+			finish_hp = make_way_step(get_from_vec(ways, way_index),
+						&ants_in_way);
+			way_index++;
 		}
+		tracker.finished += finish_hp;
+		steps_count++;
 		write_history(*ways, history);
-		if (++steps_count > steps_limit)
-			return (INT_MAX);
 	}
 	return (steps_count);
 }
 
-int					process_way(t_way *way, t_ants_tracker *tracker,
-			unsigned int *previous_ways_len, const int index)
+size_t			get_ant_step(t_node_ptr src, int ants_count,
+				t_vector ways, char **way_history)
 {
-	tracker->finished += make_way_step(way);
-	if (tracker->in_path > (way->way_len * index - *previous_ways_len))
+	int				previous_ways_len;
+	t_track			tracker;
+	size_t			steps_count;
+	int				index;
+
+	tracker = init_tracker(ants_count);
+	remove_from_vec(&src->ants, 0);
+	steps_count = 0;
+	while (tracker.ready_to_go != 0)
 	{
-		way->ants[0] = 1 + (tracker->count - tracker->in_path);
-		--tracker->in_path;
+		index = -1;
+		previous_ways_len = 0;
+		tracker.ants_in_way = 0;
+		while (++index != ways.size)
+			process_way(get_from_vec(&ways, index), &tracker,
+				&previous_ways_len, index);
+		tracker.finished += (*(t_node_ptr*)get_last(&((t_way*)
+				get_last(&ways))->nodes))->ants.size;
+		write_history(ways, way_history);
+		++steps_count;
 	}
-	if (tracker->in_path <= 0)
-		return (1);
-	*previous_ways_len += way->way_len;
-	return (0);
+	if (tracker.ready_to_go == 0)
+		steps_count += get_rest_ant_step(tracker, &ways, way_history);
+	return (steps_count);
 }
 
-unsigned int		get_ant_step(t_vector ways, const unsigned int ants_count,
-				char **history, unsigned int min_step_count)
+char			*ft_strjoin_free3(char *s1, char *s2)
 {
-	unsigned int	steps_count;
-	int				index;
-	unsigned int	previous_ways_len;
-	t_ants_tracker	tracker;
+	char	*str;
 
-	steps_count = 0;
-	tracker = new_tracker(ants_count);
-	while (tracker.in_path != 0)
-	{
-		previous_ways_len = 0;
-		index = 0;
-		while (index != ways.size && tracker.in_path > 0)
-		{
-			if (process_way(get_from_vec(&ways, index),
-							&tracker, &previous_ways_len, index))
-				break ;
-			++index;
-		}
-		write_history(ways, history);
-		++steps_count;
-		if (steps_count > min_step_count)
-			return (INT_MAX);
-	}
-	return (steps_count + get_rest_ant_step(tracker,
-						min_step_count - steps_count, &ways, history));
+	str = ft_strjoin(s1, s2);
+	if (s2 != NULL)
+		free(s2);
+	if (s1 != NULL)
+		free(s1);
+	return (str);
 }

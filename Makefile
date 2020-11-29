@@ -6,18 +6,19 @@
 #    By: ksean <ksean@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/11/10 03:38:19 by ksean             #+#    #+#              #
-#    Updated: 2020/11/12 19:23:12 by ksean            ###   ########.fr        #
+#    Updated: 2020/11/18 22:23:51 by ksean            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 PATH = ./srcs/
 
-SRC = $(addprefix $(PATH), validation.c validation2.c validation3.c \
-  functions_free.c init_ways.c addapt_vector.c addapt_vector2.c \
-  find_or_insert.c init_node.c main.c solve.c sort_vector.c \
-  get_emplace_vector.c push_pop_vector.c init_free_vector.c \
-  insert_sort_vector.c error.c parse_map.c cross_group.c \
-  get_ant_step.c work_with_way.c write_ants_path.c)
+SRC = $(addprefix $(PATH),validation.c validation2.c validation3.c functions_free.c init_ways.c \
+		addapt_vector.c addapt_vector2.c find_or_insert.c \
+			init_node.c main.c solve.c sort_vector.c get_emplace_vector.c push_pop_vector.c \
+				init_free_vector.c insert_sort_vector.c error.c parse_map.c \
+				    get_ant_step.c work_with_way.c write_ants_path.c \
+				     init_tracker_helper.c queue.c set_edges.c reset_states.c work_with_way2.c \
+				     direct_edges.c calculate.c is_cross.c print_func.c)
 
 BIN = lem-in
 OBJ = $(SRC:.c=.o)

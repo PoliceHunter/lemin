@@ -6,12 +6,16 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/09/10 20:00:46 by tmyrcell          #+#    #+#             */
-/*   Updated: 2020/11/10 03:49:25 by ksean            ###   ########.fr       */
+/*   Updated: 2020/11/29 16:25:17 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LIBFT_H
 # define LIBFT_H
+# undef WSIZE
+# define WSIZE sizeof(int)
+# undef WMASK
+# define WMASK (WSIZE - 1)
 
 # include <unistd.h>
 # include <string.h>

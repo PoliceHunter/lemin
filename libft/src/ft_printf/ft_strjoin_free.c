@@ -20,6 +20,7 @@ char	*ft_strjoin_free(char *s1, char *s2)
 	if (s1 != NULL)
 	{
 		free(s1);
+		s1 = NULL;
 	}
 	return (str);
 }

@@ -25,10 +25,15 @@ void	ft_error_if_help_and_vec(char *txt, t_help *help, t_vector *vec)
 	ft_error_if_vec(txt, vec);
 }
 
-int		find_comment(const char *line)
+int		find_comment(const char *line, t_help *help)
 {
 	if (line[0] == '#' && line[1] == '#')
 	{
+		if (help->start == 1 || help->end == 1)
+		{
+			help->errors++;
+			return (1);
+		}
 		if (ft_strcmp("##start", line) == 0)
 			return (0);
 		if (ft_strcmp("##end", line) == 0)

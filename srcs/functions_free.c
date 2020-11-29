@@ -15,38 +15,12 @@
 void	free_node(t_node *node)
 {
 	free_vec(&node->links);
+	free_vec(&node->ants);
 	if (node->name)
 	{
 		free(node->name);
 		node->name = NULL;
 	}
-}
-
-void	free_ways(t_way *way)
-{
-	int i;
-
-	i = 0;
-	while (way->way_nodes[i])
-	{
-		free(way->way_nodes[i]);
-		i++;
-	}
-	free(way->way_nodes);
-	free(way->ants);
-}
-
-void	free_vec_ways(t_vector ways)
-{
-	int i;
-
-	i = 0;
-	while (i != ways.size)
-	{
-		free_ways(get_from_vec(&ways, i));
-		i++;
-	}
-	free_vec(&ways);
 }
 
 void	free_vec_node(t_vector *vec)
@@ -73,4 +47,10 @@ void	free_array(char **array)
 		i++;
 	}
 	free(array);
+}
+
+void	remove_all_not_free(t_vector *ants)
+{
+	while (ants->size != 0)
+		free(pop_back_vec(ants));
 }

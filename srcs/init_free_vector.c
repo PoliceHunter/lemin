@@ -6,7 +6,7 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/06 23:18:31 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/06 23:22:39 by ksean            ###   ########.fr       */
+/*   Updated: 2020/11/28 22:52:01 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,8 @@ int			remove_from_vec(t_vector *vec, int index)
 {
 	if (index > vec->size)
 		return (-1);
-	if (index == vec->size - 1)
-	{
-		vec->size--;
-		return (0);
-	}
+	if (vec->size == 0)
+		return (-1);
 	ft_memmove(vec->data + (vec->elem_size * index),
 			vec->data + (vec->elem_size * (index + 1)),
 			vec->elem_size * (vec->size - index));
@@ -59,7 +56,7 @@ void		expand_vec(t_vector *vec, size_t new_capacity)
 	new_data = malloc(vec->capacity * vec->elem_size);
 	if (new_data == NULL)
 	{
-		printf("MALLOC_PANIC");
+		ft_printf("MALLOC_PANIC");
 		exit(1);
 	}
 	ft_memmove(new_data, vec->data, vec->size * vec->elem_size);

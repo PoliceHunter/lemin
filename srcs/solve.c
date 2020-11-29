@@ -6,124 +6,90 @@
 /*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/24 18:24:33 by ksean             #+#    #+#             */
-/*   Updated: 2020/11/12 18:00:35 by ksean            ###   ########.fr       */
+/*   Updated: 2020/11/29 16:56:19 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "lem_in.h"
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
 
-void				set_bfs(t_node_ptr node)
+t_edge		*get_reverse_edge(t_node_ptr node, int expect_state)
 {
-	t_node_ptr	cur;
-	t_node_ptr	*kid;
-	int			i;
+	t_edge	*edge;
+	int		i;
 
-	cur = node;
-	cur->visited = 1;
 	i = -1;
-	while (++i < (cur)->links.size)
+	while (++i < node->links.size)
 	{
-		kid = get_from_vec(&(cur)->links, i);
-		if ((*kid)->bfs == 0 && !(*kid)->is_start_node && (*kid)->visited == -1)
-			(*kid)->visited = 0;
+		edge = get_from_vec(&node->links, i);
+		if (expect_state != STATE_NONE &&
+		edge->dst->traversal_state != expect_state)
+			continue ;
+		if (edge->mark != MARK_BACKWARD_PATH
+			|| edge->capacity == 0
+			|| edge->dst->is_start_node)
+			continue ;
+		return (edge);
 	}
+	return (NULL);
+}
+
+void		mark_ways(t_vector *ways)
+{
+	int		i;
+	t_way	*way;
+	int		j;
+
 	i = -1;
-	while (++i < (cur)->links.size)
+	while (++i != ways->size - 1)
 	{
-		kid = get_from_vec(&(cur)->links, i);
-		if (((((*kid)->bfs) > cur->bfs + 1) && (*kid)->is_end_node != 1) ||
-		((*kid)->bfs == 0 && !(*kid)->is_start_node && (*kid)->visited == 0))
-			(*kid)->bfs = cur->bfs + 1;
-		if ((*kid)->visited != 1 && (*kid)->is_end_node != 1)
-			set_bfs(*kid);
+		j = 0;
+		way = get_from_vec(ways, i);
+		while (++j != way->nodes.size - 1)
+			(*(t_node_ptr *)get_from_vec(&way->nodes, j))->
+			traversal_state = STATE_IN_PATH;
 	}
 }
 
-char				*ft_strjoin_free3(char *s1, char *s2)
+void		free_way(t_way *way)
 {
-	char	*str;
-
-	str = ft_strjoin(s1, s2);
-	if (s2 != NULL)
-		free(s2);
-	if (s1 != NULL)
-		free(s1);
-	return (str);
+	free_vec(&way->nodes);
+	free_vec(&way->edges);
+	free(way);
 }
 
-char				*get_ant_pos(const t_vector *ways)
+void		free_ways(t_vector *ways)
 {
-	char			*result;
-	char			*node;
-	int				way_i;
-	unsigned int	i;
-	const t_way		*way;
-
-	way_i = -1;
-	result = NULL;
-	while (++way_i != ways->size)
-	{
-		i = 0;
-		way = get_from_vec_const(ways, way_i);
-		while (++i < way->way_len)
-		{
-			if (way->ants[i] != 0)
-			{
-				node = (!result) ? ft_strjoin_free2("L", ft_itoa(way->
-				ants[i])) : ft_strjoin_free2(" L", ft_itoa(way->ants[i]));
-				node = ft_strjoin_free(node, "-");
-				node = ft_strjoin_free(node, way->way_nodes[i]);
-				result = ft_strjoin_free3(result, node);
-			}
-		}
-	}
-	return (result);
+	while (ways->size != 0)
+		free_way(pop_back_vec(ways));
+	free_vec(ways);
 }
 
-void				printf_ways(t_vector ways)
+t_vector	solve(t_node_ptr src, int *ants_count,
+				t_vector *nodes, char **history)
 {
-	unsigned int	i;
-	int				index;
-	t_way			*way;
+	t_solver_helper	helper;
+	t_vector		ways;
+	t_way			way;
 
-	i = 0;
-	index = 0;
-	while (index != ways.size)
-	{
-		way = get_from_vec(&ways, index);
-		while (i != way->way_len)
-		{
-			printf("%s->", way->way_nodes[i]);
-			++i;
-		}
-		printf("\n");
-		++index;
-	}
-}
-
-char				*solve(t_node_ptr src, t_node_ptr dst)
-{
-	t_vector	ways;
-	char		*result;
-
-	src->bfs = 0;
-	dst->bfs = INT_MAX;
-	result = NULL;
-	set_bfs(src);
+	helper = init_helper();
 	ways = new_vector(10, sizeof(t_way));
-	find_ways(src, dst, NULL, &ways);
-	result = write_ants_in_line(&ways, src->n_ants);
-	if (ways.size == 0)
+	while (find_by_bfs(src, &way, nodes))
 	{
-		ft_printf("Error\nNo ways!\n");
-		free(result);
-		free_vec_ways(ways);
-		return (NULL);
+		if (way.is_have_backward_edges == TRUE)
+		{
+			ways = try_candidate(&helper, src, *ants_count, ways);
+			refresh_state(&ways, &way, nodes);
+			continue ;
+		}
+		push_back_vec(&ways, &way);
+		mark_ways(&ways);
+		if (is_cross(&ways) != FALSE)
+			break ;
 	}
-	free_vec_ways(ways);
-	return (result = ft_strjoin_free(result, "\n"));
+	ways = try_candidate(&helper, src, *ants_count, ways);
+	free_ways(&ways);
+	if (history != NULL)
+		*history = calculate_best_history(&helper, src, *ants_count);
+	*ants_count = helper.best_ant_step;
+	return (helper.best_ways);
 }

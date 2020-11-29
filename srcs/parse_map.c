@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_map.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ksean <ksean@student.42.fr>                +#+  +:+       +#+        */
+/*   By: tmyrcell <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/11/10 16:11:45 by tmyrcell          #+#    #+#             */
-/*   Updated: 2020/11/12 20:46:55 by ksean            ###   ########.fr       */
+/*   Updated: 2020/11/10 16:12:22 by tmyrcell         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,13 @@ int		check_room(char *line, t_help *help)
 
 	room = NULL;
 	room = ft_strsplit(line, ' ');
-	if (!(help->name = malloc(sizeof(char *) * (ft_strlen(room[0]) + 1)))
-		|| room[3])
+	if (!(help->name = malloc(sizeof(char *) * (ft_strlen(room[0]) + 1))))
 		help->errors++;
-	if ((!(room[1]) || !(room[2]) || !(room[0])))
+	if (!(room[1]) || !(room[2]) || !(room[0]) || (room[3]))
 	{
 		free_array(room);
-		return (help->errors++);
+		help->errors++;
+		return (1);
 	}
 	ft_strcpy(help->name, room[0]);
 	if (!ft_is_digitstr(room[1]) || !ft_is_digitstr(room[2]))
@@ -48,7 +48,10 @@ void	parse_line(char *line, t_help *help, t_vector *vec)
 	if ((!(it_is_link(line))) && ((!(check_room(line, help)))))
 	{
 		if (find_in_vec(vec, help->name) >= 0)
+		{
 			help->errors++;
+			return ;
+		}
 		insert_with_sort_node(vec, init_and_write_node(help));
 		free(help->name);
 		help->name = NULL;
@@ -59,43 +62,48 @@ void	parse_line(char *line, t_help *help, t_vector *vec)
 		help->errors += write_link(line, vec);
 }
 
-void	*parse_file2(char *line, char *map, t_help *help, t_vector *vec)
+void	*parse_file2(int fd, char *map, t_help *help, t_vector *vec)
 {
-	map = ft_strjoin_free(ft_strjoin_free(map, line), "\n");
-	free(line);
-	while (get_next_line(0, &line))
+	char *line;
+
+	line = NULL;
+	while (get_next_line(fd, &line))
 	{
-		if (find_comment(line))
-		{
-			free(line);
-			continue;
-		}
 		if (empty_string(line, help))
 		{
 			free(line);
 			return (map);
 		}
 		map = ft_strjoin_free(ft_strjoin_free(map, line), "\n");
+		if (find_comment(line, help))
+		{
+			free(line);
+			continue;
+		}
 		parse_line(line, help, vec);
 		free(line);
 		line = NULL;
 		if (help->errors != 0)
 			return (map);
 	}
+	set_backward_edges(vec);
 	return (map);
 }
 
 void	*parse_file(int fd, char *line, t_help *help, t_vector *vec)
 {
-	char	*map;
-	int		ret;
+	char *map;
 
 	map = NULL;
-	while ((ret = get_next_line(fd, &line)))
+	while (get_next_line(fd, &line))
 	{
-		if (ret == -1)
-			return (NULL);
-		if (find_comment(line))
+		if (!line)
+		{
+			help->errors++;
+			return (map);
+		}
+		map = ft_strjoin_free(ft_strjoin_free(map, line), "\n");
+		if (find_comment(line, help))
 			free(line);
 		else
 		{
@@ -105,26 +113,28 @@ void	*parse_file(int fd, char *line, t_help *help, t_vector *vec)
 			break ;
 		}
 	}
+	free(line);
 	if (help->errors != 0)
-	{
-		free(line);
 		return (map);
-	}
-	return (parse_file2(line, map, help, vec));
+	return (parse_file2(fd, map, help, vec));
 }
 
 char	*process_file(t_vector *vec)
 {
 	t_help	help;
+	int		fd;
+	char	*line;
 	char	*map;
 
+	line = NULL;
 	help = init_help();
-	map = parse_file(0, NULL, &help, vec);
-	if (help.errors != 0 || map == NULL)
+	fd = 0;
+	map = parse_file(fd, line, &help, vec);
+	if (help.errors != 0)
 	{
 		free(map);
-		ft_error_if_help_and_vec("Error\nInvalid map\n", &help, vec);
-		exit(5);
+		ft_error_if_help_and_vec("Error\n", &help, vec);
+		exit(STDERR_FILENO);
 	}
 	return (map);
 }
