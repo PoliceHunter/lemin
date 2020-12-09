@@ -22,6 +22,7 @@
 # include <stdlib.h>
 # include "ft_printf.h"
 # include "get_next_line.h"
+# include "vector.h"
 # include <limits.h>
 # include <string.h>
 

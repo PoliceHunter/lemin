@@ -23,8 +23,8 @@ char	*ft_strjoin(char const *left, char const *right)
 	if ((left_len + right_len) == 0)
 		return (NULL);
 	result = malloc((left_len + right_len + 1) * sizeof(char));
-	ft_memmove(result, left, left_len * sizeof(char));
-	ft_memmove(result + (left_len * sizeof(char)), right,
+	memmove(result, left, left_len * sizeof(char));
+	memmove(result + (left_len * sizeof(char)), right,
 			(right_len + 1) * sizeof(char));
 	return (result);
 }

@@ -20,7 +20,7 @@ int		check_room(char *line, t_help *help)
 	room = ft_strsplit(line, ' ');
 	if (!(help->name = malloc(sizeof(char *) * (ft_strlen(room[0]) + 1))))
 		help->errors++;
-	if (!(room[1]) || !(room[2]) || !(room[0]) || (room[3]))
+	if ((!(room[1]) || !(room[2]) || !(room[0])))
 	{
 		free_array(room);
 		help->errors++;
@@ -75,7 +75,7 @@ void	*parse_file2(int fd, char *map, t_help *help, t_vector *vec)
 			return (map);
 		}
 		map = ft_strjoin_free(ft_strjoin_free(map, line), "\n");
-		if (find_comment(line, help))
+		if (find_comment(line))
 		{
 			free(line);
 			continue;
@@ -103,7 +103,7 @@ void	*parse_file(int fd, char *line, t_help *help, t_vector *vec)
 			return (map);
 		}
 		map = ft_strjoin_free(ft_strjoin_free(map, line), "\n");
-		if (find_comment(line, help))
+		if (find_comment(line))
 			free(line);
 		else
 		{

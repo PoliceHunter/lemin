@@ -17,7 +17,7 @@
 # include "libft/inc/libft.h"
 # include "libft/inc/ft_printf.h"
 # include "libft/inc/get_next_line.h"
-# include "vector.h"
+# include "libft/inc/vector.h"
 
 # include <limits.h>
 # include <stdio.h>
@@ -192,7 +192,7 @@ int								check_duplicate_links(t_node_ptr src,
 									t_node_ptr dst);
 int								it_is_link(const char *line);
 int								empty_string(const char *line, t_help *help);
-int								find_comment(const char *line, t_help *help);
+int								find_comment(const char *line);
 void							ft_error_if_help_and_vec(char *txt,
 									t_help *help, t_vector *vec);
 void							ft_error_if_vec(char *txt, t_vector *vec);
