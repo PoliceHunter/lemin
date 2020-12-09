@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/inc/vector.h"
+#include "../inc/vector.h"
 
 void		*pop_back_vec(t_vector *vec)
 {

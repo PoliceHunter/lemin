@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/inc/vector.h"
+#include "../inc/vector.h"
 
 void		*get_last(t_vector *vec)
 {

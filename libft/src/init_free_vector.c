@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/inc/vector.h"
+#include "../inc/vector.h"
 
 t_vector	new_vector(size_t capacity, size_t elem_size)
 {

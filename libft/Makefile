@@ -78,6 +78,10 @@ LIBFT =	ft_memset.c \
 		ft_strndup.c \
 		get_next_line.c \
 		ft_error.c \
+		get_emplace_vector.c \
+        init_free_vector.c \
+        insert_sort_vector.c \
+        push_pop_vector.c \
 
 FT_PRINTF = 		ad_0_after0x.c \
              		ad_0_aftersign.c \
@@ -126,11 +130,6 @@ FT_PRINTF = 		ad_0_after0x.c \
             		ft_itoa_long.c \
             		ft_unsig_itoa_long.c \
 
-FT_VECTOR = get_emplace_vector.c \
-            init_free_vector.c \
-            insert_free_vector.c \
-            push_pop_vector.c \
-
 RED			=	\033[0;31m
 GREEN		=	\033[0;32m
 NC			=	\033[0m
@@ -139,19 +138,17 @@ OBJSFD = objects
 
 FT_PRINTF_SRCS = $(addprefix src/ft_printf/,$(FT_PRINTF))
 
-FT_VECTOR_SRCS = $(addprefix src/ft_vector/,$(FT_VECTOR))
-
 LIBFT_SRCS = $(addprefix src/,$(LIBFT))
 
-SRCS = $(LIBFT_SRCS) $(FT_PRINTF_SRCS) $(FT_VECTOR_SRCS)
+SRCS = $(LIBFT_SRCS) $(FT_PRINTF_SRCS)
 
-OBJECTS = $(LIBFT:.c=.o) $(FT_PRINTF:.c=.o) $(FT_VECTOR:.c=.o)
+OBJECTS = $(LIBFT:.c=.o) $(FT_PRINTF:.c=.o)
 
 OBJS = $(addprefix $(OBJSFD)/, $(OBJECTS))
 
 VPATH =	src:src/ft_printf
 
-all: $(NAME)
+all: $(NAME) $(VECTOR)
 
 $(NAME): $(OBJS)
 	@echo "$(GREEN)...compiling binary libft...$(NC)"

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../libft/inc/vector.h"
+#include "../inc/vector.h"
 
 t_range		init_range(unsigned int start, unsigned int end)
 {
